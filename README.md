@@ -1,2 +1,2 @@
-# llm-methauristics-
-Using Ollama for methauristics development   
+# LLM Metaheuristics
+Using Ollama for metaheuristics development   
