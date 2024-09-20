@@ -24,7 +24,7 @@ collection = client.create_collection(name="algorithm_creation")
 
 # Process each Python file in the directory
 for filename in os.listdir(python_files_dir):
-    if filename.endswith('.py'):
+    if filename.endswith('.py') or filename.endswith('.txt'):
         file_path = os.path.join(python_files_dir, filename)
         file_content = read_python_file(file_path)
         
@@ -69,21 +69,23 @@ met.verbose = True
 met.run()
 print('x_best = {}, f_best = {}'.format(*met.get_solution()))
 
+DO NOT WRITE ```python" or "```" in the response.
 Give an excellent and novel heuristic algorithm to solve this task and also give it a name. Give the response in the format:
+
 # Name: <name>
 # Code: <code>
 # Import all the needed modules (you must also import the benchmark function)
 import <module>
 
 
-
 Create a Metaheuristic based on the given information in the algorithm_creation files. 
 The template is given in the metaheuristic_selection.py file. You must ONLY USE the add__operator__ and add__selector__ that are given in the metaheuristic_selection.py file. 
+For the parameters given for the search operators use the ones implemented in the deafult.txt file, 
 In the given example code,  the "differential_mutation" is the perturbator, the "greedy" is the selector.
 Which is the best selector and operator, use the given template to build the metaheuristic and run it. 
 
-The number of iterations must be 100.
-When given Explanation: or Benefits:, you must write all that text explanation and benefits text of the metaheuristic algorithm in a commented format.
+When the function is defined with two variables, the number of iterations must be 100 and there must not be more than two search operators (add__operator__), remember that every operator must have its own selector (add__selector__).
+When given text after the code you must write it in a commented format in the .py file.
 """ 
  
 response = ollama.embeddings(
