@@ -1,4 +1,4 @@
-
+import numpy as np
 def sphere_function(x):
     """
     Sphere function: f(x) = sum(x_i^2)

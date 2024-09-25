@@ -1,0 +1,97 @@
+{
+  "random_search": {
+    "parameters": {
+      "scale": [1.0, 0.01],
+      "distribution": ["uniform", "gaussian", "levy"]
+    },
+    "termination_condition": ["greedy", "all", "metropolis", "probabilistic"]
+  },
+  "central_force_dynamic": {
+    "parameters": {
+      "gravity": [0.001],
+      "alpha": [0.01],
+      "beta": [1.5],
+      "dt": [1.0]
+    },
+    "termination_condition": ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  "differential_mutation": {
+    "parameters": {
+      "expression": ["rand", "best", "current", "current-to-best", "rand-to-best", "rand-to-best-and-current"],
+      "num_rands": [1],
+      "factor": [1.0]
+    },
+    "termination_condition": ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  "firefly_dynamic": {
+    "parameters": {
+      "distribution": ["uniform", "gaussian", "levy"],
+      "alpha": [1.0],
+      "beta": [1.0],
+      "gamma": [100.0]
+    },
+    "termination_condition": ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  "genetic_crossover": {
+    "parameters": {
+      "pairing": ["rank", "cost", "random", "tournament_2_100"],
+      "crossover": ["single", "two", "uniform", "blend", "linear_0.5_0.5"],
+      "mating_pool_factor": [0.4]
+    },
+    "termination_condition": ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  "genetic_mutation": {
+    "parameters": {
+      "scale": [1.0],
+      "elite_rate": [0.1],
+      "mutation_rate": [0.25],
+      "distribution": ["uniform", "gaussian", "levy"]
+    },
+    "termination_condition": ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  "gravitational_search": {
+    "parameters": {
+      "gravity": [1.0],
+      "alpha": [0.02]
+    },
+    "termination_condition": ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  "random_flight": {
+    "parameters": {
+      "scale": [1.0],
+      "distribution": ["levy", "uniform", "gaussian"],
+      "beta": [1.5]
+    },
+    "termination_condition": ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  "local_random_walk": {
+    "parameters": {
+      "probability": [0.75],
+      "scale": [1.0],
+      "distribution": ["uniform", "gaussian", "levy"]
+    },
+    "termination_condition": ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  "random_sample": {
+    "parameters": {},
+    "termination_condition": ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  "spiral_dynamic": {
+    "parameters": {
+      "radius": [0.9],
+      "angle": [22.5],
+      "sigma": [0.1]
+    },
+    "termination_condition": ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  "swarm_dynamic": {
+    "parameters": {
+      "factor": [0.7, 1.0],
+      "self_conf": [2.54],
+      "swarm_conf": [2.56],
+      "version": ["inertial", "constriction"],
+      "distribution": ["uniform", "gaussian", "levy"]
+    },
+    "termination_condition": ["all", "greedy", "metropolis", "probabilistic"]
+  }
+}
