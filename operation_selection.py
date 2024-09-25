@@ -1,11 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import os
-import pkgutil
-
 import sys
-
 #parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
 
@@ -20,7 +16,6 @@ import metaheuristic as mh
 fun = bf.Rastrigin(2)
 #print(fun)
 
-
 pop = pp.Population(fun.get_search_range(), num_agents=50)
 pop.initialise_positions('vertex')
 #print("Internal Positions: ", pop.positions)
@@ -28,10 +23,7 @@ pop.initialise_positions('vertex')
 
 pop.evaluate_fitness(lambda x: fun.get_function_value(x))
 print(pop.fitness)
-
-
 samples = 100
-
 space_constraints = np.array(fun.get_search_range()).T
 
 """ 
@@ -56,20 +48,14 @@ def show_positions(azim=-90, elev=90):
 
 show_positions() 
  """
-
-
 # An important part of the population is the update of the particular positions, which are used by some operators.
 pop.update_positions(level='population', selector='all')
 pop.update_positions(level='particular', selector='all')
 pop.update_positions(level='global', selector='greedy')
-
-
 #print("get_state: ", pop.get_state())
 print("----------Operator selection -------------------")
 print('Perturbadores: ', op.__all__)
 print('Selectores: ', op.__selectors__)
-
-
 for iteration in range(10):
     # exec(op_to_exect)
     op.central_force_dynamic(pop, alpha=1.0)
@@ -77,7 +63,6 @@ for iteration in range(10):
     pop.evaluate_fitness(lambda x: fun.get_function_value(x))
     pop.update_positions(level='population', selector='all')
     pop.update_positions(level='global', selector='greedy')
-
     #print(f"Iteration: {iteration + 1} ::", pop.get_state())
     #show_positions()
  

@@ -9,7 +9,7 @@ import datetime
 
 sys.path.append('llm-metaheuristics/algorithm_creation')
 
-fun = bf.Rastrigin(3)
+fun = bf.Ackley1(2)
 
 # Initialize ChromaDB client
 client = chromadb.Client()
@@ -44,51 +44,59 @@ for filename in os.listdir(python_files_dir):
             print(f"Warning: Empty embedding generated for {filename}")
 
 # an example prompt
-prompt = """ DO NOT WRITE ```python" or "```"  or something similar in the response,
-You are a highly skilled computer scientist in the field of natural computing. Your task is to design novel 
-metaheuristic algorithms to solve optimization problems, the purpose is to design novel metaheuristic algorithms to solve optimization problems, but by trying the default.txt operators and selectors to find out which is the best one suited for the given function.
+prompt = """
+IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
 
-These are the following instructions: 
+You are a computer scientist specializing in natural computing and metaheuristic algorithms. Your task is to design a novel metaheuristic algorithm for the {fun} optimization problem using only the operators and selectors from the parameters_to_take.txt file.
 
-Using the function: {fun} and respecting the given operators and selectors combination from parameters_to_take.txt file, 
-example: 
+INSTRUCTIONS:
+1. Use only the function: bf.{fun}
+2. Use only operators and selectors from parameters_to_take.txt
+3. The search space is between -1.0 (lower bound) and 1.0 (upper bound)
+4. Set num_iterations to 100
+5. Use no more than two search operators
+6. Each operator must have its own selector
+7. Fill all parameters for the chosen operator with your best recommendations
+8. Create only one metaheuristic per response
 
-('differential_mutation', {'expression': 'current-to-best', 'num_rands': 1, 'factor': 1.0}, 'greedy')
+FORMAT YOUR RESPONSE EXACTLY AS FOLLOWS:
 
-each of the metaheuristic optimization function has a search space between -1.0 (lower bound) and 1.0 (upper bound). The dimensionality can be varied.
-The number of iterations "num_iterations" must be 100 and there must not be more than two search operators (add__operator__), remember that every operator must have its own selector (add__selector__).
-ONLY USE THE SEARCH OPERATORS AND SELECTORS FROM THE parameters_to_take.txt file.
-
-An example of such code is as follows:
-
-DO NOT WRITE ```python" or "```"  or something similar in the response, rather give the response in the format:
-## Name: <name>  (make sure to comment the name of the metaheuristic)
-## Code: <code> 
-
-## Import all the needed modules (you must also import the benchmark function)
-import <module>
-
+# Name: [Your chosen name for the metaheuristic]
+# Code:
+ [All necessary import statements]
+ fun = bf.{fun}
+ prob = fun.get_formatted_problem()
 
 heur = [( # Search operator 1
-    'differential_mutation',  # Perturbator   
-    {  # Parameters
-        'expression': 'current-to-best',
-        'num_rands': 1,
-        'factor': 1.0},
-    'greedy'  # Selector
-)]
+    '[operator_name]',
+    {{  # Parameters
+         '[param1]': [value1],
+         '[param2]': [value2],
+         # ... more parameters as needed
+     }},
+     '[selector_name]'
+ ),
+ ( # Search operator 2 (if used)
+     '[operator_name]',
+     {{  # Parameters
+         '[param1]': [value1],
+         '[param2]': [value2],
+         # ... more parameters as needed
+     }},
+     '[selector_name]'
+ )]
 
-met = mh.Metaheuristic(prob, heur, num_iterations=1000)
-met.verbose = True
-met.run()
-print('x_best = {}, f_best = {}'.format(*met.get_solution()))
+ met = mh.Metaheuristic(prob, heur, num_iterations=100)
+ met.verbose = True
+ met.run()
+ print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
 
-## Explanation of the code: (make sure to comment the explanation after the code)
-COMMENT EVER TEXT AFTER THE WRITEN CODE. 
-DO NOT WRITE ```python" or "```"  or something similar in the response,
+# Short explanation and justification:
+# [Your explanation here, each line starting with '#']
+
+REMEMBER: EVERY EXPLANATIONS, MUST START WITH '#'. DO NOT USE ANY MARKDOWN SYNTAX OR CODE BLOCKS.
 """ 
  
-
 # Your existing code to generate the output
 response = ollama.embeddings(
   prompt=prompt,
@@ -105,15 +113,23 @@ output = ollama.generate(
   prompt=f"Using this data: {data}. Respond to this prompt: {prompt}"
 )
 
-# Print the response to the console
-print(output['response'])
-
 # Get the directory of the current script
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Generate a unique filename using a timestamp
+# Generate a unique folder name using a timestamp
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-output_file_path = os.path.join(current_dir, f'ollama_output_{timestamp}.py')
+output_folder = os.path.join(current_dir, f'ollama_output_{timestamp}')
+
+# Create the new folder
+try:
+    os.makedirs(output_folder)
+    print(f"Created new folder: {output_folder}")
+except Exception as e:
+    print(f"An error occurred while creating the folder: {e}")
+    exit(1)  # Exit if we can't create the folder
+
+# Define the file path inside the new folder
+output_file_path = os.path.join(output_folder, 'ollama_output.py')
 
 # Write the output to the file with error handling
 try:
@@ -124,5 +140,6 @@ try:
 except Exception as e:
     print(f"An error occurred while writing the file: {e}")
 
-# If you still want to print the output to the console as well
+# Print the output to the console
+print("Generated output:")
 print(output['response'])

@@ -1,20 +1,28 @@
-## Name: Metaheuristic 1
+## Name: Metaheuristic using Genetic Mutation with Greedy Selection
 
 ## Code:
+import sys
+
+
+sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+
 import benchmark_func as bf
 import population as pp
 import operators as op
 import metaheuristic as mh
 
+
 fun = bf.Rastrigin(2)
 prob = fun.get_formatted_problem()
 
 heur = [(
-    'differential_mutation',  # Perturbator
+    'genetic_mutation',  # Perturbator
     {  # Parameters
-        'expression': 'current-to-best',
-        'num_rands': 1,
-        'factor': 1.0},
+        'scale': 1.0,
+        'elite_rate': 0.1,
+        'mutation_rate': 0.25,
+        'distribution': 'gaussian',
+    },
     'greedy'  # Selector
 )]
 
@@ -22,7 +30,3 @@ met = mh.Metaheuristic(prob, heur, num_iterations=100)
 met.verbose = True
 met.run()
 print('x_best = {}, f_best = {}'.format(*met.get_solution()))
-
-## Explanation of the code:
-#This code uses the differential_mutation operator with the greedy selector. 
-
