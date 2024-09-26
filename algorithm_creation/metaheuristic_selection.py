@@ -14,37 +14,25 @@ import metaheuristic as mh
 #  An inherent property of metaheuristics is the cardinality, which is defined as the number of search operators 
 # implemented in it, while disregarding its initialiser and finaliser. 
 
-# A given metaheuristic contains: 
-# - One perturbator, which is the operators that modify the solution
-add__operator__ = ['local_random_walk', 'random_search', 'random_sample', 'random_flight', 'differential_mutation',
-           'firefly_dynamic', 'swarm_dynamic', 'gravitational_search', 'central_force_dynamic', 'spiral_dynamic',
-           'genetic_mutation', 'genetic_crossover']
-# - a selector
-# - parameters for the perturbator
-# and the population selector, such as: 
-
-add__selector__ = ['greedy', 'probabilistic', 'metropolis', 'all', 'none']
 
 print("----------Metaheuristic creation-------------------")
-fun = bf.given_funcion(given_variable)
 
+fun = ...
 
 prob = fun.get_formatted_problem()
 heur = [( # Search operator 1
-    'add__operator__ ',  # Perturbator
-    {  # Parameters
-        'expression': 'current-to-best',
-        'num_rands': 2,
-        'factor': 1.0},
-    'add__selector__'  # Selector
-), (  # Search operator 2
     'add__operator__',  # Perturbator
     {  # Parameters
-        'crossover_rate': 0.2,
-        'version': 'binomial'
+    },
+    'add__selector__'  # Selector
+), ( # Search operator 2
+    'add__operator__',  # Perturbator
+    {  # Parameters
+        'parameters': ""
     },
     'add__selector__'  # Selector
 )]
+
 
 met = mh.Metaheuristic(prob, heur, num_iterations=100)
 met.verbose = True

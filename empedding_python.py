@@ -6,10 +6,13 @@ import benchmark_func as bf
 import sys
 import datetime
 
-
 sys.path.append('llm-metaheuristics/algorithm_creation')
 
+# Define the function
 fun = bf.Ackley1(2)
+
+# Get the function name
+fun_name = fun.__class__.__name__
 
 # Initialize ChromaDB client
 client = chromadb.Client()
@@ -26,7 +29,7 @@ collection = client.create_collection(name="algorithm_creation")
 
 # Process each Python file in the directory
 for filename in os.listdir(python_files_dir):
-    if filename.endswith('.py') or filename.endswith('.txt'):
+    if filename.endswith('.txt'):
         file_path = os.path.join(python_files_dir, filename)
         file_content = read_python_file(file_path)
         
@@ -43,59 +46,171 @@ for filename in os.listdir(python_files_dir):
         else:
             print(f"Warning: Empty embedding generated for {filename}")
 
-# an example prompt
 prompt = """
 IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
 
 You are a computer scientist specializing in natural computing and metaheuristic algorithms. Your task is to design a novel metaheuristic algorithm for the {fun} optimization problem using only the operators and selectors from the parameters_to_take.txt file.
 
 INSTRUCTIONS:
-1. Use only the function: bf.{fun}
-2. Use only operators and selectors from parameters_to_take.txt
-3. The search space is between -1.0 (lower bound) and 1.0 (upper bound)
-4. Set num_iterations to 100
-5. Use no more than two search operators
-6. Each operator must have its own selector
-7. Fill all parameters for the chosen operator with your best recommendations
-8. Create only one metaheuristic per response
+1. Use only the function: bf.{fun_name}
+2. Use only operators and selectors from parameters_to_take.txt. 
+3. Use only the parameters of the operator chosen from parameters_to_take.txt. 
+4. The options inside the array are the ones you can choose from to fill each parameter.
+5. Only use one variable per parameter
+6. Do Not use the whole array when writing the variable of the parameter.
+7. Write the variables without an array format
+8. Write the variable as a float or string format.
+9. The search space is between -1.0 (lower bound) and 1.0 (upper bound)
+10. Set num_iterations to 100
+12. Each operator must have its own selector
+13. Fill all parameters for the chosen operator with your best recommendations. You must read the complete parameters_to_take.txt file to know all the parameters for each operator.
+14. You can use Two operator per metaheuristic.
+15. Create only one metaheuristic per response
+16. DO NOT use any information or knowledge outside of what is provided in the parameters_to_take.txt file
 
 FORMAT YOUR RESPONSE EXACTLY AS FOLLOWS:
 
+
+these are the parameters to take, depending on the selected operator, remember YOU MUST ONLY USE USE ONE VARIABLE PER PARAMETER, DO NOT USE THE WHOLE ARRAY, and write the variable without an array format, but as a float or string format:
+{
+  operator: "random_search": {
+    "parameters": {
+      "scale": [1.0, 0.01],
+      "distribution": ["uniform", "gaussian", "levy"]
+    },
+    selector: ["greedy", "all", "metropolis", "probabilistic"]
+  },
+  operator: "central_force_dynamic": {
+    "parameters": {
+      "gravity": [0.001],
+      "alpha": [0.01],
+      "beta": [1.5],
+      "dt": [1.0]
+    },
+    selector: ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  operator: "differential_mutation": {
+    "parameters": {
+      "expression": ["rand", "best", "current", "current-to-best", "rand-to-best", "rand-to-best-and-current"],
+      "num_rands": [1],
+      "factor": [1.0]
+    },
+    selector: ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  operator: "firefly_dynamic": {
+    "parameters": {
+      "distribution": ["uniform", "gaussian", "levy"],
+      "alpha": [1.0],
+      "beta": [1.0],
+      "gamma": [100.0]
+    },
+    selector: ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  operator: "genetic_crossover": {
+    "parameters": {
+      "pairing": ["rank", "cost", "random", "tournament_2_100"],
+      "crossover": ["single", "two", "uniform", "blend", "linear_0.5_0.5"],
+      "mating_pool_factor": [0.4]
+    },
+    selector: ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  operator: "genetic_mutation": {
+    "parameters": {
+      "scale": [1.0],
+      "elite_rate": [0.1],
+      "mutation_rate": [0.25],
+      "distribution": ["uniform", "gaussian", "levy"]
+    },
+    selector: ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  operator: "gravitational_search": {
+    "parameters": {
+      "gravity": [1.0],
+      "alpha": [0.02]
+    },
+    selector: ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  operator: "random_flight": {
+    "parameters": {
+      "scale": [1.0],
+      "distribution": ["levy", "uniform", "gaussian"],
+      "beta": [1.5]
+    },
+    selector: ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  operator: "local_random_walk": {
+    "parameters": {
+      "probability": [0.75],
+      "scale": [1.0],
+      "distribution": ["uniform", "gaussian", "levy"]
+    },
+    selector: ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  operator: "random_sample": {
+    "parameters": {},
+    selector: ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  operator: "spiral_dynamic": {
+    "parameters": {
+      "radius": [0.9],
+      "angle": [22.5],
+      "sigma": [0.1]
+    },
+    selector: ["all", "greedy", "metropolis", "probabilistic"]
+  },
+  operator: "swarm_dynamic": {
+    "parameters": {
+      "factor": [0.7, 1.0],
+      "self_conf": [2.54],
+      "swarm_conf": [2.56],
+      "version": ["inertial", "constriction"],
+      "distribution": ["uniform", "gaussian", "levy"]
+    },
+    selector: ["all", "greedy", "metropolis", "probabilistic"]
+  }
+}
+
+Now create the metaheuristic:
 # Name: [Your chosen name for the metaheuristic]
 # Code:
- [All necessary import statements]
- fun = bf.{fun}
- prob = fun.get_formatted_problem()
+
+import sys
+sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+import benchmark_func as bf
+import metaheuristic as mh
+
+
+fun = bf.{fun_name}
+prob = fun.get_formatted_problem()
 
 heur = [( # Search operator 1
     '[operator_name]',
-    {{  # Parameters
-         '[param1]': [value1],
-         '[param2]': [value2],
+    {{
+         'parameter1': value1,
+         'parameter2': value2,
          # ... more parameters as needed
-     }},
-     '[selector_name]'
- ),
- ( # Search operator 2 (if used)
-     '[operator_name]',
-     {{  # Parameters
-         '[param1]': [value1],
-         '[param2]': [value2],
-         # ... more parameters as needed
-     }},
-     '[selector_name]'
- )]
+    }},
+    '[selector_name]'
+)]
 
- met = mh.Metaheuristic(prob, heur, num_iterations=100)
- met.verbose = True
- met.run()
- print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
+met = mh.Metaheuristic(prob, heur, num_iterations=100)
+met.verbose = True
+met.run()
+print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
+
 
 # Short explanation and justification:
 # [Your explanation here, each line starting with '#']
 
-REMEMBER: EVERY EXPLANATIONS, MUST START WITH '#'. DO NOT USE ANY MARKDOWN SYNTAX OR CODE BLOCKS.
-""" 
+REMEMBER: 
+1. EVERY EXPLANATION MUST START WITH '#'. 
+2. DO NOT USE ANY MARKDOWN SYNTAX OR CODE BLOCKS. 
+3. ONLY USE INFORMATION FROM THE parameters_to_take.txt FILE.
+4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
+5. ENSURE ALL PARAMETER NAMES AND VALUES ARE EXACTLY AS THEY APPEAR IN parameters_to_take.txt.
+
+
+"""
  
 # Your existing code to generate the output
 response = ollama.embeddings(
@@ -109,7 +224,7 @@ results = collection.query(
 data = results['documents'][0][0]
 
 output = ollama.generate(
-  model="codegemma",
+  model="deepseek-coder-v2",
   prompt=f"Using this data: {data}. Respond to this prompt: {prompt}"
 )
 
