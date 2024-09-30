@@ -1,4 +1,5 @@
 {
+  # Random Search is 
   operator: "random_search": {
     "parameters": {
       "scale": [1.0, 0.01],
@@ -32,7 +33,7 @@
     },
     selector: ["all", "greedy", "metropolis", "probabilistic"]
   },
-  operator: "genetic_crossover": {
+  operator: "genetic_crossover": { 
     "parameters": {
       "pairing": ["rank", "cost", "random", "tournament_2_100"],
       "crossover": ["single", "two", "uniform", "blend", "linear_0.5_0.5"],

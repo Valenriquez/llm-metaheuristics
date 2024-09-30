@@ -1,0 +1,3 @@
+Important notes:
+- If the selector is genetic_crossover, then you must use genetic_mutation too. And vice versa. 
+- Random search algorithms are useful for ill-structured global optimization problems, where the objective function may be nonconvex, nondifferentiable, and possibly discontinuous over a continuous, discrete, or mixed continuous-discrete domain.

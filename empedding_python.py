@@ -29,7 +29,7 @@ collection = client.create_collection(name="algorithm_creation")
 
 # Process each Python file in the directory
 for filename in os.listdir(python_files_dir):
-    if filename.endswith('.txt'):
+    if filename.endswith('.py') or filename.endswith('.txt'):
         file_path = os.path.join(python_files_dir, filename)
         file_content = read_python_file(file_path)
         
@@ -64,109 +64,108 @@ INSTRUCTIONS:
 10. Set num_iterations to 100
 12. Each operator must have its own selector
 13. Fill all parameters for the chosen operator with your best recommendations. You must read the complete parameters_to_take.txt file to know all the parameters for each operator.
-14. You can use Two operator per metaheuristic.
+14. You can use Two operator per metaheuristic if you think that is the best option, but do not use more than three operators.
 15. Create only one metaheuristic per response
 16. DO NOT use any information or knowledge outside of what is provided in the parameters_to_take.txt file
 
 FORMAT YOUR RESPONSE EXACTLY AS FOLLOWS:
 
-
-these are the parameters to take, depending on the selected operator, remember YOU MUST ONLY USE USE ONE VARIABLE PER PARAMETER, DO NOT USE THE WHOLE ARRAY, and write the variable without an array format, but as a float or string format:
+These are the parameters to take, depending on the selected operator, remember YOU MUST ONLY USE USE ONE VARIABLE PER PARAMETER, DO NOT USE THE WHOLE ARRAY, and write the variable without an array format, but as a float or string format:
 {
   operator: "random_search": {
     "parameters": {
-      "scale": [1.0, 0.01],
-      "distribution": ["uniform", "gaussian", "levy"]
+      "scale": 1.0 or 0.01,
+      "distribution": "uniform" or "gaussian" or "levy"]
     },
-    selector: ["greedy", "all", "metropolis", "probabilistic"]
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
   operator: "central_force_dynamic": {
     "parameters": {
-      "gravity": [0.001],
-      "alpha": [0.01],
-      "beta": [1.5],
-      "dt": [1.0]
+      "gravity": 0.001,
+      "alpha": 0.01,
+      "beta": 1.5,
+      "dt": 1.0
     },
-    selector: ["all", "greedy", "metropolis", "probabilistic"]
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
   operator: "differential_mutation": {
     "parameters": {
-      "expression": ["rand", "best", "current", "current-to-best", "rand-to-best", "rand-to-best-and-current"],
-      "num_rands": [1],
-      "factor": [1.0]
+      "expression": "rand" or "best" or "current" or  "current-to-best" or "rand-to-best" or "rand-to-best-and-current",
+      "num_rands": 1,
+      "factor": 1.0
     },
-    selector: ["all", "greedy", "metropolis", "probabilistic"]
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
   operator: "firefly_dynamic": {
     "parameters": {
-      "distribution": ["uniform", "gaussian", "levy"],
-      "alpha": [1.0],
-      "beta": [1.0],
-      "gamma": [100.0]
+      "distribution": "uniform" or "gaussian" or "levy",
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gamma": 100.0
     },
-    selector: ["all", "greedy", "metropolis", "probabilistic"]
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
   operator: "genetic_crossover": {
     "parameters": {
-      "pairing": ["rank", "cost", "random", "tournament_2_100"],
-      "crossover": ["single", "two", "uniform", "blend", "linear_0.5_0.5"],
-      "mating_pool_factor": [0.4]
+      "pairing": "rank" or "cost" or "random" or"tournament_2_100",
+      "crossover": "single" or "two" or "uniform" or "blend" or "linear_0.5_0.5",
+      "mating_pool_factor": 0.4
     },
-    selector: ["all", "greedy", "metropolis", "probabilistic"]
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
   operator: "genetic_mutation": {
     "parameters": {
-      "scale": [1.0],
-      "elite_rate": [0.1],
-      "mutation_rate": [0.25],
-      "distribution": ["uniform", "gaussian", "levy"]
+      "scale": 1.0,
+      "elite_rate": 0.1,
+      "mutation_rate": 0.25,
+      "distribution": "uniform" or "gaussian" or "levy"
     },
-    selector: ["all", "greedy", "metropolis", "probabilistic"]
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
   operator: "gravitational_search": {
     "parameters": {
-      "gravity": [1.0],
-      "alpha": [0.02]
+      "gravity": 1.0,
+      "alpha": 0.02
     },
-    selector: ["all", "greedy", "metropolis", "probabilistic"]
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
   operator: "random_flight": {
     "parameters": {
-      "scale": [1.0],
-      "distribution": ["levy", "uniform", "gaussian"],
-      "beta": [1.5]
+      "scale": 1.0,
+      "distribution": "levy" or "uniform" or"gaussian",
+      "beta": 1.5
     },
-    selector: ["all", "greedy", "metropolis", "probabilistic"]
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
   operator: "local_random_walk": {
     "parameters": {
-      "probability": [0.75],
-      "scale": [1.0],
-      "distribution": ["uniform", "gaussian", "levy"]
+      "probability": 0.75,
+      "scale": 1.0,
+      "distribution": "uniform" or "gaussian" or "levy"
     },
-    selector: ["all", "greedy", "metropolis", "probabilistic"]
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
   operator: "random_sample": {
     "parameters": {},
-    selector: ["all", "greedy", "metropolis", "probabilistic"]
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
   operator: "spiral_dynamic": {
     "parameters": {
-      "radius": [0.9],
-      "angle": [22.5],
-      "sigma": [0.1]
+      "radius": 0.9,
+      "angle": 22.5,
+      "sigma": 0.1
     },
-    selector: ["all", "greedy", "metropolis", "probabilistic"]
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
   operator: "swarm_dynamic": {
     "parameters": {
-      "factor": [0.7, 1.0],
-      "self_conf": [2.54],
-      "swarm_conf": [2.56],
-      "version": ["inertial", "constriction"],
-      "distribution": ["uniform", "gaussian", "levy"]
+      "factor": 0.7 or 1.0,
+      "self_conf": 2.54,
+      "swarm_conf": 2.56,
+      "version": "inertial" or "constriction",
+      "distribution": "uniform" or "gaussian" or "levy"
     },
-    selector: ["all", "greedy", "metropolis", "probabilistic"]
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
   }
 }
 
@@ -207,8 +206,8 @@ REMEMBER:
 2. DO NOT USE ANY MARKDOWN SYNTAX OR CODE BLOCKS. 
 3. ONLY USE INFORMATION FROM THE parameters_to_take.txt FILE.
 4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
-5. ENSURE ALL PARAMETER NAMES AND VALUES ARE EXACTLY AS THEY APPEAR IN parameters_to_take.txt.
-
+5. ENSURE ALL PARAMETER NAMES AND VALUES APPEAR IN parameters_to_take.txt.
+5. If you ever use genetic crossover, you must use genetic mutation as well. 
 
 """
  
