@@ -1,3 +1,36 @@
 Important notes:
 - If the selector is genetic_crossover, then you must use genetic_mutation too. And vice versa. 
 - Random search algorithms are useful for ill-structured global optimization problems, where the objective function may be nonconvex, nondifferentiable, and possibly discontinuous over a continuous, discrete, or mixed continuous-discrete domain.
+
+This is the given template for the metaheuristic creation: 
+
+# Name: [Your chosen name for the metaheuristic]
+# Code:
+
+import sys
+sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+import benchmark_func as bf
+import metaheuristic as mh
+
+
+fun = bf.{fun_name}
+prob = fun.get_formatted_problem()
+
+heur = [( # Search operator 1
+    '[operator_name]',
+    {
+         'parameter1': value1,
+         'parameter2': value2,
+         # ... more parameters as needed
+    },
+    '[selector_name]'
+)]
+
+met = mh.Metaheuristic(prob, heur, num_iterations=100)
+met.verbose = True
+met.run()
+print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
+
+
+# Short explanation and justification:
+# [Your explanation here, each line starting with '#']

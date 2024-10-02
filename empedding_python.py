@@ -5,6 +5,12 @@ import os
 import benchmark_func as bf
 import sys
 import datetime
+import subprocess
+import time
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 sys.path.append('llm-metaheuristics/algorithm_creation')
 
@@ -52,7 +58,7 @@ IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
 You are a computer scientist specializing in natural computing and metaheuristic algorithms. Your task is to design a novel metaheuristic algorithm for the {fun} optimization problem using only the operators and selectors from the parameters_to_take.txt file.
 
 INSTRUCTIONS:
-1. Use only the function: bf.{fun_name}
+1. Use only the function: bf.Rastrigin(2)
 2. Use only operators and selectors from parameters_to_take.txt. 
 3. Use only the parameters of the operator chosen from parameters_to_take.txt. 
 4. The options inside the array are the ones you can choose from to fill each parameter.
@@ -179,7 +185,7 @@ import benchmark_func as bf
 import metaheuristic as mh
 
 
-fun = bf.{fun_name}
+fun = bf.Rastrigin(2)
 prob = fun.get_formatted_problem()
 
 heur = [( # Search operator 1
@@ -207,53 +213,218 @@ REMEMBER:
 3. ONLY USE INFORMATION FROM THE parameters_to_take.txt FILE.
 4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
 5. ENSURE ALL PARAMETER NAMES AND VALUES APPEAR IN parameters_to_take.txt.
-5. If you ever use genetic crossover, you must use genetic mutation as well. 
+6. If you ever use genetic crossover, you must use genetic mutation as well. 
+7. Verifying that only operators and parameters from parameters_to_take.txt are used.
+8. Checking for any logical errors or inconsistencies.
+9. Improving the explanation and justification.
 
 """
  
-# Your existing code to generate the output
-response = ollama.embeddings(
-  prompt=prompt,
-  model="mxbai-embed-large"
-)
-results = collection.query(
-  query_embeddings=[response["embedding"]],
-  n_results=1
-)
-data = results['documents'][0][0]
+def self_refine(initial_prompt, data, model, output_folder, max_iterations=3, python_files_dir='llm-metaheuristics/algorithm_creation'):
+    # Initialize a collection for storing feedback
+    feedback_collection = chromadb.Client().create_collection(name="feedback_collection")
+    
+    # Initialize a collection for Python files if not already done
+    python_files_collection = chromadb.Client().get_or_create_collection(name="algorithm_creation")
+    
+    current_output = ollama.generate(
+        model=model,
+        prompt=f"Using this data: {data}. Respond to this prompt: {initial_prompt}"
+    )
+    
+    print(current_output['response'])
+    
+    # Write initial output
+    write_output_to_file(current_output['response'], output_folder, 0)
+    
+    for i in range(max_iterations):
+        execution_result = execute_generated_code(current_output['response'], output_folder, i)
+        
+        # Add the current output and execution result to the feedback collection
+        feedback_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output['response'] + execution_result)
+        feedback_collection.add(
+            ids=[f"iteration_{i}"],
+            embeddings=[feedback_embedding['embedding']],
+            documents=[current_output['response'] + "\n" + execution_result],
+            metadatas=[{"iteration": i}]
+        )
+        
+        # Retrieve relevant feedback from previous iterations
+        query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output['response'])
+        
+        # Ensure n_results is at least 1
+        n_results = max(1, min(i, 2))
+        relevant_feedback = feedback_collection.query(
+            query_embeddings=[query_embedding['embedding']],
+            n_results=n_results
+        )
+        
+        # Retrieve relevant Python files
+        if python_files_collection.count() > 0:
+            relevant_files = python_files_collection.query(
+                query_embeddings=[query_embedding['embedding']],
+                n_results=2
+            )
+        else:
+            relevant_files = {"documents": ["No relevant Python files found."]}
+        
+        # Construct the refinement prompt with relevant feedback and Python files
+        refinement_prompt = f"""
+        You are a computer scientist specializing in natural computing and metaheuristic algorithms. You have been tasked with refining and improving the following output:
 
-output = ollama.generate(
-  model="deepseek-coder-v2",
-  prompt=f"Using this data: {data}. Respond to this prompt: {prompt}"
-)
+        {current_output['response']}
+        The code was executed with the following result:
+        {execution_result}
 
-# Get the directory of the current script
-current_dir = os.path.dirname(os.path.abspath(__file__))
+        Here is relevant feedback from previous iterations:
+        {relevant_feedback['documents']}
 
-# Generate a unique folder name using a timestamp
-timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-output_folder = os.path.join(current_dir, f'ollama_output_{timestamp}')
+        Here are relevant Python files that might be helpful:
+        {relevant_files['documents']}
 
-# Create the new folder
-try:
-    os.makedirs(output_folder)
-    print(f"Created new folder: {output_folder}")
-except Exception as e:
-    print(f"An error occurred while creating the folder: {e}")
-    exit(1)  # Exit if we can't create the folder
+        Please analyze this output and suggest improvements and corrections. 
+        Please DO NOT USE ANY MARKDOWN SYNTAX OR CODE BLOCKS in the response.
+        Please DO NOT USE ANY operators or parameters that are not in the parameters_to_take.txt file.
+        This is the parameters_to_take.txt file:
+        {data}
+        
+        Use the same template as the one provided before, which is:
+        
+        # Name: [Your chosen name for the metaheuristic]
+        # Code:
 
-# Define the file path inside the new folder
-output_file_path = os.path.join(output_folder, 'ollama_output.py')
+        import sys
+        sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+        import benchmark_func as bf
+        import metaheuristic as mh
 
-# Write the output to the file with error handling
-try:
-    with open(output_file_path, 'w') as file:
-        file.write(output['response'])
-    # Print a confirmation message
-    print(f"Output has been written to {output_file_path}")
-except Exception as e:
-    print(f"An error occurred while writing the file: {e}")
 
-# Print the output to the console
-print("Generated output:")
-print(output['response'])
+        fun = bf.Rastrigin(2)
+        prob = fun.get_formatted_problem()
+
+        heur = [( # Search operator 1
+            '[operator_name]',
+            {{
+                'parameter1': value1,
+                'parameter2': value2,
+                # ... more parameters as needed
+            }},
+            '[selector_name]'
+        )]
+
+        met = mh.Metaheuristic(prob, heur, num_iterations=100)
+        met.verbose = True
+        met.run()
+        print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
+
+
+        # Short explanation and justification:
+        # [Your explanation here, each line starting with '#']
+
+        REMEMBER: 
+        1. EVERY EXPLANATION MUST START WITH '#'. 
+        2. DO NOT USE ANY MARKDOWN SYNTAX OR CODE BLOCKS. 
+        3. ONLY USE INFORMATION FROM THE parameters_to_take.txt FILE.
+        4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
+        5. ENSURE ALL PARAMETER NAMES AND VALUES APPEAR IN parameters_to_take.txt.
+        6. If you ever use genetic crossover, you must use genetic mutation as well. 
+        7. Verifying that only operators and parameters from parameters_to_take.txt are used.
+        8. Checking for any logical errors or inconsistencies.
+        9. Improving the explanation and justification.
+
+        Provide your refined version of the entire output, not just the changes.
+        """
+
+        refined_output = ollama.generate(
+            model=model,
+            prompt=refinement_prompt
+        )
+        
+        # Write refined output
+        write_output_to_file(refined_output['response'], output_folder, i+1)
+        
+        # Check if the refinement made significant changes
+        if refined_output['response'].strip() == current_output['response'].strip():
+            print(f"No significant changes after iteration {i+1}. Stopping refinement.")
+            break
+        
+        current_output = refined_output
+        print(f"Completed refinement iteration {i+1}")
+    
+    return current_output['response']
+
+def write_output_to_file(output, folder, iteration):
+    file_name = f'ollama_output_iteration_{iteration}.py'
+    file_path = os.path.join(folder, file_name)
+    try:
+        with open(file_path, 'w') as file:
+            file.write(output)
+        print(f"Output for iteration {iteration} has been written to {file_path}")
+    except Exception as e:
+        print(f"An error occurred while writing iteration {iteration} to file: {e}")
+
+def execute_generated_code(code, output_folder, iteration):
+    file_name = f'execution_iteration_{iteration}.py'
+    file_path = os.path.join(output_folder, file_name)
+    with open(file_path, 'w') as f:
+        f.write(code)
+    
+    try:
+        result = subprocess.run(['python', file_path], capture_output=True, text=True, timeout=30)
+        execution_result = f"Exit code: {result.returncode}\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
+        
+        # Write execution result to a separate file
+        result_file_name = f'execution_result_{iteration}.txt'
+        result_file_path = os.path.join(output_folder, result_file_name)
+        with open(result_file_path, 'w') as f:
+            f.write(execution_result)
+        
+        return execution_result
+    except subprocess.TimeoutExpired:
+        return "Execution timed out after 30 seconds"
+    except Exception as e:
+        return f"An error occurred during execution: {str(e)}"
+
+if __name__ == "__main__":
+    logger.debug("Starting main execution")
+    try:
+        # Your existing code to generate the output
+        response = ollama.embeddings(
+            prompt=prompt,
+            model="mxbai-embed-large"
+        )
+        results = collection.query(
+            query_embeddings=[response["embedding"]],
+            n_results=1
+        )
+        data = results['documents'][0][0]
+
+        # Get the directory of the current script
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Generate a unique folder name using a timestamp
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_folder = os.path.join(current_dir, f'ollama_output_{timestamp}')
+
+        # Create the new folder
+        try:
+            os.makedirs(output_folder)
+            logger.info(f"Created new folder: {output_folder}")
+        except Exception as e:
+            logger.error(f"An error occurred while creating the folder: {e}")
+            raise
+
+        # Generate and refine the output
+        try:
+            refined_output = self_refine(prompt, data, "deepseek-coder-v2", output_folder)
+            logger.info("Final refined output:")
+            print(refined_output)
+        except Exception as e:
+            logger.error(f"An error occurred during self-refinement: {str(e)}")
+            raise
+
+    except Exception as e:
+        logger.error(f"An error occurred in the main execution: {str(e)}")
+        raise
+
+    logger.debug("Main execution completed")

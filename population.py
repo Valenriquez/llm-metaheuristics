@@ -8,6 +8,7 @@ Created on Tue Sep 17 14:29:43 2019
 """
 
 import numpy as np
+import math
 
 __all__ = ['Population']
 __selectors__ = ['all', 'greedy', 'metropolis', 'probabilistic']
@@ -343,7 +344,7 @@ class Population:
             if new <= old:
                 selection_condition = True
             else:
-                selection_condition = bool(np.math.exp(-(new - old) / (
+                selection_condition = bool(math.exp(-(new - old) / (
                         self.metropolis_boltzmann * self.metropolis_temperature *
                         ((1 - self.metropolis_rate) ** self.iteration) + 1e-23)) > np.random.rand())
 
