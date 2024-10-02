@@ -53,12 +53,12 @@ for filename in os.listdir(python_files_dir):
             print(f"Warning: Empty embedding generated for {filename}")
 
 prompt = """
-IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
+IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
 
 You are a computer scientist specializing in natural computing and metaheuristic algorithms. Your task is to design a novel metaheuristic algorithm for the {fun} optimization problem using only the operators and selectors from the parameters_to_take.txt file.
 
 INSTRUCTIONS:
-1. Use only the function: bf.Rastrigin(2)
+1. Use only the function: bf.Sphere(2)
 2. Use only operators and selectors from parameters_to_take.txt. 
 3. Use only the parameters of the operator chosen from parameters_to_take.txt. 
 4. The options inside the array are the ones you can choose from to fill each parameter.
@@ -78,15 +78,15 @@ FORMAT YOUR RESPONSE EXACTLY AS FOLLOWS:
 
 These are the parameters to take, depending on the selected operator, remember YOU MUST ONLY USE USE ONE VARIABLE PER PARAMETER, DO NOT USE THE WHOLE ARRAY, and write the variable without an array format, but as a float or string format:
 {
-  operator: "random_search": {
-    "parameters": {
+  "random_search": {   # this operator only has these next parameters
+    { # parameters
       "scale": 1.0 or 0.01,
-      "distribution": "uniform" or "gaussian" or "levy"]
+      "distribution": "uniform" or "gaussian" or "levy"
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "central_force_dynamic": {
-    "parameters": {
+  "central_force_dynamic": {   # this operator only has these next parameters
+    { # parameters
       "gravity": 0.001,
       "alpha": 0.01,
       "beta": 1.5,
@@ -94,16 +94,16 @@ These are the parameters to take, depending on the selected operator, remember Y
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "differential_mutation": {
-    "parameters": {
+  "differential_mutation": {  # this operator only has these next parameters
+    { # parameters
       "expression": "rand" or "best" or "current" or  "current-to-best" or "rand-to-best" or "rand-to-best-and-current",
       "num_rands": 1,
       "factor": 1.0
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "firefly_dynamic": {
-    "parameters": {
+  "firefly_dynamic": {  # this operator only has these next parameters
+    { # parameters
       "distribution": "uniform" or "gaussian" or "levy",
       "alpha": 1.0,
       "beta": 1.0,
@@ -111,16 +111,16 @@ These are the parameters to take, depending on the selected operator, remember Y
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "genetic_crossover": {
-    "parameters": {
+  "genetic_crossover": {  # this operator only has these next parameters
+    { # parameters
       "pairing": "rank" or "cost" or "random" or"tournament_2_100",
       "crossover": "single" or "two" or "uniform" or "blend" or "linear_0.5_0.5",
       "mating_pool_factor": 0.4
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "genetic_mutation": {
-    "parameters": {
+  "genetic_mutation": {  # this operator only has these next parameters
+    { # parameters
       "scale": 1.0,
       "elite_rate": 0.1,
       "mutation_rate": 0.25,
@@ -128,43 +128,43 @@ These are the parameters to take, depending on the selected operator, remember Y
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "gravitational_search": {
-    "parameters": {
+  "gravitational_search": {  # this operator only has these next parameters
+    { # parameters
       "gravity": 1.0,
       "alpha": 0.02
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "random_flight": {
-    "parameters": {
+  "random_flight": {  # this operator only has these next parameters
+    { # parameters
       "scale": 1.0,
       "distribution": "levy" or "uniform" or"gaussian",
       "beta": 1.5
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "local_random_walk": {
-    "parameters": {
+  "local_random_walk": { # this operator only has these next parameters
+    { # parameters    
       "probability": 0.75,
       "scale": 1.0,
       "distribution": "uniform" or "gaussian" or "levy"
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "random_sample": {
-    "parameters": {},
+  "random_sample": {  # this operator only has these next parameters
+    { # parameters }
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "spiral_dynamic": {
-    "parameters": {
+  "spiral_dynamic": {  # this operator only has these next parameters
+    { # parameters
       "radius": 0.9,
       "angle": 22.5,
       "sigma": 0.1
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "swarm_dynamic": {
-    "parameters": {
+  "swarm_dynamic": {  # this operator only has these next parameters
+   { # parameters
       "factor": 0.7 or 1.0,
       "self_conf": 2.54,
       "swarm_conf": 2.56,
@@ -174,7 +174,6 @@ These are the parameters to take, depending on the selected operator, remember Y
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   }
 }
-
 Now create the metaheuristic:
 # Name: [Your chosen name for the metaheuristic]
 # Code:
@@ -185,18 +184,29 @@ import benchmark_func as bf
 import metaheuristic as mh
 
 
-fun = bf.Rastrigin(2)
+fun = bf.Sphere(2)
 prob = fun.get_formatted_problem()
 
-heur = [( # Search operator 1
-    '[operator_name]',
-    {{
-         'parameter1': value1,
-         'parameter2': value2,
-         # ... more parameters as needed
-    }},
-    '[selector_name]'
-)]
+heur = [
+            ( # Search operator 1
+            '[operator_name]',
+            {{
+                'parameter1': value1,
+                'parameter2': value2,
+                # ... more parameters as needed
+            }},
+            '[selector_name]'
+            ),
+            (  
+            '[operator_name]',
+            {{
+                'parameter1': value1,
+                'parameter2': value2,
+                # ... more parameters as needed
+            }},
+            '[selector_name]'
+        )
+      ]
 
 met = mh.Metaheuristic(prob, heur, num_iterations=100)
 met.verbose = True
@@ -209,7 +219,7 @@ print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
 
 REMEMBER: 
 1. EVERY EXPLANATION MUST START WITH '#'. 
-2. DO NOT USE ANY MARKDOWN SYNTAX OR CODE BLOCKS. 
+2. DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```
 3. ONLY USE INFORMATION FROM THE parameters_to_take.txt FILE.
 4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
 5. ENSURE ALL PARAMETER NAMES AND VALUES APPEAR IN parameters_to_take.txt.
@@ -296,11 +306,11 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
         {relevant_files['documents']}
 
         Please analyze this output and suggest improvements and corrections. 
-        Please DO NOT USE ANY MARKDOWN SYNTAX OR CODE BLOCKS in the response.
+        Please DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ``` in the response.
         Please DO NOT USE ANY operators or parameters that are not in the parameters_to_take.txt file.
         This is the parameters_to_take.txt file:
         {data}
-        IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
+        IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
         Use the same template as the one provided before, which is:
         
         # Name: [Your chosen name for the metaheuristic]
@@ -312,10 +322,11 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
         import metaheuristic as mh
 
 
-        fun = bf.Rastrigin(2)
+        fun = bf.Sphere(2)
         prob = fun.get_formatted_problem()
 
-        heur = [( # Search operator 1
+        heur = [
+            ( # Search operator 1
             '[operator_name]',
             {{
                 'parameter1': value1,
@@ -323,7 +334,17 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
                 # ... more parameters as needed
             }},
             '[selector_name]'
-        )]
+            ),
+            (  
+            '[operator_name]',
+            {{
+                'parameter1': value1,
+                'parameter2': value2,
+                # ... more parameters as needed
+            }},
+            '[selector_name]'
+        )
+      ]
 
         met = mh.Metaheuristic(prob, heur, num_iterations=100)
         met.verbose = True
@@ -336,7 +357,7 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
 
         REMEMBER: 
         1. EVERY EXPLANATION MUST START WITH '#'. 
-        2. DO NOT USE ANY MARKDOWN SYNTAX OR CODE BLOCKS. 
+        2. DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```.
         3. ONLY USE INFORMATION FROM THE parameters_to_take.txt FILE.
         DO NOT INVENT ANY NEW INFORMATION.
         4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
