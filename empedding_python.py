@@ -288,7 +288,7 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
         {current_output['response']}
         The code was executed with the following result:
         {execution_result}
-
+        You must fix the results. I need the metaheuristic to run correctly. 
         Here is relevant feedback from previous iterations:
         {relevant_feedback['documents']}
 

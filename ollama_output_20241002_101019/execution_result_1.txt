@@ -1,0 +1,17 @@
+Exit code: 1
+Stdout:
+
+Search operators to employ:
+GeneticCrossover(crossover_rate=0.9,mutation_rate=0.1) with GeneticMutation
+--------------------------------------------------
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241002_101019/execution_iteration_1.py", line 26, in <module>
+    met.run()
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 143, in run
+    self.apply_search_operator(perturbator, selector)
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 99, in apply_search_operator
+    exec('Operators.' + operator_name + '(self.pop,' + operator_params)
+  File "<string>", line 1, in <module>
+AttributeError: module 'operators' has no attribute 'GeneticCrossover'. Did you mean: 'genetic_crossover'?

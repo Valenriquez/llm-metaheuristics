@@ -1,15 +1,15 @@
 
 These are the parameters to take, depending on the selected operator, remember YOU MUST ONLY USE USE ONE VARIABLE PER PARAMETER, DO NOT USE THE WHOLE ARRAY, and write the variable without an array format, but as a float or string format:
 {
-  operator: "random_search": {
-    "parameters": {
+  "random_search": {  # operator
+    { # parameters
       "scale": 1.0 or 0.01,
-      "distribution": "uniform" or "gaussian" or "levy"]
+      "distribution": "uniform" or "gaussian" or "levy"
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "central_force_dynamic": {
-    "parameters": {
+  "central_force_dynamic": {  # operator
+    { # parameters
       "gravity": 0.001,
       "alpha": 0.01,
       "beta": 1.5,
@@ -17,16 +17,16 @@ These are the parameters to take, depending on the selected operator, remember Y
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "differential_mutation": {
-    "parameters": {
+  "differential_mutation": { # operator
+    { # parameters
       "expression": "rand" or "best" or "current" or  "current-to-best" or "rand-to-best" or "rand-to-best-and-current",
       "num_rands": 1,
       "factor": 1.0
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "firefly_dynamic": {
-    "parameters": {
+  "firefly_dynamic": { # operator
+    { # parameters
       "distribution": "uniform" or "gaussian" or "levy",
       "alpha": 1.0,
       "beta": 1.0,
@@ -34,16 +34,16 @@ These are the parameters to take, depending on the selected operator, remember Y
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "genetic_crossover": {
-    "parameters": {
+  "genetic_crossover": { # operator
+    { # parameters
       "pairing": "rank" or "cost" or "random" or"tournament_2_100",
       "crossover": "single" or "two" or "uniform" or "blend" or "linear_0.5_0.5",
       "mating_pool_factor": 0.4
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "genetic_mutation": {
-    "parameters": {
+  "genetic_mutation": { # operator
+    { # parameters
       "scale": 1.0,
       "elite_rate": 0.1,
       "mutation_rate": 0.25,
@@ -51,43 +51,43 @@ These are the parameters to take, depending on the selected operator, remember Y
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "gravitational_search": {
-    "parameters": {
+  "gravitational_search": { # operator
+    { # parameters
       "gravity": 1.0,
       "alpha": 0.02
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "random_flight": {
-    "parameters": {
+  "random_flight": { # operator
+    { # parameters
       "scale": 1.0,
       "distribution": "levy" or "uniform" or"gaussian",
       "beta": 1.5
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "local_random_walk": {
-    "parameters": {
+  "local_random_walk": { # operator
+    { # parameters
       "probability": 0.75,
       "scale": 1.0,
       "distribution": "uniform" or "gaussian" or "levy"
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "random_sample": {
-    "parameters": {},
+  "random_sample": { # operator
+    { # parameters }
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "spiral_dynamic": {
-    "parameters": {
+  "spiral_dynamic": { # operator
+    { # parameters
       "radius": 0.9,
       "angle": 22.5,
       "sigma": 0.1
     },
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   },
-  operator: "swarm_dynamic": {
-    "parameters": {
+  "swarm_dynamic": { # operator
+   { # parameters
       "factor": 0.7 or 1.0,
       "self_conf": 2.54,
       "swarm_conf": 2.56,

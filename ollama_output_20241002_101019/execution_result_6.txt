@@ -1,0 +1,15 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241002_101019/execution_iteration_6.py", line 28, in <module>
+    met = mh.Metaheuristic(prob, heur, num_iterations=100)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 59, in __init__
+    self.perturbators, self.selectors = Operators.process_operators(search_operators)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/operators.py", line 1059, in process_operators
+    for operator, parameters, selector in simple_heuristics:
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 3, got 2)
