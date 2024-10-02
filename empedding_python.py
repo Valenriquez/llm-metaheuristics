@@ -220,7 +220,7 @@ REMEMBER:
 
 """
  
-def self_refine(initial_prompt, data, model, output_folder, max_iterations=3, python_files_dir='llm-metaheuristics/algorithm_creation'):
+def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, python_files_dir='llm-metaheuristics/algorithm_creation'):
     # Initialize a collection for storing feedback
     feedback_collection = chromadb.Client().create_collection(name="feedback_collection")
     
