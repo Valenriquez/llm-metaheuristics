@@ -259,12 +259,25 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
             n_results=n_results
         )
         
-        # Retrieve relevant Python files
+        # Retrieve all Python files
         if python_files_collection.count() > 0:
+            total_docs = python_files_collection.count()
             relevant_files = python_files_collection.query(
                 query_embeddings=[query_embedding['embedding']],
-                n_results=2
+                n_results=total_docs  # Retrieve all documents
             )
+            
+            # Sort the results by relevance score (if available)
+            if 'distances' in relevant_files:
+                sorted_indices = sorted(range(len(relevant_files['distances'][0])), 
+                                        key=lambda k: relevant_files['distances'][0][k])
+                
+                sorted_documents = [relevant_files['documents'][0][i] for i in sorted_indices]
+                relevant_files['documents'] = [sorted_documents]
+            
+            # Limit the number of documents to include in the prompt if necessary
+            max_docs_to_include = 5  # Adjust this number as needed
+            relevant_files['documents'][0] = relevant_files['documents'][0][:max_docs_to_include]
         else:
             relevant_files = {"documents": ["No relevant Python files found."]}
         
@@ -325,6 +338,7 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
         1. EVERY EXPLANATION MUST START WITH '#'. 
         2. DO NOT USE ANY MARKDOWN SYNTAX OR CODE BLOCKS. 
         3. ONLY USE INFORMATION FROM THE parameters_to_take.txt FILE.
+        DO NOT INVENT ANY NEW INFORMATION.
         4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
         5. ENSURE ALL PARAMETER NAMES AND VALUES APPEAR IN parameters_to_take.txt.
         6. If you ever use genetic crossover, you must use genetic mutation as well. 
