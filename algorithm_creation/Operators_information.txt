@@ -1,0 +1,106 @@
+### this is the central_force_dynamic function 
+import numpy as np
+
+def central_force_dynamic(pop, gravity=0.001, alpha=0.01, beta=1.5, dt=1.0):
+    """
+    Apply the central force dynamic from Central Force Optimisation (CFO) to the population's positions (pop.positions).
+
+    :param population pop: population.
+    :param float gravity: optional.
+        It is the gravitational constant. The default is 0.001.
+    :param float alpha: optional.
+        It is the power mass factor. The default is 0.01.
+    :param float beta: optional.
+        It is the power distance factor. The default is 1.5.
+    :param float dt: optional.
+        It is the time interval between steps. The default is 1.0.
+
+    :return: None.
+    """
+    # Initialise acceleration
+    acceleration = np.zeros((pop.num_agents, pop.num_dimensions))
+
+    for agent in range(pop.num_agents):
+        # Select indices in order to avoid division by zero
+        indices = (np.arange(pop.num_agents) != agent)
+
+        # Determine all masses differences with respect to agent
+        delta_masses = pop.fitness[indices] - np.tile(
+            pop.fitness[agent], (1, pop.num_agents - 1))
+
+        # Determine all vector distances with respect to agent
+        delta_positions = pop.positions[indices, :] - np.tile(pop.positions[agent, :], (pop.num_agents - 1, 1))
+
+        distances = np.linalg.norm(delta_positions, 2, 1)
+
+        # Find the quotient part
+        quotient = np.heaviside(-delta_masses, 0.0) * (np.abs(delta_masses) ** alpha) / (distances ** beta + 1e-23)
+
+        # Determine the acceleration for each agent
+        acceleration[agent, :] = gravity * np.sum(delta_positions * np.tile(
+            quotient.transpose(), (1, pop.num_dimensions)), 0)
+
+    pop.positions += 0.5 * acceleration * (dt ** 2)
+
+### this is the differential_mutation function 
+
+import numpy as np
+
+class OperatorsError(Exception):
+    pass
+
+def differential_mutation(pop, expression='current-to-best', num_rands=1, factor=1.0):
+    """
+    Apply the differential mutation from Differential Evolution (DE) to the population's positions (pop.positions).
+
+    :param population pop: population.
+        It is a population object.
+    :param str expression: optional.
+        Type of DE mutation. Available mutations: 'rand', 'best', 'current', 'current-to-best', 'rand-to-best',
+         'rand-to-best-and-current'. The default is 'current-to-best'.
+    :param int num_rands: optional.
+        Number of differences between positions selected at random. The default is 1.
+    :param float factor: optional.
+        Scale factor (F) to weight contributions from other agents. The default is 1.0.
+
+    :return: None.
+
+    """
+    # TODO: Include the expression 'current-to-pbest'
+    # Create mutants using the expression provided in scheme
+    if expression == 'rand':
+        mutant = pop.positions[np.random.permutation(pop.num_agents), :]
+
+    elif expression == 'best':
+        mutant = np.tile(pop.global_best_position, (pop.num_agents, 1))
+
+    elif expression == 'current':
+        mutant = pop.positions
+
+    elif expression == 'current-to-best':
+        mutant = pop.positions + factor * (np.tile(pop.global_best_position, (pop.num_agents, 1)) -
+                                           pop.positions[np.random.permutation(pop.num_agents), :])
+
+    elif expression == 'rand-to-best':
+        mutant = pop.positions[np.random.permutation(pop.num_agents), :] + factor * (np.tile(
+            pop.global_best_position, (pop.num_agents, 1)) - pop.positions[np.random.permutation(pop.num_agents), :])
+
+    elif expression == 'rand-to-best-and-current':
+        mutant = pop.positions[np.random.permutation(pop.num_agents), :] + factor * (
+                np.tile(pop.global_best_position, (pop.num_agents, 1)) -
+                pop.positions[np.random.permutation(pop.num_agents), :] +
+                pop.positions[np.random.permutation(pop.num_agents), :] - pop.positions)
+    else:
+        raise OperatorsError('Invalid DE mutation scheme!')
+
+    # Add random parts according to num_rands
+    if num_rands >= 0:
+        for _ in range(num_rands):
+            mutant += factor * (pop.positions[np.random.permutation(pop.num_agents), :] -
+                                pop.positions[np.random.permutation(pop.num_agents), :])
+    else:
+        raise OperatorsError('Invalid DE mutation scheme!')
+
+    # Replace mutant population in the current one
+    pop.positions = np.copy(mutant)
+

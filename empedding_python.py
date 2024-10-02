@@ -287,7 +287,7 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
         Please DO NOT USE ANY operators or parameters that are not in the parameters_to_take.txt file.
         This is the parameters_to_take.txt file:
         {data}
-        
+        IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
         Use the same template as the one provided before, which is:
         
         # Name: [Your chosen name for the metaheuristic]
