@@ -1,4 +1,6 @@
-DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```.
+DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```
+DO NOT invent any parameter or operator, only use the ones provided
+
 These are the parameters to take, depending on the selected operator, remember YOU MUST ONLY USE USE ONE VARIABLE PER PARAMETER, DO NOT USE THE WHOLE ARRAY, and write the variable without an array format, but as a float or string format:
 {
   "random_search": {  # operator

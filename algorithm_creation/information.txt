@@ -1,5 +1,6 @@
 Important notes:
 -  DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```.
+- Do not invent any parameter or operator, only use the ones provided.
 - If you decide to use the operator genetic_crossover, then you must use genetic_mutation too. And vice versa. 
 - Random search algorithms are useful for ill-structured global optimization problems, where the objective function may be nonconvex, nondifferentiable, and possibly discontinuous over a continuous, discrete, or mixed continuous-discrete domain.
 

@@ -53,7 +53,8 @@ for filename in os.listdir(python_files_dir):
             print(f"Warning: Empty embedding generated for {filename}")
 
 prompt = """
-IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
+IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
+        DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
 
 You are a computer scientist specializing in natural computing and metaheuristic algorithms. Your task is to design a novel metaheuristic algorithm for the {fun} optimization problem using only the operators and selectors from the parameters_to_take.txt file.
 
@@ -190,20 +191,20 @@ prob = fun.get_formatted_problem()
 heur = [
             ( # Search operator 1
             '[operator_name]',
-            {{
+            {
                 'parameter1': value1,
                 'parameter2': value2,
-                # ... more parameters as needed
-            }},
+                 ... more parameters as needed
+            },
             '[selector_name]'
             ),
             (  
             '[operator_name]',
-            {{
+            {
                 'parameter1': value1,
                 'parameter2': value2,
-                # ... more parameters as needed
-            }},
+                 ... more parameters as needed
+            },
             '[selector_name]'
         )
       ]
@@ -293,6 +294,8 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
         
         # Construct the refinement prompt with relevant feedback and Python files
         refinement_prompt = f"""
+        IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
+        DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
         You are a computer scientist specializing in natural computing and metaheuristic algorithms. You have been tasked with refining and improving the following output:
 
         {current_output['response']}
@@ -328,10 +331,10 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
         heur = [
             ( # Search operator 1
             '[operator_name]',
-            {{
+            {{ 
                 'parameter1': value1,
                 'parameter2': value2,
-                # ... more parameters as needed
+                 ... more parameters as needed
             }},
             '[selector_name]'
             ),
@@ -340,7 +343,7 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
             {{
                 'parameter1': value1,
                 'parameter2': value2,
-                # ... more parameters as needed
+                 ... more parameters as needed
             }},
             '[selector_name]'
         )
