@@ -8,6 +8,10 @@ import datetime
 import subprocess
 import time
 import logging
+from sklearn.neighbors import NearestNeighbors
+import nltk
+from mattsollamatools import chunker
+
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -245,8 +249,8 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
     
     print(current_output['response'])
     
-    # Write initial output
-    write_output_to_file(current_output['response'], output_folder, 0)
+    # Write initial output  # commenting to avoid to much files 
+    #write_output_to_file(current_output['response'], output_folder, 0)
     
     for i in range(max_iterations):
         execution_result = execute_generated_code(current_output['response'], output_folder, i)
@@ -264,7 +268,7 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
         query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output['response'])
         
         # Ensure n_results is at least 1
-        n_results = max(1, min(i, 2))
+        n_results = max(1, min(i, 7))
         relevant_feedback = feedback_collection.query(
             query_embeddings=[query_embedding['embedding']],
             n_results=n_results
@@ -287,7 +291,7 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
                 relevant_files['documents'] = [sorted_documents]
             
             # Limit the number of documents to include in the prompt if necessary
-            max_docs_to_include = 5  # Adjust this number as needed
+            max_docs_to_include = 2  # Adjust this number as needed
             relevant_files['documents'][0] = relevant_files['documents'][0][:max_docs_to_include]
         else:
             relevant_files = {"documents": ["No relevant Python files found."]}
@@ -395,8 +399,8 @@ def write_output_to_file(output, folder, iteration):
     file_name = f'ollama_output_iteration_{iteration}.py'
     file_path = os.path.join(folder, file_name)
     try:
-        with open(file_path, 'w') as file:
-            file.write(output)
+        #with open(file_path, 'w') as file:
+        #     file.write(output)
         print(f"Output for iteration {iteration} has been written to {file_path}")
     except Exception as e:
         print(f"An error occurred while writing iteration {iteration} to file: {e}")

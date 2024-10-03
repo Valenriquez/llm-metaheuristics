@@ -1,0 +1,18 @@
+Exit code: 1
+Stdout:
+
+Search operators to employ:
+particle_swarm(inertia_weight=0.7,cognitive_acceleration=1.5,social_acceleration=1.5) with all
+gravitational_search(gravity=0.9,alpha=0.5) with metropolis
+--------------------------------------------------
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241003_092531/execution_iteration_4.py", line 34, in <module>
+    met.run()
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 143, in run
+    self.apply_search_operator(perturbator, selector)
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 99, in apply_search_operator
+    exec('Operators.' + operator_name + '(self.pop,' + operator_params)
+  File "<string>", line 1, in <module>
+AttributeError: module 'operators' has no attribute 'particle_swarm'
