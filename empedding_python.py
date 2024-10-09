@@ -63,7 +63,7 @@ IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
 You are a computer scientist specializing in natural computing and metaheuristic algorithms. Your task is to design a novel metaheuristic algorithm for the {fun} optimization problem using only the operators and selectors from the parameters_to_take.txt file.
 
 INSTRUCTIONS:
-1. Use only the function: bf.Sphere(2)
+1. Use only the function: bf.Rastrigin(2)
 2. Use only operators and selectors from parameters_to_take.txt. 
 3. Use only the parameters of the operator chosen from parameters_to_take.txt. 
 4. The options inside the array are the ones you can choose from to fill each parameter.
@@ -189,7 +189,7 @@ import benchmark_func as bf
 import metaheuristic as mh
 
 
-fun = bf.Sphere(2)
+fun = bf.Rastrigin(2)
 prob = fun.get_formatted_problem()
 
 heur = [
@@ -329,7 +329,7 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
         import metaheuristic as mh
 
 
-        fun = bf.Sphere(2)
+        fun = bf.Rastrigin(2)
         prob = fun.get_formatted_problem()
 
         heur = [

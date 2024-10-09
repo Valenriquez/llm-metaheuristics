@@ -1,7 +1,3 @@
-"""LLaMEA - LLM powered Evolutionary Algorithm for code optimization
-This module integrates OpenAI's language models to generate and evolve
-algorithms to automatically evaluate (for example metaheuristics evaluated on BBOB).
-"""
 import re
 import traceback
 import numpy as np
@@ -19,13 +15,11 @@ import llm
 class NoCodeException(Exception):
     pass
  
-class LLaMEA:
+class RagCustumhys:
     """
-    A class that represents the Language Model powered Evolutionary Algorithm (LLaMEA).
     This class handles the initialization, evolution, and interaction with a language model
     to generate and refine algorithms.
     """
-
     def __init__(
         self,
         f,
@@ -35,15 +29,13 @@ class LLaMEA:
         elitism=True,
         feedback_prompt="",
         budget=100,
+        client ="",
         model="deepseek-coder-v2",
         log=True,
     ):
         """
-        Initializes the LLaMEA instance with provided parameters.
-
         Args:
             f (callable): The evaluation function to measure the fitness of algorithms.
-            api_key (str): The API key for accessing OpenAI's services.
             role_prompt (str): A prompt that defines the role of the language model in the optimization task.
             task_prompt (str): A prompt describing the task for the language model to generate optimization algorithms.
             experiment_name (str): The name of the experiment for logging purposes.
@@ -53,12 +45,12 @@ class LLaMEA:
             model (str): The model identifier from OpenAI or ollama to be used.
             log (bool): Flag to switch of the logging of experiments.
         """
-        self.client = LLMmanager(api_key, model)
+        self.client = LLMmanager(model)
         self.model = model
         self.f = f  # evaluation function, provides a string as feedback, a numerical value (higher is better), and a possible error string.
         self.role_prompt = role_prompt
         if role_prompt == "":
-            self.role_prompt = "You are a highly skilled computer scientist in the field of natural computing. Your task is to design novel metaheuristic algorithms to solve black box optimization problems."
+            self.role_prompt = "You are a highly skilled computer scientist in the field of natural computing. Your task is to design novel metaheuristic algorithms to solve the benchmark problems provided by the user."
         if task_prompt == "":
             self.task_prompt = """
 You are a computer scientist specializing in natural computing and metaheuristic algorithms. Your task is to design a novel metaheuristic algorithm for the {fun} optimization problem using only the operators and selectors from the parameters_to_take.txt file.
@@ -67,7 +59,7 @@ DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE 
 
 
 INSTRUCTIONS:
-1. Use only the function: bf.Sphere(2)
+1. Use only the function: bf.{experiment_name}
 2. Use only operators and selectors from parameters_to_take.txt. 
 3. Use only the parameters of the operator chosen from parameters_to_take.txt. 
 4. The options inside the array are the ones you can choose from to fill each parameter.
@@ -95,7 +87,7 @@ import benchmark_func as bf
 import metaheuristic as mh
 
 
-fun = bf.Sphere(2)
+fun = bf.{experiment_name}
 prob = fun.get_formatted_problem()
 
 heur = [
@@ -203,7 +195,7 @@ print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
         """
         if self.log:
             self.logger.log_conversation(
-                "LLaMEA", "\n".join([d["content"] for d in session_messages])
+                "RAG-CUSTUMHYS", "\n".join([d["content"] for d in session_messages])
             )
 
         message = self.client.chat(session_messages)
