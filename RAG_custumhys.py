@@ -18,13 +18,15 @@ class NoCodeException(Exception):
  
 class MetaheuristicGenerator:
 
-    def __init__(self, function, model="deepseek-coder-v2", max_iterations=7):
+    def __init__(self, experiment_name, model="deepseek-coder-v2", max_iterations=7):
         #self.experiment_name = function
         self.model = model
         self.max_iterations = max_iterations
         self.client = chromadb.Client()
         self.collection = self.client.create_collection(name="algorithm_creation")
         self.feedback_collection = self.client.create_collection(name="feedback_collection")
+        self.experiment_name = experiment_name
+
         
         logging.basicConfig(level=logging.DEBUG)
         self.logger = logging.getLogger(__name__)
@@ -32,7 +34,6 @@ class MetaheuristicGenerator:
         sys.path.append('llm-metaheuristics/algorithm_creation')
         
         #self.fun = getattr(bf, function)(2)
-        self.experiment_name = self.fun.__class__.__name__
         
         self.python_files_dir = 'llm-metaheuristics/algorithm_creation'
         self.process_python_files()
@@ -293,11 +294,23 @@ class MetaheuristicGenerator:
                 prompt=prompt,
                 model="mxbai-embed-large"
             )
+                # Check if the embedding is empty
+            if not response.get("embedding"):
+                self.logger.error("Generated embedding is empty")
+                return
+            
             results = self.collection.query(
                 query_embeddings=[response["embedding"]],
                 n_results=1
             )
+            
+            # Check if results are empty
+            if not results['documents']:
+                self.logger.error("No results found in the collection")
+                return
+            
             data = results['documents'][0][0]
+
 
             current_dir = os.path.dirname(os.path.abspath(__file__))
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -320,6 +333,11 @@ class MetaheuristicGenerator:
 if __name__ == "__main__":
     generator = MetaheuristicGenerator("Rastrigin")
     generator.run()
+
+
+prueba = MetaheuristicGenerator("Rastrigin")
+prueba.run()
+
 
 
                 #    self.feedback_prompt = (

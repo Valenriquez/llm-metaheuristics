@@ -45,7 +45,7 @@ class RagCustumhys:
             model (str): The model identifier from OpenAI or ollama to be used.
             log (bool): Flag to switch of the logging of experiments.
         """
-        self.client = LLMmanager(model)
+        #self.client = LLMmanager(model)
         self.model = model
         self.f = f  # evaluation function, provides a string as feedback, a numerical value (higher is better), and a possible error string.
         self.role_prompt = role_prompt
@@ -121,30 +121,6 @@ print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
 # [Your explanation here, each line starting with '#']
 ```
 """
-        else:
-            self.task_prompt = task_prompt
-        self.feedback_prompt = feedback_prompt
-        if feedback_prompt == "":
-            self.feedback_prompt = (
-                f"Either refine or redesign to improve the solution (and give it a distinct name). Give the response in the format:\n"
-                f"# Name: <name>\n"
-                f"# Code: <code>"
-            )
-        self.budget = budget
-        self.elitism = elitism
-        self.generation = 0
-        self.best_solution = None
-        self.best_fitness = -np.Inf
-        self.best_error = ""
-        self.last_error = ""
-        self.last_solution = ""
-        self.history = ""
-        self.log = log
-        if self.log:
-            modelname = self.model.replace(":", "_")
-            self.logger = ExperimentLogger(f"{modelname}-ES {experiment_name}")
-        else:
-            self.logger = None
 
     def initialize(self):
         """
