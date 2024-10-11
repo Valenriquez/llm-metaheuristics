@@ -335,8 +335,7 @@ if __name__ == "__main__":
     generator.run()
 
 
-prueba = MetaheuristicGenerator("Rastrigin")
-prueba.run()
+
 
 
 
