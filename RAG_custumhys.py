@@ -72,7 +72,7 @@ class MetaheuristicGenerator:
 
 
             INSTRUCTIONS:
-            1. Use only the function: bf.{experiment_name}
+            1. Use only the function: bf.{self.experiment_name}
             2. Use only operators and selectors from parameters_to_take.txt. 
             3. Use only the parameters of the operator chosen from parameters_to_take.txt. 
             4. The options inside the array are the ones you can choose from to fill each parameter.
@@ -100,7 +100,7 @@ class MetaheuristicGenerator:
             import metaheuristic as mh
 
 
-            fun = bf.{experiment_name}
+            fun = bf.{self.experiment_name}
             prob = fun.get_formatted_problem()
 
             heur = [
@@ -134,6 +134,9 @@ class MetaheuristicGenerator:
             # [Your explanation here, each line starting with '#']
             ```
             """
+        # Combine role_prompt and task_prompt
+        full_prompt = f"{self.role_prompt}\n\n{self.task_prompt}"
+        return full_prompt
             
     def self_refine(self, initial_prompt, data, output_folder):
             current_output = ollama.generate(
@@ -290,6 +293,9 @@ class MetaheuristicGenerator:
         self.logger.debug("Starting main execution")
         try:
             prompt = self.generate_prompt()
+            self.logger.debug(f"Generated prompt: {prompt}")  # Log the generated prompt
+
+
             response = ollama.embeddings(
                 prompt=prompt,
                 model="mxbai-embed-large"
