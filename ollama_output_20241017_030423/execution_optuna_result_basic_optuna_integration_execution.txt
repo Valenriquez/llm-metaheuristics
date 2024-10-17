@@ -1,0 +1,7 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241017_030423/execution_optuna_iteration_basic_optuna_integration_execution.py", line 2
+    import optuna
+IndentationError: unexpected indent
