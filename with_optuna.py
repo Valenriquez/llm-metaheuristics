@@ -61,7 +61,7 @@ for filename in os.listdir(python_files_dir):
         else:
             print(f"Warning: Empty embedding generated for {filename}")
 
-# Process each Python file in the directory
+# Process each optuna file in the directory
 for filename in os.listdir(optuna_files_dir):
     if filename.endswith('.py') or filename.endswith('.txt'):
         file_path_optuna = os.path.join(optuna_files_dir, filename)
@@ -281,7 +281,7 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
     #write_output_to_file(current_output['response'], output_folder, 0)
     
     for i in range(max_iterations):
-        execution_result = execute_generated_code(current_output['response'], output_folder, i, is_optuna=False)
+        execution_result = execute_generated_code(current_output['response'], output_folder, i, False)
         
         # Add the current output and execution result to the feedback collection
         feedback_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output['response'] + execution_result)
@@ -411,7 +411,7 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
         )
         
         # Write refined output
-        write_output_to_file(refined_output['response'], output_folder, i+1, is_optuna=False)
+        write_output_to_file(refined_output['response'], output_folder, i+1, False)
         
         # Check if the refinement made significant changes
         if refined_output['response'].strip() == current_output['response'].strip():
@@ -425,18 +425,21 @@ def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, py
 
 
 def self_refine_with_optuna(original_code, data, model, output_folder, max_iterations=7):
+    print("self_refine_with_optuna")
     logger.debug("Starting self_refine_with_optuna function")
-
+    
+    # get or create the collection (here we are creating it)
     optuna_collecting = chromadb.Client().create_collection(name="optuna_collecting")
-    logger.debug("Retrieved optuna_builder collection")
+    logger.debug("Retrieved optuna_collecting collection")
     
     try:
         logger.debug("Generating initial Optuna-enhanced output")
-        current_output = ollama.generate(
+        current_output_with_optuna = ollama.generate(
             model=model,
             prompt=f"""
             Enhance the following metaheuristic code by incorporating Optuna for hyperparameter tuning:
             Add a "hello" function at the end of the code that prints "hello".
+
             {original_code}
             
             Use this data for reference: {data}
@@ -444,16 +447,15 @@ def self_refine_with_optuna(original_code, data, model, output_folder, max_itera
             Please add Optuna to optimize the parameters of the metaheuristic. 
             Ensure the Optuna-enhanced version still follows the original structure and logic.
             Add a "hello" function at the end of the code that prints "hello".
-
             """
         )
         
         logger.info("Initial Optuna-enhanced output generated")
         print("Initial Optuna-enhanced output:")
-        print(current_output['response'])
+        print(current_output_with_optuna['response'])
         
         # Write initial Optuna-enhanced output
-        write_output_to_file(current_output['response'], output_folder, "initial_optuna", is_optuna=True)
+        write_output_to_file(current_output_with_optuna['response'], output_folder, "initial_optuna", True)
         logger.debug("Wrote initial Optuna-enhanced output to file")
         
     except Exception as e:
@@ -463,56 +465,57 @@ def self_refine_with_optuna(original_code, data, model, output_folder, max_itera
 
     for i in range(max_iterations):
         logger.debug(f"Starting iteration {i} of Optuna refinement")
-        execution_result = execute_generated_code(current_output['response'], output_folder, i, is_optuna=True)
+        execution_result_with_optuna = execute_generated_code(current_output_with_optuna['response'], output_folder, i, True)
         logger.debug(f"Executed generated code for iteration {i}")
         
-        feedback_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output['response'] + execution_result)
+        optuna_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output_with_optuna['response'] + execution_result_with_optuna)
         optuna_collecting.add(
             ids=[f"optuna_iteration_{i}"],
-            embeddings=[feedback_embedding['embedding']],
-            documents=[current_output['response'] + "\n" + execution_result],
+            embeddings=[optuna_embedding['embedding']],
+            documents=[current_output_with_optuna['response'] + "\n" + execution_result_with_optuna],
             metadatas=[{"iteration": i}]
         )
         
-        query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output['response'])
+        query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output_with_optuna['response'])
         n_results = max(1, min(i, 7))
-        relevant_feedback = optuna_collecting.query(
+        relevant_feedback_with_optuna = optuna_collecting.query(
             query_embeddings=[query_embedding['embedding']],
             n_results=n_results
         )
         
-        refinement_prompt = f"""
+        refinement_prompt_with_optuna = f"""
         Refine the Optuna-enhanced metaheuristic:
-        {current_output['response']}
+        {current_output_with_optuna['response']}
         
         Execution result:
-        {execution_result}
+        {execution_result_with_optuna}
         
         Previous feedback:
-        {relevant_feedback['documents']}
+        {relevant_feedback_with_optuna['documents']}
         
         Improve the Optuna integration and fix any issues. Ensure it's working correctly.
         """
 
-        refined_output = ollama.generate(
+        refined_output_with_optuna = ollama.generate(
             model=model,
-            prompt=refinement_prompt
+            prompt=refinement_prompt_with_optuna
         )
         
         # Write refined Optuna output
-        write_output_to_file(refined_output['response'], output_folder, f"optuna_iteration_{i+1}", is_optuna=True)
+        write_output_to_file(refined_output_with_optuna['response'], output_folder, f"optuna_iteration_{i+1}", is_optuna=True)
         
-        if refined_output['response'].strip() == current_output['response'].strip():
+        if refined_output_with_optuna['response'].strip() == current_output_with_optuna['response'].strip():
             print(f"No significant changes after Optuna iteration {i+1}. Stopping refinement.")
             break
         
-        current_output = refined_output
+        current_output_with_optuna = refined_output_with_optuna
         print(f"Completed Optuna refinement iteration {i+1}")
     
     logger.debug("Completed self_refine_with_optuna function")
-    return current_output['response']
+    return current_output_with_optuna['response']
 
 def write_output_to_file(content, output_folder, filename, is_optuna):
+    print("sitieneoptuna") if is_optuna else print("NOOOOOOOOONE")
     prefix = "execution_optuna_" if is_optuna else "execution_"
     file_path = os.path.join(output_folder, f'{prefix}{filename}.py')
     with open(file_path, 'w') as f:
@@ -520,9 +523,11 @@ def write_output_to_file(content, output_folder, filename, is_optuna):
 
 
 def execute_generated_code(code, output_folder, iteration, is_optuna):
+    print("sitieneoptuna") if is_optuna else print("NOOOOOOOOONE")
     prefix = "execution_optuna_" if is_optuna else "execution_"
     file_name = f'{prefix}iteration_{iteration}.py'
     file_path = os.path.join(output_folder, file_name)
+    print(file_path)
     with open(file_path, 'w') as f:
         f.write(code)
     
@@ -546,17 +551,33 @@ if __name__ == "__main__":
     logger.debug("Starting main execution")
     try:
         # Your existing code to generate the output
-        logger.debug("Generating embeddings")
+        logger.debug("Generating embeddings for main prompt")
         response = ollama.embeddings(
             prompt=prompt,
             model="mxbai-embed-large"
         )
-        logger.debug("Querying collection")
+        logger.debug("Querying main collection")
         results = collection.query(
             query_embeddings=[response["embedding"]],
             n_results=1
         )
         data = results['documents'][0][0]
+
+        # New code to query optuna_collection
+        logger.debug("Generating embeddings for Optuna-related query")
+        optuna_response = ollama.embeddings(
+            prompt=prompt + " with Optuna hyperparameter tuning",
+            model="mxbai-embed-large"
+        )
+        logger.debug("Querying Optuna collection")
+        optuna_results = optuna_collection.query(
+            query_embeddings=[optuna_response["embedding"]],
+            n_results=1
+        )
+        optuna_data = optuna_results['documents'][0][0]
+
+        # Combine the data
+        combined_data = f"{data}\n\nOptuna-related information:\n{optuna_data}"
 
         # Create output folder
         logger.debug("Creating output folder")
@@ -569,44 +590,14 @@ if __name__ == "__main__":
         logger.debug("Starting self_refine for original output")
         original_refined_output = self_refine(prompt, data, "deepseek-coder-v2", output_folder)
         logger.info("Final refined output (without Optuna):")
-        print(original_refined_output)
-        write_output_to_file(original_refined_output, output_folder, "final_refined", is_optuna=False)
-        execute_generated_code(original_refined_output, output_folder, "final_refined_execution", is_optuna=False)
-
+       
         # Generate and refine the Optuna-enhanced version
         logger.debug("Starting self_refine_with_optuna")
-        optuna_refined_output = self_refine_with_optuna(original_refined_output, data, "deepseek-coder-v2", output_folder)
+        optuna_refined_output = self_refine_with_optuna(original_refined_output, combined_data, "deepseek-coder-v2", output_folder)
         if optuna_refined_output is not None:
             logger.info("Final Optuna-enhanced output:")
-            print(optuna_refined_output)
-            write_output_to_file(optuna_refined_output, output_folder, "final_optuna_refined", is_optuna=True)
-            execute_generated_code(optuna_refined_output, output_folder, "final_optuna_refined_execution", is_optuna=True)
         else:
             logger.error("Failed to generate Optuna-enhanced output")
-            # Attempt to generate a basic Optuna integration
-            basic_optuna_integration = f"""
-            import optuna
-            
-            def objective(trial):
-                # Add Optuna parameter suggestions here
-                return 0  # Replace with actual objective calculation
-            
-            study = optuna.create_study(direction="minimize")
-            study.optimize(objective, n_trials=100)
-            
-            print("Best trial:")
-            print("  Value: ", study.best_value)
-            print("  Params: ", study.best_params)
-            
-            {original_refined_output}
-            
-            def hello():
-                print("hello")
-            
-            hello()
-            """
-            write_output_to_file(basic_optuna_integration, output_folder, "basic_optuna_integration", is_optuna=True)
-            execute_generated_code(basic_optuna_integration, output_folder, "basic_optuna_integration_execution", is_optuna=True)
 
         logger.debug("Main execution completed")
 
@@ -614,3 +605,7 @@ if __name__ == "__main__":
         logger.error(f"An error occurred in the main execution: {str(e)}")
         logger.exception("Exception details:")
         raise
+
+
+
+
