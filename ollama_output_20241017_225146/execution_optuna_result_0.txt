@@ -1,0 +1,8 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/algorithm_creation/parameters_to_take.txt", line 1
+    Important notes:
+              ^^^^^
+SyntaxError: invalid syntax

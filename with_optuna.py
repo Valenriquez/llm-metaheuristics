@@ -1,5 +1,5 @@
 # This code is used to create a metaheuristic for an optimization problem using optuna and ollama.
-import optuna
+#import optuna
 import ollama
 import chromadb
 import numpy as np
@@ -8,25 +8,28 @@ import benchmark_func as bf
 import sys
 import datetime
 import subprocess
-import time
+#import time
 import logging
 from sklearn.neighbors import NearestNeighbors
-import nltk
-from mattsollamatools import chunker
-
+#import nltk
+#from mattsollamatools import chunker
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# sys is a built-in Python module that provides access to some variables and functions used or maintained by the Python interpreter.
+# sys.path is used to add directories to the Python interpreter's search path for modules.
+# append is a method that adds a directory to the end of the search path.
+# 'llm-metaheuristics/algorithm_creation' is the directory to be added to the search path.
 sys.path.append('llm-metaheuristics/algorithm_creation')
 
 # Define the function
 fun = bf.Ackley1(2)
 
 # Get the function name
-fun_name = fun.__class__.__name__
+# fun_name = fun.__class__.__name__
 
-# Initialize ChromaDB client
+# Initialize ChromaDB client: AI-native open-source vector database
 client = chromadb.Client()
 
 def read_python_file(file_path):
@@ -37,10 +40,11 @@ def read_python_file(file_path):
 python_files_dir = 'llm-metaheuristics/algorithm_creation'
 optuna_files_dir = 'llm-metaheuristics/optuna_builder'
 
-
  # Create a collection for Python files
-collection = client.create_collection(name="algorithm_creation")
-optuna_collection = client.create_collection(name="optuna_builder")
+ # Collections are where you'll store your embeddings, documents, and any additional metadata. 
+
+collection = client.create_collection(name="algorithm_creation") # Create a collection for Python files
+optuna_collection = client.create_collection(name="optuna_builder") # Create a collection for Optuna files
 
 # Process each Python file in the directory
 for filename in os.listdir(python_files_dir):
@@ -48,6 +52,8 @@ for filename in os.listdir(python_files_dir):
         file_path = os.path.join(python_files_dir, filename)
         file_content = read_python_file(file_path)
         
+        # Embeddings are numerical representations of your data that can be used for tasks like similarity search, 
+        # clustering, and more.
         response = ollama.embeddings(model="mxbai-embed-large", prompt=file_content)
         embedding = response.get("embedding")
         
@@ -261,278 +267,231 @@ REMEMBER:
 
 optuna_prompt = """
 
+IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
+        DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
+
+You are a clown. Tell me a joke.  
 """
  
-def self_refine(initial_prompt, data, model, output_folder, max_iterations=7, python_files_dir='llm-metaheuristics/algorithm_creation'):
-    # Initialize a collection for storing feedback
-    feedback_collection = chromadb.Client().create_collection(name="feedback_collection")
+def self_refine(initial_prompt, data, model, output_folder, iteration):
+    # Stores feedback from previous iterations.
+    feedback_collection = chromadb.Client().get_or_create_collection(name="feedback_collection")
     
-    # Initialize a collection for Python files if not already done
+    # Stores Python files.
     python_files_collection = chromadb.Client().get_or_create_collection(name="algorithm_creation")
     
+    # Uses Ollama to generate an initial response based on the given prompt and data.
     current_output = ollama.generate(
         model=model,
         prompt=f"Using this data: {data}. Respond to this prompt: {initial_prompt}"
     )
     
-    print(current_output['response'])
+    #print(current_output['response'])
     
-    # Write initial output  # commenting to avoid to much files 
-    #write_output_to_file(current_output['response'], output_folder, 0)
+    # Write output
+    #execute_generated_code(current_output['response'], output_folder, iteration, False)
     
-    for i in range(max_iterations):
-        execution_result = execute_generated_code(current_output['response'], output_folder, i, False)
-        
-        # Add the current output and execution result to the feedback collection
-        feedback_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output['response'] + execution_result)
-        feedback_collection.add(
-            ids=[f"iteration_{i}"],
-            embeddings=[feedback_embedding['embedding']],
-            documents=[current_output['response'] + "\n" + execution_result],
-            metadatas=[{"iteration": i}]
-        )
-        
-        # Retrieve relevant feedback from previous iterations
-        query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output['response'])
-        
-        # Ensure n_results is at least 1
-        n_results = max(1, min(i, 7))
-        relevant_feedback = feedback_collection.query(
+    # The first call to execute_generated_code runs the initially generated code and captures the execution result.
+    execution_result = execute_generated_code(current_output['response'], output_folder, iteration, False)
+    print("execution_result - to see what is being added to the feedback collection")
+    print(execution_result)
+    # Fetches feedback from previous iterations that are semantically similar to the current output.
+    feedback_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output['response'] + execution_result)
+    feedback_collection.add(
+        ids=[f"iteration_{iteration}"],
+        embeddings=[feedback_embedding['embedding']],
+        documents=[current_output['response'] + "\n" + execution_result],
+        metadatas=[{"iteration": iteration}]
+    )
+    
+    # Retrieve relevant feedback from previous iterations
+    query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output['response'])
+    
+    # Ensure n_results is at least 1
+    n_results = max(1, min(iteration, 7))
+    relevant_feedback = feedback_collection.query(
+        query_embeddings=[query_embedding['embedding']],
+        n_results=n_results
+    )
+    
+    # Retrieve all Python files
+    if python_files_collection.count() > 0:
+        total_docs = python_files_collection.count()
+        relevant_files = python_files_collection.query(
             query_embeddings=[query_embedding['embedding']],
-            n_results=n_results
+            n_results=total_docs  # Retrieve all documents
         )
         
-        # Retrieve all Python files
-        if python_files_collection.count() > 0:
-            total_docs = python_files_collection.count()
-            relevant_files = python_files_collection.query(
-                query_embeddings=[query_embedding['embedding']],
-                n_results=total_docs  # Retrieve all documents
-            )
+        # Sort the results by relevance score (if available)
+        if 'distances' in relevant_files:
+            sorted_indices = sorted(range(len(relevant_files['distances'][0])), 
+                                    key=lambda k: relevant_files['distances'][0][k])
             
-            # Sort the results by relevance score (if available)
-            if 'distances' in relevant_files:
-                sorted_indices = sorted(range(len(relevant_files['distances'][0])), 
-                                        key=lambda k: relevant_files['distances'][0][k])
-                
-                sorted_documents = [relevant_files['documents'][0][i] for i in sorted_indices]
-                relevant_files['documents'] = [sorted_documents]
-            
-            # Limit the number of documents to include in the prompt if necessary
-            max_docs_to_include = 2  # Adjust this number as needed
-            relevant_files['documents'][0] = relevant_files['documents'][0][:max_docs_to_include]
-        else:
-            relevant_files = {"documents": ["No relevant Python files found."]}
+            sorted_documents = [relevant_files['documents'][0][i] for i in sorted_indices]
+            relevant_files['documents'] = [sorted_documents]
         
-        # Construct the refinement prompt with relevant feedback and Python files
-        refinement_prompt = f"""
-        IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
-        DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
-        You are a computer scientist specializing in natural computing and metaheuristic algorithms. You have been tasked with refining and improving the following output:
-
-        {current_output['response']}
-        The code was executed with the following result:
-        {execution_result}
-        You must fix the results. I need the metaheuristic to run correctly. 
-        Here is relevant feedback from previous iterations:
-        {relevant_feedback['documents']}
-
-        Here are relevant Python files that might be helpful:
-        {relevant_files['documents']}
-
-        Please analyze this output and suggest improvements and corrections. 
-        Please DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ``` in the response.
-        Please DO NOT USE ANY operators or parameters that are not in the parameters_to_take.txt file.
-        This is the parameters_to_take.txt file:
-        {data}
-        IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
-        Use the same template as the one provided before, which is:
-        
-        # Name: [Your chosen name for the metaheuristic]
-        # Code:
-
-        import sys
-        sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
-        import benchmark_func as bf
-        import metaheuristic as mh
-
-
-        fun = bf.Rastrigin(2)
-        prob = fun.get_formatted_problem()
-
-        heur = [
-            ( # Search operator 1
-            '[operator_name]',
-            {{ 
-                'parameter1': value1,
-                'parameter2': value2,
-                 ... more parameters as needed
-            }},
-            '[selector_name]'
-            ),
-            (  
-            '[operator_name]',
-            {{
-                'parameter1': value1,
-                'parameter2': value2,
-                 ... more parameters as needed
-            }},
-            '[selector_name]'
-        )
-      ]
-
-        met = mh.Metaheuristic(prob, heur, num_iterations=100)
-        met.verbose = True
-        met.run()
-        print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
-
-
-        # Short explanation and justification:
-        # [Your explanation here, each line starting with '#']
-
-        REMEMBER: 
-        1. EVERY EXPLANATION MUST START WITH '#'. 
-        2. DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```.
-        3. ONLY USE INFORMATION FROM THE parameters_to_take.txt FILE.
-        DO NOT INVENT ANY NEW INFORMATION.
-        4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
-        5. ENSURE ALL PARAMETER NAMES AND VALUES APPEAR IN parameters_to_take.txt.
-        6. If you ever use genetic crossover, you must use genetic mutation as well. 
-        7. Verifying that only operators and parameters from parameters_to_take.txt are used.
-        8. Checking for any logical errors or inconsistencies.
-        9. Improving the explanation and justification.
-
-        Provide your refined version of the entire output, not just the changes.
-        """
-
-        refined_output = ollama.generate(
-            model=model,
-            prompt=refinement_prompt
-        )
-        
-        # Write refined output
-        write_output_to_file(refined_output['response'], output_folder, i+1, False)
-        
-        # Check if the refinement made significant changes
-        if refined_output['response'].strip() == current_output['response'].strip():
-            print(f"No significant changes after iteration {i+1}. Stopping refinement.")
-            break
-        
-        current_output = refined_output
-        print(f"Completed refinement iteration {i+1}")
+        # Limit the number of documents to include in the prompt if necessary
+        max_docs_to_include = 2  # Adjust this number as needed
+        relevant_files['documents'][0] = relevant_files['documents'][0][:max_docs_to_include]
+    else:
+        relevant_files = {"documents": ["No relevant Python files found."]}
     
-    return current_output['response']
+    # Construct the refinement prompt with relevant feedback and Python files
+    refinement_prompt = f"""
+    IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
+    DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
+    You are a computer scientist specializing in natural computing and metaheuristic algorithms. You have been tasked with refining and improving the following output:
+
+    {current_output['response']}
+    The code was executed with the following result:
+    {execution_result}
+    You must fix the results. I need the metaheuristic to run correctly. 
+    Here is relevant feedback from previous iterations:
+    {relevant_feedback['documents']}
+
+    Here are relevant Python files that might be helpful:
+    {relevant_files['documents']}
+
+    Please analyze this output and suggest improvements and corrections. 
+    Please DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ``` in the response.
+    Please DO NOT USE ANY operators or parameters that are not in the parameters_to_take.txt file.
+    This is the parameters_to_take.txt file:
+    {data}
+    IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
+    Use the same template as the one provided before, which is:
+    
+    # Name: [Your chosen name for the metaheuristic]
+    # Code:
+
+    import sys
+    sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+    import benchmark_func as bf
+    import metaheuristic as mh
 
 
-def self_refine_with_optuna(original_code, data, model, output_folder, max_iterations=7):
-    print("self_refine_with_optuna")
-    logger.debug("Starting self_refine_with_optuna function")
+    fun = bf.Rastrigin(2)
+    prob = fun.get_formatted_problem()
+
+    heur = [
+        ( # Search operator 1
+        '[operator_name]',
+        {{ 
+            'parameter1': value1,
+            'parameter2': value2,
+             ... more parameters as needed
+        }},
+        '[selector_name]'
+        ),
+        (  
+        '[operator_name]',
+        {{
+            'parameter1': value1,
+            'parameter2': value2,
+             ... more parameters as needed
+        }},
+        '[selector_name]'
+    )
+  ]
+
+    met = mh.Metaheuristic(prob, heur, num_iterations=100)
+    met.verbose = True
+    met.run()
+    print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
+
+
+    # Short explanation and justification:
+    # [Your explanation here, each line starting with '#']
+
+    REMEMBER: 
+    1. EVERY EXPLANATION MUST START WITH '#'. 
+    2. DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```.
+    3. ONLY USE INFORMATION FROM THE parameters_to_take.txt FILE.
+    DO NOT INVENT ANY NEW INFORMATION.
+    4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
+    5. ENSURE ALL PARAMETER NAMES AND VALUES APPEAR IN parameters_to_take.txt.
+    6. If you ever use genetic crossover, you must use genetic mutation as well. 
+    7. Verifying that only operators and parameters from parameters_to_take.txt are used.
+    8. Checking for any logical errors or inconsistencies.
+    9. Improving the explanation and justification.
+
+    Provide your refined version of the entire output, not just the changes.
+    """
+
+    refined_output = ollama.generate(
+        model=model,
+        prompt=refinement_prompt
+    )
+    
+    # Write refined output
+    execute_generated_code(refined_output['response'], output_folder, iteration, False)
+    
+    return refined_output['response']
+
+
+def self_refine_with_optuna(data, model, output_folder, iteration_number):
+    logger.debug(f"Starting self_refine_with_optuna function for iteration {iteration_number}")
     
     # get or create the collection (here we are creating it)
-    optuna_collecting = chromadb.Client().create_collection(name="optuna_collecting")
-    logger.debug("Retrieved optuna_collecting collection")
+    #optuna_collecting = chromadb.Client().create_collection(name="optuna_collecting")
+    #logger.debug("Retrieved optuna_collecting collection")
     
     try:
-        logger.debug("Generating initial Optuna-enhanced output")
-        current_output_with_optuna = ollama.generate(
-            model=model,
-            prompt=f"""
+        # Read the content of the execution_iteration_number.py file
+        input_file_path = os.path.join(output_folder, f'execution_iteration_{iteration_number}.py')
+        with open(input_file_path, 'r') as file:
+            original_code = file.read()
+
+        logger.debug(f"Generating Optuna-enhanced output for iteration {iteration_number}")
+
+        full_prompt = f"""
             Enhance the following metaheuristic code by incorporating Optuna for hyperparameter tuning:
-            Add a "hello" function at the end of the code that prints "hello".
+            USE THIS SAME CODE: 
 
             {original_code}
             
-            Use this data for reference: {data}
+            Use this data for reference on enhancing the previous code: {data}
             
             Please add Optuna to optimize the parameters of the metaheuristic. 
             Ensure the Optuna-enhanced version still follows the original structure and logic.
-            Add a "hello" function at the end of the code that prints "hello".
-            """
-        )
-        
-        logger.info("Initial Optuna-enhanced output generated")
-        print("Initial Optuna-enhanced output:")
-        print(current_output_with_optuna['response'])
-        
-        # Write initial Optuna-enhanced output
-        write_output_to_file(current_output_with_optuna['response'], output_folder, "initial_optuna", True)
-        logger.debug("Wrote initial Optuna-enhanced output to file")
-        
-    except Exception as e:
-        logger.error(f"Error generating initial Optuna-enhanced output: {str(e)}")
-        logger.exception("Exception details:")
-        return None
-
-    for i in range(max_iterations):
-        logger.debug(f"Starting iteration {i} of Optuna refinement")
-        execution_result_with_optuna = execute_generated_code(current_output_with_optuna['response'], output_folder, i, True)
-        logger.debug(f"Executed generated code for iteration {i}")
-        
-        optuna_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output_with_optuna['response'] + execution_result_with_optuna)
-        optuna_collecting.add(
-            ids=[f"optuna_iteration_{i}"],
-            embeddings=[optuna_embedding['embedding']],
-            documents=[current_output_with_optuna['response'] + "\n" + execution_result_with_optuna],
-            metadatas=[{"iteration": i}]
-        )
-        
-        query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output_with_optuna['response'])
-        n_results = max(1, min(i, 7))
-        relevant_feedback_with_optuna = optuna_collecting.query(
-            query_embeddings=[query_embedding['embedding']],
-            n_results=n_results
-        )
-        
-        refinement_prompt_with_optuna = f"""
-        Refine the Optuna-enhanced metaheuristic:
-        {current_output_with_optuna['response']}
-        
-        Execution result:
-        {execution_result_with_optuna}
-        
-        Previous feedback:
-        {relevant_feedback_with_optuna['documents']}
-        
-        Improve the Optuna integration and fix any issues. Ensure it's working correctly.
-        """
-
-        refined_output_with_optuna = ollama.generate(
+          """
+        current_output_with_optuna = ollama.generate(
             model=model,
-            prompt=refinement_prompt_with_optuna
+            prompt=full_prompt
         )
+        logger.debug(f"Full prompt for Ollama: {full_prompt}")
         
-        # Write refined Optuna output
-        write_output_to_file(refined_output_with_optuna['response'], output_folder, f"optuna_iteration_{i+1}", is_optuna=True)
+        logger.info(f"Optuna-enhanced output generated for iteration {iteration_number}")
         
-        if refined_output_with_optuna['response'].strip() == current_output_with_optuna['response'].strip():
-            print(f"No significant changes after Optuna iteration {i+1}. Stopping refinement.")
-            break
+        execute_generated_code(current_output_with_optuna['response'], output_folder, iteration_number, True)
         
-        current_output_with_optuna = refined_output_with_optuna
-        print(f"Completed Optuna refinement iteration {i+1}")
+        #optuna_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output_with_optuna['response'] + execution_result_with_optuna)
+        #optuna_collecting.add(
+        #    ids=[f"optuna_refinement_{iteration_number}"],
+        #    embeddings=[optuna_embedding['embedding']],
+        #    documents=[current_output_with_optuna['response'] + "\n" + execution_result_with_optuna],
+        #    metadatas=[{"refinement": f"optuna_{iteration_number}"}]
+        #)
+        
+        logger.debug(f"Completed self_refine_with_optuna function for iteration {iteration_number}")
+        return current_output_with_optuna['response']
     
-    logger.debug("Completed self_refine_with_optuna function")
-    return current_output_with_optuna['response']
-
-def write_output_to_file(content, output_folder, filename, is_optuna):
-    print("sitieneoptuna") if is_optuna else print("NOOOOOOOOONE")
-    prefix = "execution_optuna_" if is_optuna else "execution_"
-    file_path = os.path.join(output_folder, f'{prefix}{filename}.py')
-    with open(file_path, 'w') as f:
-        f.write(content)
-
+    except Exception as e:
+        logger.error(f"Error in self_refine_with_optuna for iteration {iteration_number}: {str(e)}")
+        raise
 
 def execute_generated_code(code, output_folder, iteration, is_optuna):
     print("sitieneoptuna") if is_optuna else print("NOOOOOOOOONE")
     prefix = "execution_optuna_" if is_optuna else "execution_"
-    file_name = f'{prefix}iteration_{iteration}.py'
-    file_path = os.path.join(output_folder, file_name)
-    print(file_path)
-    with open(file_path, 'w') as f:
+    # os.path.join()`: This function is used to create a proper file path string 
+    # that works across different operating systems.
+    file_name =  os.path.join(output_folder, f'{prefix}iteration_{iteration}.py')
+    #file_path = os.path.join(output_folder,  f'{prefix}{file_name}.py')
+    #print(file_path)
+    with open(file_name, 'w') as f:
         f.write(code)
     
     try:
-        result = subprocess.run(['python', file_path], capture_output=True, text=True, timeout=30)
+        result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=30)
         execution_result = f"Exit code: {result.returncode}\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
         
         result_file_name = f'{prefix}result_{iteration}.txt'
@@ -566,7 +525,7 @@ if __name__ == "__main__":
         # New code to query optuna_collection
         logger.debug("Generating embeddings for Optuna-related query")
         optuna_response = ollama.embeddings(
-            prompt=prompt + " with Optuna hyperparameter tuning",
+            prompt=optuna_prompt,
             model="mxbai-embed-large"
         )
         logger.debug("Querying Optuna collection")
@@ -577,7 +536,7 @@ if __name__ == "__main__":
         optuna_data = optuna_results['documents'][0][0]
 
         # Combine the data
-        combined_data = f"{data}\n\nOptuna-related information:\n{optuna_data}"
+        #combined_data = f"{data}\n\nOptuna-related information:\n{optuna_data}"
 
         # Create output folder
         logger.debug("Creating output folder")
@@ -585,19 +544,20 @@ if __name__ == "__main__":
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         output_folder = os.path.join(current_dir, f'ollama_output_{timestamp}')
         os.makedirs(output_folder)
-
+        
         # Generate and refine the original output
-        logger.debug("Starting self_refine for original output")
-        original_refined_output = self_refine(prompt, data, "deepseek-coder-v2", output_folder)
-        logger.info("Final refined output (without Optuna):")
-       
-        # Generate and refine the Optuna-enhanced version
-        logger.debug("Starting self_refine_with_optuna")
-        optuna_refined_output = self_refine_with_optuna(original_refined_output, combined_data, "deepseek-coder-v2", output_folder)
-        if optuna_refined_output is not None:
-            logger.info("Final Optuna-enhanced output:")
-        else:
-            logger.error("Failed to generate Optuna-enhanced output")
+        logger.debug("Starting________________")
+        #  BEFORE: original_refined_output = self_refine(prompt, combined_data, "deepseek-coder-v2", output_folder)
+
+        max_iterations = 7
+        for i in range(max_iterations):
+            logger.debug(f"Starting refinement iteration {i}")
+            refined_output = self_refine(prompt, data, "deepseek-coder-v2", output_folder, i)
+            logger.info(f"Refined output for iteration {i} generated")
+
+            logger.debug(f"Starting Optuna refinement for iteration {i}")
+            optuna_refined_output = self_refine_with_optuna(optuna_data, "codegemma", output_folder, i)
+            
 
         logger.debug("Main execution completed")
 
@@ -605,6 +565,16 @@ if __name__ == "__main__":
         logger.error(f"An error occurred in the main execution: {str(e)}")
         logger.exception("Exception details:")
         raise
+
+
+
+
+
+
+
+
+
+
 
 
 
