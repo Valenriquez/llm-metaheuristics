@@ -24,13 +24,13 @@ logger = logging.getLogger(__name__)
 sys.path.append('llm-metaheuristics/algorithm_creation')
 
 # Define the function
-fun = bf.Ackley1(2)
-
+fun = bf.HappyCat(2)
 # Get the function name
 # fun_name = fun.__class__.__name__
 
 # Initialize ChromaDB client: AI-native open-source vector database
 client = chromadb.Client()
+
 
 def read_python_file(file_path):
     with open(file_path, 'r') as file:
@@ -93,7 +93,7 @@ IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
 You are a computer scientist specializing in natural computing and metaheuristic algorithms. Your task is to design a novel metaheuristic algorithm for the {fun} optimization problem using only the operators and selectors from the parameters_to_take.txt file.
 
 INSTRUCTIONS:
-1. Use only the function: bf.Rastrigin(2)
+1. Use only the function: bf.HappyCat(2)
 2. Use only operators and selectors from parameters_to_take.txt. 
 3. Use only the parameters of the operator chosen from parameters_to_take.txt. 
 4. The options inside the array are the ones you can choose from to fill each parameter.
@@ -219,7 +219,7 @@ import benchmark_func as bf
 import metaheuristic as mh
 
 
-fun = bf.Rastrigin(2)
+fun = bf.HappyCat(2)
 prob = fun.get_formatted_problem()
 
 heur = [
@@ -232,7 +232,7 @@ heur = [
             },
             '[selector_name]'
             ),
-            (  
+            (   # Search operator 2
             '[operator_name]',
             {
                 'parameter1': value1,
@@ -266,11 +266,122 @@ REMEMBER:
 """
 
 optuna_prompt = """
+You are a computer scientist specializing in natural computing and metaheuristic algorithms. 
+You have been tasked with refining and improving the given metaheuristic code.
+Enhance the following metaheuristic code by incorporating Optuna for hyperparameter tuning:
+REMEMBER: 
+1. EVERY EXPLANATION MUST START WITH '#'. 
+2. DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```
+3. ONLY USE INFORMATION FROM THE optuna_builder folder (the one in the optuna_collection) and the information provided in this prompt.
+4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
+5. ENSURE ALL PARAMETER NAMES AND VALUES APPEAR IN parameters_to_take.txt.
+6. If you ever use genetic crossover, you must use genetic mutation as well. 
+8. Checking for any logical errors or inconsistencies.
+9. Improving the explanation and justification.
 
+Please add Optuna to optimize the parameters of the GIVEN METAHEURISTIC. 
+Ensure the Optuna-enhanced version still follows the original structure and logic.
 IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
-        DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
+DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
+USE THIS SAME CODE, do not create any other code: 
 
-You are a clown. Tell me a joke.  
+
+FOLLOW EXACTLY the following template for the optuna-enhanced metaheuristic:
+# Name: [Your chosen name for the optuna-enhanced metaheuristic]
+# Code:
+
+import optuna
+import sys
+sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+
+import benchmark_func as bf
+import matplotlib.pyplot as plt
+
+import matplotlib as mpl
+mpl.rcParams.update(mpl.rcParamsDefault)
+import  population as pp
+import metaheuristic as mh
+import numpy as np
+from joblib import Parallel, delayed
+import multiprocessing
+
+# WRITE THE WHOLE FUNCTION
+def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, num_replicas):
+    def run_metaheuristic():
+        met = mh.Metaheuristic(prob, sequence, num_agents=num_agents, num_iterations=num_iterations)
+        met.run()
+        _, f_best = met.get_solution()
+        return f_best
+
+    num_cores = multiprocessing.cpu_count()
+    results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
+
+    fitness_values = results_parallel
+    fitness_median = np.median(fitness_values)
+    iqr = np.percentile(fitness_values, 75) - np.percentile(fitness_values, 25)
+    performance_metric = fitness_median + iqr
+
+    return performance_metric
+
+    # Note: If a word is in the code do not remove it, but if a number is in the code, replace it with "trial.suggest_float('variable_name', 0.1, 0.9)"
+    def objective(trial):
+        heur = [
+            ('random_search', {
+                'scale': trial.suggest_float('scale', 0.01, 1.0),
+                'distribution': 'selected_distribution', # Do not remove or changethis word, it is used to select the distribution.
+            }, 'selected_selector'), # Do not remove or change this word given, it is used to select the population.
+            ('central_force_dynamic', {
+                'gravity': trial.suggest_float('gravity', 0.001, 0.1),
+                'alpha': trial.suggest_float('alpha', 0.01, 0.1),
+                'beta': trial.suggest_float('beta', 1.0, 2.0),
+                'dt': trial.suggest_float('dt', 0.01, 0.1)
+            }, 'selected_selector'), # Do not remove or changet this word given, it is used to select the population.
+            ("differential_mutation": { 
+                "expression": "rand" or "best" or "current" or  "current-to-best" or "rand-to-best" or "rand-to-best-and-current",
+                "num_rands": 1,
+                "factor": 1.0
+                }, 'selected_selector'), # Do not remove or changet this word given, it is used to select the population.
+            ('genetic_crossover', {
+                'pairing': 'selected_pairing',   # Do not remove or change this word, it is used to select the pairing.
+                'crossover': 'selected_crossover',   # Do not remove or change this word, it is used to select the crossover.
+                'mating_pool_factor': trial.suggest_float('mating_pool_factor', 0.1, 0.9)  
+            }, 'all'), # Do not remove or change this word given, it is used to select the population.
+            ('swarm_dynamic', {
+                'factor': trial.suggest_float('factor', 0.4, 0.9),
+                'self_conf': trial.suggest_float('self_conf', 1.5, 3.0),
+                'swarm_conf': trial.suggest_float('swarm_conf', 1.5, 3.0),
+                'version': 'selected_version',  # Do not remove or change this word, it is used to select the version.
+                'distribution': 'selected_distribution'  # Do not remove or change this word, it is used to select the distribution.
+            }, 'all'), # Do not remove or change this word given, it is used to select the population.
+            ('differential_mutation', {
+                'expression': 'selected_expression', # Do not remove or changethis word, it is used to select the expression.
+                'num_rands': trial.suggest_int('num_rands', 1, 3),
+                'factor': trial.suggest_float('factor', 0.1, 1.0)
+            }, 'all'), # Do not remove or change this word given, it is used to select the population.
+            ('genetic_crossover', {
+                'pairing': 'selected_pairing',   # Do not remove or change this word, it is used to select the pairing. 
+                'crossover': 'selected_crossover',   # Do not remove or change this word, it is used to select the crossover.
+                'mating_pool_factor': trial.suggest_float('mating_pool_factor', 0.1, 0.9)  
+            }, 'all'), # Do not remove or change this word given, it is used to select the population.
+        ]
+        fun = bf.HappyCat(2) # This is the selected problem, the problem may vary depending on the case.
+        prob = fun.get_formatted_problem()
+        performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
+        
+        return performance
+
+# WRITE THE WHOLE CODE
+study = optuna.create_study(direction="minimize")  
+study.optimize(objective, n_trials=50) 
+
+print("Mejores hiperparámetros encontrados:")
+print(study.best_params)
+
+print("Mejor rendimiento encontrado:")
+print(study.best_value)
+    
+# Short explanation and justification:
+# [Your explanation here, each line starting with '#'] 
 """
  
 def self_refine(initial_prompt, data, model, output_folder, iteration):
@@ -294,7 +405,7 @@ def self_refine(initial_prompt, data, model, output_folder, iteration):
     # The first call to execute_generated_code runs the initially generated code and captures the execution result.
     execution_result = execute_generated_code(current_output['response'], output_folder, iteration, False)
     print("execution_result - to see what is being added to the feedback collection")
-    print(execution_result)
+    #print(execution_result)
     # Fetches feedback from previous iterations that are semantically similar to the current output.
     feedback_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output['response'] + execution_result)
     feedback_collection.add(
@@ -309,7 +420,7 @@ def self_refine(initial_prompt, data, model, output_folder, iteration):
     
     # Ensure n_results is at least 1
     n_results = max(1, min(iteration, 7))
-    relevant_feedback = feedback_collection.query(
+    relevant_feedback = feedback_collection.query( 
         query_embeddings=[query_embedding['embedding']],
         n_results=n_results
     )
@@ -346,7 +457,7 @@ def self_refine(initial_prompt, data, model, output_folder, iteration):
     The code was executed with the following result:
     {execution_result}
     You must fix the results. I need the metaheuristic to run correctly. 
-    Here is relevant feedback from previous iterations:
+    Here is relevant feedback from previous iterations, DO NOT GENERATE THE SAME CODE GENERATED IN THE PREVIOUS ITERATIONS:
     {relevant_feedback['documents']}
 
     Here are relevant Python files that might be helpful:
@@ -369,7 +480,7 @@ def self_refine(initial_prompt, data, model, output_folder, iteration):
     import metaheuristic as mh
 
 
-    fun = bf.Rastrigin(2)
+    fun = bf.HappyCat(2)
     prob = fun.get_formatted_problem()
 
     heur = [
@@ -382,7 +493,7 @@ def self_refine(initial_prompt, data, model, output_folder, iteration):
         }},
         '[selector_name]'
         ),
-        (  
+        (   # Search operator 2
         '[operator_name]',
         {{
             'parameter1': value1,
@@ -432,9 +543,41 @@ def self_refine_with_optuna(data, model, output_folder, iteration_number):
     logger.debug(f"Starting self_refine_with_optuna function for iteration {iteration_number}")
     
     # get or create the collection (here we are creating it)
-    #optuna_collecting = chromadb.Client().create_collection(name="optuna_collecting")
+    optuna_collecting = chromadb.Client().get_or_create_collection(name="optuna_collecting")
     #logger.debug("Retrieved optuna_collecting collection")
     
+    print("data_optuna_is_important: ", data)
+    # Uses Ollama to generate an initial response based on the given prompt and data.
+    current_output_optuna = ollama.generate(
+        model=model,
+        prompt=f"Using this data: {data}. Respond to this prompt: {optuna_prompt}"
+    )
+     # Retrieve relevant feedback from previous iterations
+    query_embedding_optuna = ollama.embeddings(model="mxbai-embed-large", prompt=current_output_optuna['response'])
+    
+
+    # Retrieve all Python files
+    if optuna_collecting.count() > 0:
+        total_docs = optuna_collecting.count()
+        relevant_files = optuna_collecting.query(
+            query_embeddings=[query_embedding_optuna['embedding']],
+            n_results=total_docs  # Retrieve all documents
+        )
+        
+        # Sort the results by relevance score (if available)
+        if 'distances' in relevant_files:
+            sorted_indices = sorted(range(len(relevant_files['distances'][0])), 
+                                    key=lambda k: relevant_files['distances'][0][k])
+            
+            sorted_documents = [relevant_files['documents'][0][i] for i in sorted_indices]
+            relevant_files['documents'] = [sorted_documents]
+        
+        # Limit the number of documents to include in the prompt if necessary
+        max_docs_to_include = 2  # Adjust this number as needed
+        relevant_files['documents'][0] = relevant_files['documents'][0][:max_docs_to_include]
+    else:
+        relevant_files = {"documents": ["No relevant Optuna files found."]}
+
     try:
         # Read the content of the execution_iteration_number.py file
         input_file_path = os.path.join(output_folder, f'execution_iteration_{iteration_number}.py')
@@ -443,22 +586,92 @@ def self_refine_with_optuna(data, model, output_folder, iteration_number):
 
         logger.debug(f"Generating Optuna-enhanced output for iteration {iteration_number}")
 
-        full_prompt = f"""
-            Enhance the following metaheuristic code by incorporating Optuna for hyperparameter tuning:
-            USE THIS SAME CODE: 
+        full_prompt_with_optuna = f"""
+You are a computer scientist specializing in natural computing and metaheuristic algorithms. You have been tasked with refining and improving the following output:
+Enhance the following metaheuristic code by incorporating Optuna for hyperparameter tuning:
+REMEMBER: 
+1. EVERY EXPLANATION MUST START WITH '#'. 
+2. DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```
+3. ONLY USE INFORMATION FROM THE optuna_builder folder (the one in the optuna_collection) and the information provided in this prompt.
+4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
+5. ENSURE ALL PARAMETER NAMES AND VALUES APPEAR IN parameters_to_take.txt.
+6. If you ever use genetic crossover, you must use genetic mutation as well. 
+8. Checking for any logical errors or inconsistencies.
+9. Improving the explanation and justification.
 
-            {original_code}
-            
-            Use this data for reference on enhancing the previous code: {data}
-            
-            Please add Optuna to optimize the parameters of the metaheuristic. 
-            Ensure the Optuna-enhanced version still follows the original structure and logic.
-          """
+Please add Optuna to optimize the parameters of the GIVEN METAHEURISTIC. 
+Ensure the Optuna-enhanced version still follows the original structure and logic.
+IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
+DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
+USE THIS SAME CODE, do not create any other code: 
+{original_code}
+
+USE ONLY THIS DATA for reference on enhancing the previous code: {data}
+
+FOLLOW EXACTLY the following template for the optuna-enhanced metaheuristic:
+# Name: [Your chosen name for the optuna-enhanced metaheuristic]
+# Code:
+
+import optuna
+import sys
+sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+
+import benchmark_func as bf
+import matplotlib.pyplot as plt
+
+import matplotlib as mpl
+mpl.rcParams.update(mpl.rcParamsDefault)
+import  population as pp
+import metaheuristic as mh
+import numpy as np
+from joblib import Parallel, delayed
+import multiprocessing
+
+# WRITE THE WHOLE FUNCTION
+def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, num_replicas):
+    def run_metaheuristic():
+        met = mh.Metaheuristic(prob, sequence, num_agents=num_agents, num_iterations=num_iterations)
+        met.run()
+        _, f_best = met.get_solution()
+        return f_best
+
+    num_cores = multiprocessing.cpu_count()
+    results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
+
+    fitness_values = results_parallel
+    fitness_median = np.median(fitness_values)
+    iqr = np.percentile(fitness_values, 75) - np.percentile(fitness_values, 25)
+    performance_metric = fitness_median + iqr
+
+    return performance_metric
+
+    # Note: If a word is in the code do not remove it, but if a number is in the code, replace it with "trial.suggest_float('variable_name', 0.1, 0.9)"
+    def objective(trial):
+        heur = [
+            ... generated operators as needed
+        ]
+
+        fun = bf.HappyCat(2) # This is the selected problem, the problem may vary depending on the case.
+        prob = fun.get_formatted_problem()
+        performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
+        
+        return performance
+
+# WRITE THE WHOLE CODE
+study = optuna.create_study(direction="minimize")  
+study.optimize(objective, n_trials=50) 
+
+print("Mejores hiperparámetros encontrados:")
+print(study.best_params)
+
+print("Mejor rendimiento encontrado:")
+print(study.best_value)   
+"""
         current_output_with_optuna = ollama.generate(
             model=model,
-            prompt=full_prompt
+            prompt=full_prompt_with_optuna
         )
-        logger.debug(f"Full prompt for Ollama: {full_prompt}")
+        logger.debug(f"Full prompt for Ollama: {full_prompt_with_optuna}")
         
         logger.info(f"Optuna-enhanced output generated for iteration {iteration_number}")
         
@@ -557,9 +770,14 @@ if __name__ == "__main__":
 
             logger.debug(f"Starting Optuna refinement for iteration {i}")
             optuna_refined_output = self_refine_with_optuna(optuna_data, "codegemma", output_folder, i)
-            
+            client.delete_collection(name="feedback_collection")
+            #client.delete_collection(name="collection")
+            #client.delete_collection(name="optuna_builder")
+            client.delete_collection(name="algorithm_creation")
+
 
         logger.debug("Main execution completed")
+        client.delete_collection(name="optuna_builder")
 
     except Exception as e:
         logger.error(f"An error occurred in the main execution: {str(e)}")

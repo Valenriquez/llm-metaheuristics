@@ -17,26 +17,49 @@ def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, nu
 
     return performance_metric
 
-
-
+# Note: If a word is in the code do not remove it, but if a number is in the code, replace it with "trial.suggest_float('variable_name', 0.1, 0.9)"
 def objective(trial):
     heur = [
+        ('random_search', {
+            'scale': trial.suggest_float('scale', 0.01, 1.0),
+            'distribution': 'selected_distribution', # Do not remove or changethis word, it is used to select the distribution.
+        }, 'selected_selector'), # Do not remove or change this word given, it is used to select the population.
+         ('central_force_dynamic', {
+            'gravity': trial.suggest_float('gravity', 0.001, 0.1),
+            'alpha': trial.suggest_float('alpha', 0.01, 0.1),
+            'beta': trial.suggest_float('beta', 1.0, 2.0),
+            'dt': trial.suggest_float('dt', 0.01, 0.1)
+        }, 'selected_selector'), # Do not remove or changet this word given, it is used to select the population.
+        ("differential_mutation": { 
+            "expression": "rand" or "best" or "current" or  "current-to-best" or "rand-to-best" or "rand-to-best-and-current",
+            "num_rands": 1,
+            "factor": 1.0
+            }, 'selected_selector'), # Do not remove or changet this word given, it is used to select the population.
         ('genetic_crossover', {
-            'pairing': 'tournament_2_100',  
-            'crossover': 'uniform', 
+            'pairing': 'selected_pairing',   # Do not remove or change this word, it is used to select the pairing.
+            'crossover': 'selected_crossover',   # Do not remove or change this word, it is used to select the crossover.
             'mating_pool_factor': trial.suggest_float('mating_pool_factor', 0.1, 0.9)  
-        }, 'all'),
-        
+        }, 'all'), # Do not remove or change this word given, it is used to select the population.
         ('swarm_dynamic', {
             'factor': trial.suggest_float('factor', 0.4, 0.9),
             'self_conf': trial.suggest_float('self_conf', 1.5, 3.0),
             'swarm_conf': trial.suggest_float('swarm_conf', 1.5, 3.0),
-            'version': 'inertial', 
-            'distribution': 'uniform' 
-        }, 'all')
+            'version': 'selected_version',  # Do not remove or change this word, it is used to select the version.
+            'distribution': 'selected_distribution'  # Do not remove or change this word, it is used to select the distribution.
+        }, 'all'), # Do not remove or change this word given, it is used to select the population.
+        ('differential_mutation', {
+            'expression': 'selected_expression', # Do not remove or changethis word, it is used to select the expression.
+            'num_rands': trial.suggest_int('num_rands', 1, 3),
+            'factor': trial.suggest_float('factor', 0.1, 1.0)
+        }, 'all'), # Do not remove or change this word given, it is used to select the population.
+        ('genetic_crossover', {
+            'pairing': 'selected_pairing',   # Do not remove or change this word, it is used to select the pairing. 
+            'crossover': 'selected_crossover',   # Do not remove or change this word, it is used to select the crossover.
+            'mating_pool_factor': trial.suggest_float('mating_pool_factor', 0.1, 0.9)  
+        }, 'all'), # Do not remove or change this word given, it is used to select the population.
     ]
 
-    fun = bf.Rastrigin(30)
+    fun = bf.Rastrigin(30) # This is the selected problem, the problem may vary depending on the case.
     prob = fun.get_formatted_problem()
     performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
     

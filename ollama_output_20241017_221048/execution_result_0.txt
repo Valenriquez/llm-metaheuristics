@@ -1,9 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-Traceback (most recent call last):
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241017_221048/execution_optuna.txt.py", line 17, in <module>
-    'mutation_rate': trial.suggest_float('mutation_rate', 0.01, 0.1),  # Suggested parameter from optuna
-                     ^^^^^
-NameError: name 'trial' is not defined

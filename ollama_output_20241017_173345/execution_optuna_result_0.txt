@@ -1,7 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241017_173345/execution_optuna_iteration_0.py", line 1
-    To integrate Optuna for optimizing the hyperparameters of your metaheuristic, we need to define an objective function that Optuna can use to evaluate and optimize the performance metrics based on the suggestions provided by `trial.suggest_float` or similar functions depending on the type of hyperparameter you are tuning. Below is the modified version of your code with Optuna for optimizing hyperparameters:
-IndentationError: unexpected indent

@@ -1,8 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241017_233406/execution_optuna_iteration_1.py", line 53
-    * We add an `objective` function that defines the hyperparameter search space using Optuna's `suggest_*` methods.
-                                                                                              ^
-SyntaxError: unterminated string literal (detected at line 53)
