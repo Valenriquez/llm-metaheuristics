@@ -1,3 +1,7 @@
+# Name: Optuna-Enhanced Metaheuristic for Rastrigin Function Optimization
+
+# Code:
+
 import optuna
 import sys
 sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
@@ -31,35 +35,26 @@ def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, nu
     return performance_metric
 
 def objective(trial):
+    # Parameters to optimize
+    alpha = trial.suggest_float('alpha', 0.1, 0.9)
+    beta = trial.suggest_float('beta', 0.1, 0.9)
+
+    # Create the heuristic with optimized parameters
     heur = [
-        ( # Search operator 1
-        'gravitational_search',
-        { 
-        'gravity': trial.suggest_float('scale', 0.01, 1.0),
-        'alpha': trial.suggest_float('scale', 0.01, 1.0),
-    },
-    'all'
-    ),
-    (   # Search operator 2
-    'random_flight',
-    {
-        'scale': trial.suggest_float('scale', 0.01, 1.0),
-        'distribution': 'levy',
-        'beta': trial.suggest_float('scale', 0.01, 2.0),
-    },
-    'probabilistic'
-    )
-]
-    
-    fun = bf.HappyCat(30)
+        # Operators using alpha and beta
+    ]
+
+    fun = bf.Rastrigin(2)
     prob = fun.get_formatted_problem()
     performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
-
+    
     return performance
 
-study = optuna.create_study(direction="minimize")
-study.optimize(objective, n_trials=50)
+# Create the study and optimize
+study = optuna.create_study(direction="minimize")  
+study.optimize(objective, n_trials=50) 
 
+# Print the best parameters and performance
 print("Mejores hiperparámetros encontrados:")
 print(study.best_params)
 

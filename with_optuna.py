@@ -734,7 +734,6 @@ if __name__ == "__main__":
             n_results=1
         )
         data = results['documents'][0][0]
-
         # New code to query optuna_collection
         logger.debug("Generating embeddings for Optuna-related query")
         optuna_response = ollama.embeddings(

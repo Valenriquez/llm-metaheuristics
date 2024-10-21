@@ -1,0 +1,9 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241020_145340/execution_iteration_0.py", line 9, in <module>
+    prob = fun.get_formatted_problem()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: BasicProblem.get_formatted_problem() missing 1 required positional argument: 'self'

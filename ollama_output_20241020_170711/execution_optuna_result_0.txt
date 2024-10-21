@@ -1,0 +1,8 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241020_170711/execution_optuna_iteration_0.py", line 3
+    **Code:**
+    ^^
+SyntaxError: invalid syntax
