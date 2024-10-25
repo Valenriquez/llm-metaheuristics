@@ -344,97 +344,10 @@ class MetaheuristicGenerator:
 
         if match:
             extracted_content = match.group(1).strip()  # Extract the code block
-            print(f"Extracted content:\n{extracted_content}")
-
-            # Function to replace numeric values in the dictionary with trial.suggest_float()
-            def replace_numbers(match):
-                var_name = match.group(1)  # The variable name (e.g., 'factor', 'self_conf')
-                value = match.group(2)  # The numeric value (e.g., 0.7)
-                # Replace with trial.suggest_float() for the variable
-                return f"'{var_name}': trial.suggest_float('{var_name}', 0.01, {value})"
-
-            # Pattern to find and replace numeric values in the dictionary
-            modified_content = re.sub(r"'(\w+)':\s*([\d.]+)", replace_numbers, extracted_content)
-
-            # Write the modified content into destination.py
-            return modified_content
+        
+            return extracted_content
     
-    def creating_optuna_file(self, output_folder, iteration_number):
-        input_file_path = os.path.join(output_folder, f'execution_iteration_{iteration_number}.py')
-        extracted_code = self.extract_code_from_code(input_file_path)
-        print("extracted_codeeeeeee", extracted_code)
-
-        optuna_code = f"""
-import optuna
-import sys
-sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
-
-import benchmark_func as bf
-import matplotlib.pyplot as plt
-
-import matplotlib as mpl
-mpl.rcParams.update(mpl.rcParamsDefault)
-import  population as pp
-import metaheuristic as mh
-import numpy as np
-from joblib import Parallel, delayed
-import multiprocessing
-
-# WRITE THE WHOLE FUNCTION
-def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, num_replicas):
-    def run_metaheuristic():
-        met = mh.Metaheuristic(prob, sequence, num_agents=num_agents, num_iterations=num_iterations)
-        met.run()
-        _, f_best = met.get_solution()
-        return f_best
-
-    num_cores = multiprocessing.cpu_count()
-    results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
-
-    fitness_values = results_parallel
-    fitness_median = np.median(fitness_values)
-    iqr = np.percentile(fitness_values, 75) - np.percentile(fitness_values, 25)
-    performance_metric = fitness_median + iqr
-
-    return performance_metric
-
-# Note: If a word is in the code do not remove it, but if a number is in the code, replace it with "trial.suggest_float('variable_name', 0.1, 0.9)"
-def objective(trial):
-    heur = [
-        {extracted_code}
-
-    ]
-
-    fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
-    prob = fun.get_formatted_problem()
-    performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
     
-    return performance
-
-study = optuna.create_study(direction="minimize")  
-study.optimize(objective, n_trials=50) 
-
-print("Mejores hiperparámetros encontrados:")
-print(study.best_params)
-
-print("Mejor rendimiento encontrado:")
-print(study.best_value)   
-    """
-    # Define the output file path
-        #output_file_path = os.path.join(output_folder, f'optuna_execution_{iteration_number}.py')
-        
-        # Write the generated Optuna code to the output file
-       # with open(output_file_path, 'w') as file:
-       #     file.write(optuna_code)
-        
-        # Optionally execute the generated code
-        self.execute_generated_code(optuna_code, output_folder, iteration_number, True)
-        
-        return optuna_code
-            
-
-
-
     def self_refine_with_optuna(self, optuna_prompt, model, output_folder, iteration_number):
         input_file_path = os.path.join(output_folder, f'execution_iteration_{iteration_number}.py')
         

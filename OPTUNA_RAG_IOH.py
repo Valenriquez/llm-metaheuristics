@@ -12,10 +12,9 @@ from ollama import ResponseError
 
 class NoCodeException(Exception):
     pass
- 
- 
+
 class MetaheuristicGenerator:
-    def __init__(self, benchmark_function, dimensions, model="deepseek-coder-v2", max_iterations=7):
+    def __init__(self, benchmark_function, dimensions, model="myllama3:latest", max_iterations=7):
         self.model = model
         self.max_iterations = max_iterations
         self.client = chromadb.Client()
@@ -82,9 +81,6 @@ class MetaheuristicGenerator:
     def read_file(self, file_path):
         with open(file_path, 'r') as file:
             return file.read()
-        #self.client = LLMmanager(model)
-        #self.model = model
-        #self.f = f  # evaluation function, provides a string as feedback, a numerical value (higher is better), and a possible error string.
     
     def generate_prompt(self):
         self.task_prompt = f"""
@@ -189,29 +185,24 @@ def evaluate_sequence_IOH(heur, problem_id, instance, dimension, num_agents, num
         9. Improving the explanation and justification.   
         """
 
-        full_prompt_optuna = self.task_prompt_optuna  # too possible to combine things 
+        full_prompt_optuna = self.task_prompt_optuna   
         return full_prompt_optuna
             
     def self_refine(self, initial_prompt, data, output_folder, number_iteration):
-        # Initialize a collection for storing feedback
-        
-        #feedback_collection = chromadb.Client().create_collection(name="feedback_collection")
-        
-        # Initialize a collection for Python files if not already done
-        
-        # python_files_collection = chromadb.Client().get_or_create_collection(name="algorithm_creation")
-        
-        #  prompt=f"Using this data: {data}. Respond to this prompt: {self.generate_prompt()}"
-        #print("data", data)
-        #print("initial_prompt", initial_prompt)
+
+        """
+        Repetition in LLMs is mostly caused by the greedy approach of choosing the next token,
+        where the highest probability token is always selected. These repetitions can be 
+        prevented by introducing a penalty that discounts the scores of tokens that have 
+        been generated before. 
+        """
+    
         current_output = ollama.generate(
             model="myllama3:latest",
             prompt=f"Using this data: {data}. Respond to this prompt: {initial_prompt}"
         )
 
-        print("printeando la respuesta, avr si hay error")
-        print(current_output['response'])
-        
+      
         # Write initial output  # commenting to avoid to much files 
         #write_output_to_file(current_output['response'], output_folder, 0)
         
@@ -281,7 +272,7 @@ def evaluate_sequence_IOH(heur, problem_id, instance, dimension, num_agents, num
         This is the parameters_to_take.txt file:
         {data}
         IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
-        Use the same template as the one provided before, which is:
+        Use THIS SAME template to generate the next iteration, which is:
         
         # Name: [Your chosen name for the metaheuristic]
         # Code:
@@ -377,98 +368,11 @@ def evaluate_sequence_IOH(heur, problem_id, instance, dimension, num_agents, num
         # Regex pattern to capture content inside 'heur = [' and ']'
         pattern = r'heur\s*=\s*\[(.*?)\]'  # Match content inside heur = [ ]
         match = re.search(pattern, content, re.DOTALL)
-
         if match:
             extracted_content = match.group(1).strip()  # Extract the code block
-            print(f"Extracted content:\n{extracted_content}")
-
-            # Function to replace numeric values in the dictionary with trial.suggest_float()
-            def replace_numbers(match):
-                var_name = match.group(1)  # The variable name (e.g., 'factor', 'self_conf')
-                value = match.group(2)  # The numeric value (e.g., 0.7)
-                # Replace with trial.suggest_float() for the variable
-                return f"'{var_name}': trial.suggest_float('{var_name}', 0.01, {value})"
-
-            # Pattern to find and replace numeric values in the dictionary
-            modified_content = re.sub(r"'(\w+)':\s*([\d.]+)", replace_numbers, extracted_content)
-
-            # Write the modified content into destination.py
-            return modified_content
+            return extracted_content
     
-    def creating_optuna_file(self, output_folder, iteration_number):
-        input_file_path = os.path.join(output_folder, f'execution_iteration_{iteration_number}.py')
-        extracted_code = self.extract_code_from_code(input_file_path)
-        print("extracted_codeeeeeee", extracted_code)
-
-        optuna_code = f"""
-import sys
-sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
-import optuna
-
-import benchmark_func as bf
-import matplotlib.pyplot as plt
-
-import matplotlib as mpl
-mpl.rcParams.update(mpl.rcParamsDefault)
-import  population as pp
-import metaheuristic as mh
-import numpy as np
-from joblib import Parallel, delayed
-import multiprocessing
-
-# WRITE THE WHOLE FUNCTION
-def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, num_replicas):
-    def run_metaheuristic():
-        met = mh.Metaheuristic(prob, sequence, num_agents=num_agents, num_iterations=num_iterations)
-        met.run()
-        _, f_best = met.get_solution()
-        return f_best
-
-    num_cores = multiprocessing.cpu_count()
-    results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
-
-    fitness_values = results_parallel
-    fitness_median = np.median(fitness_values)
-    iqr = np.percentile(fitness_values, 75) - np.percentile(fitness_values, 25)
-    performance_metric = fitness_median + iqr
-
-    return performance_metric
-
-# Note: If a word is in the code do not remove it, but if a number is in the code, replace it with "trial.suggest_float('variable_name', 0.1, 0.9)"
-def objective(trial):
-    heur = [
-        {extracted_code}
-    ]
-
-    fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
-    prob = fun.get_formatted_problem()
-    performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
-    
-    return performance
-
-study = optuna.create_study(direction="minimize")  
-study.optimize(objective, n_trials=50) 
-
-print("Mejores hiperparámetros encontrados:")
-print(study.best_params)
-
-print("Mejor rendimiento encontrado:")
-print(study.best_value)   
-    """
-    # Define the output file path
-        #output_file_path = os.path.join(output_folder, f'optuna_execution_{iteration_number}.py')
-        
-        # Write the generated Optuna code to the output file
-       # with open(output_file_path, 'w') as file:
-       #     file.write(optuna_code)
-        
-        # Optionally execute the generated code
-        self.execute_generated_code(optuna_code, output_folder, iteration_number, True)
-        
-        return optuna_code
-            
-
-
+ 
 
     def self_refine_with_optuna(self, optuna_promt, model ,  output_folder, iteration_number):
         input_file_path = os.path.join(output_folder, f'execution_iteration_{iteration_number}.py')
@@ -501,73 +405,90 @@ print(study.best_value)
 
 
         self.full_prompt_with_optuna = f"""
-        Please add Optuna to optimize the parameters of the GIVEN METAHEURISTIC. 
-        IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
-        DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
-        
-        IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
-        FOLLOW EXACTLY the following template for the optuna-enhanced metaheuristic:
-        PLEASE FOLLOW EXACTLY the following template for the optuna-enhanced metaheuristic:
-        # Name: [Your chosen name for the optuna-enhanced metaheuristic]
-        # Code:
+Please add Optuna to optimize the parameters of the GIVEN METAHEURISTIC. 
+IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
+DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
 
-        import optuna
-        import sys
-        sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
+FOLLOW EXACTLY the following template for the optuna-enhanced metaheuristic:
+PLEASE FOLLOW EXACTLY the following template for the optuna-enhanced metaheuristic:
 
-        import benchmark_func as bf
-        import matplotlib.pyplot as plt
+DO NOT WRITE ANYTHING BEFORE THIS NEXT GIVEN TEMPLATE:
+PLEASE DO NOT WRITE ANYTHING BEFORE THIS NEXT GIVEN TEMPLATE:
 
-        import matplotlib as mpl
-        mpl.rcParams.update(mpl.rcParamsDefault)
-        import  population as pp
-        import metaheuristic as mh
-        import numpy as np
-        from joblib import Parallel, delayed
-        import multiprocessing
-        from P1 import P1
+THIS IS THE TEMPLATE:
+# Name: [Your chosen name for the optuna-enhanced metaheuristic]
+# Code:
 
-        # WRITE THE WHOLE FUNCTION
-        def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, num_replicas):
-            def run_metaheuristic():
-                met = mh.Metaheuristic(prob, sequence, num_agents=num_agents, num_iterations=num_iterations)
-                met.run()
-                _, f_best = met.get_solution()
-                return f_best
+import optuna
+import sys
+sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
 
-            num_cores = multiprocessing.cpu_count()
-            results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
+import benchmark_func as bf
+import matplotlib.pyplot as plt
 
-            fitness_values = results_parallel
-            fitness_median = np.median(fitness_values)
-            iqr = np.percentile(fitness_values, 75) - np.percentile(fitness_values, 25)
-            performance_metric = fitness_median + iqr
+import matplotlib as mpl
+mpl.rcParams.update(mpl.rcParamsDefault)
+import  population as pp
+import metaheuristic as mh
+import numpy as np
+from joblib import Parallel, delayed
+import multiprocessing
+from P1 import P1
 
-            return performance_metric
+    
+problem_id = 1  # Change according to the problem
+instance = 1
+dimension = 5
+num_agents = 100
+num_iterations = 400
+num_replicas = 1
 
-            # Note: If a word is in the code do not remove it, but if a number is in the code, replace it with "trial.suggest_float('variable_name', 0.1, 0.9)"
-            def objective(trial):
-                heur = [
-                    using this code {self.extract_code_from_code(input_file_path)}
 
-                ]
+# WRITE THE WHOLE FUNCTION
+def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, num_replicas):
+    def run_metaheuristic():
+        met = mh.Metaheuristic(prob, sequence, num_agents=num_agents, num_iterations=num_iterations)
+        met.run()
+        _, f_best = met.get_solution()
+        return f_best
 
-                fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
-                prob = fun.get_formatted_problem()
-                performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
+    num_cores = multiprocessing.cpu_count()
+    results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
+
+    fitness_values = results_parallel
+    fitness_median = np.median(fitness_values)
+    iqr = np.percentile(fitness_values, 75) - np.percentile(fitness_values, 25)
+    performance_metric = fitness_median + iqr
+
+    return performance_metric
+
+
+# Note: If a word is in the code do not remove it, but if a number is in the code, replace it with "trial.suggest_float('variable_name', 0.1, 0.9)"
+def objective(trial):
+    heur = [
+        using this code {self.extract_code_from_code(input_file_path)}
+
+    ]
+
                 
-                return performance
+    ioh_problem = P1.create_ioh_problem(problem_id, instance, dimension)
+    fun = P1(variable_num=dimension, problem=ioh_problem)
+    prob = fun.get_formatted_problem()
+    performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
+    
+    return performance
 
-                # WRITE THE WHOLE CODE
-                study = optuna.create_study(direction="minimize")  
-                study.optimize(objective, n_trials=50) 
+study = optuna.create_study(direction="minimize")  
+study.optimize(objective, n_trials=50) 
 
-                print("Mejores hiperparámetros encontrados:")
-                print(study.best_params)
+print("Mejores hiperparámetros encontrados:")
+print(study.best_params)
 
-                print("Mejor rendimiento encontrado:")
-                print(study.best_value)   
-        #  IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
+print("Mejor rendimiento encontrado:")
+print(study.best_value)
+
+#  IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
         """
         # In summary, this code is generating an embedding for a given prompt,
         #  querying a collection to find the most similar document based on that
@@ -601,7 +522,7 @@ print(study.best_value)
 
         
         refined_output = ollama.generate(
-        model="deepseek-coder-v2",
+        model="myllama3:latest",
         prompt=self.full_prompt_with_optuna,
         )
         
@@ -646,105 +567,6 @@ print(study.best_value)
             return "Execution timed out after 30 seconds"
         except Exception as e:
             return f"An error occurred during execution: {str(e)}"
-            
-
-    # do we need iterations here?
-    def construct_refinement_prompt(self, current_output, execution_result, data, feedback_embedding):
-        self.task_prompt = f"""
-IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
-DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
-You are a computer scientist specializing in natural computing and metaheuristic algorithms. You have been tasked with refining and improving the following output (PLEASE DO NOT GENEERATE THE SAME OUPUT):
-
-{current_output['response']}
-The code was executed with the following result:
-{execution_result}
-You must fix the results. I need the metaheuristic to run correctly. 
-Here is relevant feedback from previous iterations:
-{feedback_embedding['documents']}
-
-Here are relevant Python files that might be helpful:
-{data['documents']}
-
-Please analyze this output and suggest improvements and corrections. 
-Please DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ``` in the response.
-Please DO NOT USE ANY operators or parameters that are not in the parameters_to_take.txt file.
-This is the parameters_to_take.txt file:
-{data}
-IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
-Use the same template as the one provided before, which is:
-
-# Name: [Your chosen name for the metaheuristic]
-# Code:
-
-import sys
-sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
-import numpy as np
-import metaheuristic as mh
-import benchmark_func as bf
-import ioh
-from P1 import P1
-
-def evaluate_sequence_IOH(heur, problem_id, instance, dimension, num_agents, num_iterations, num_replicas):
-    ioh_problem = P1.create_ioh_problem(problem_id, instance, dimension)
-    fun = P1(variable_num=dimension, problem=ioh_problem)
-    prob = fun.get_formatted_problem()
-    met = mh.Metaheuristic(prob, heur, num_agents=num_agents, num_iterations=num_iterations)
-    met.verbose = True
-    met.run()
-    best_position, f_best = met.get_solution()
-    return f_best, best_position
-
-heur = [
-    ( # Search operator 1
-    '[operator_name]',
-    {{ 
-        'parameter1': value1,
-        'parameter2': value2,
-            ... more parameters as needed
-    }},
-    '[selector_name]'
-    ),
-    (  
-    '[operator_name]',
-    {{
-        'parameter1': value1,
-        'parameter2': value2,
-            ... more parameters as needed
-    }},
-    '[selector_name]'
-    )
-]
-problem_id= 2  #cambiar segun el problema
-instance = 1
-dimension = {self.dimensions}
-num_agents = 100
-num_iterations = 400
-num_replicas = 1
-
-evaluate_sequence_IOH(heur, problem_id, instance, dimension, num_agents, num_iterations, num_replicas)
-
-problem = ioh.get_problem(problem_id, instance=instance, dimension=dimension)
-optimal_fitness = problem.optimum.y
-
-# Short explanation and justification:
-# [Your explanation here, each line starting with '#']
-
-REMEMBER: 
-1. EVERY EXPLANATION MUST START WITH '#'. 
-2. DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```.
-3. ONLY USE INFORMATION FROM THE parameters_to_take.txt FILE.
-DO NOT INVENT ANY NEW INFORMATION.
-4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
-5. ENSURE ALL PARAMETER NAMES AND VALUES APPEAR IN parameters_to_take.txt.
-6. If you ever use genetic crossover, you must use genetic mutation as well. 
-7. Verifying that only operators and parameters from parameters_to_take.txt are used.
-8. Checking for any logical errors or inconsistencies.
-9. Improving the explanation and justification.
-
-Provide your refined version of the entire output, not just the changes.
-        """
-        full_prompt = f"{self.task_prompt}"
-        return full_prompt
 
     def run(self):
         self.logger.debug("Starting main execution")
@@ -799,7 +621,7 @@ Provide your refined version of the entire output, not just the changes.
                 self.logger.info(f"Refined output for iteration {i} generated")
 
                 #self.self_refine_with_optuna(optuna_prompt, "codegemma", output_folder, i)
-                #self.self_refine_with_optuna(optuna_prompt, "codegemma", output_folder, i)
+                self.self_refine_with_optuna(optuna_prompt, "myllama3:latest", output_folder, i)
             self.logger.debug("Main execution completed")
             self.client.delete_collection(name="algorithm_creation")
             self.client.delete_collection(name="optuna_collection")
