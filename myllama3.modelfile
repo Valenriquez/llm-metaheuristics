@@ -1,3 +1,10 @@
+FROM llama3
+
+# set the temperature to 1 [higher is more creative, lower is more coherent]
+PARAMETER temperature 0
+
+# set the system message
+SYSTEM """
 Important notes:
 -  DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```.
 - Do not invent any parameter or operator, only use the ones provided.
@@ -103,4 +110,4 @@ These are the parameters to take, depending on the selected operator, remember Y
     selector: "greedy" or "all" or"metropolis" or"probabilistic"
   }
 }
-
+"""

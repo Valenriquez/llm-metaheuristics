@@ -1,0 +1,59 @@
+Exit code: 0
+Stdout:
+Mejores hiperparámetros encontrados:
+{'gravity': 0.6884314594384848, 'alpha': 0.016984454925562845}
+Mejor rendimiento encontrado:
+1.1072656684169608
+
+Stderr:
+[I 2024-10-21 10:28:03,261] A new study created in memory with name: no-name-93f00732-6246-4904-bb72-eaa9f3c68537
+[I 2024-10-21 10:28:05,669] Trial 0 finished with value: 1.4511339438015067 and parameters: {'gravity': 0.4075137713700983, 'alpha': 0.012286065452121827}. Best is trial 0 with value: 1.4511339438015067.
+[I 2024-10-21 10:28:06,460] Trial 1 finished with value: 1.6559817874885425 and parameters: {'gravity': 0.4580459317086433, 'alpha': 0.013787623197949267}. Best is trial 0 with value: 1.4511339438015067.
+[I 2024-10-21 10:28:07,198] Trial 2 finished with value: 1.5943050534727554 and parameters: {'gravity': 0.3828758276539041, 'alpha': 0.012113743633999223}. Best is trial 0 with value: 1.4511339438015067.
+[I 2024-10-21 10:28:07,961] Trial 3 finished with value: 1.967505635948248 and parameters: {'gravity': 0.9757924115711646, 'alpha': 0.01976330661933601}. Best is trial 0 with value: 1.4511339438015067.
+[I 2024-10-21 10:28:08,766] Trial 4 finished with value: 1.887495606720405 and parameters: {'gravity': 0.2396950013682103, 'alpha': 0.013240965352958144}. Best is trial 0 with value: 1.4511339438015067.
+[I 2024-10-21 10:28:09,522] Trial 5 finished with value: 1.821801907541576 and parameters: {'gravity': 0.4336265242265243, 'alpha': 0.010117108145275243}. Best is trial 0 with value: 1.4511339438015067.
+[I 2024-10-21 10:28:10,296] Trial 6 finished with value: 1.6839745243465138 and parameters: {'gravity': 0.3510670640120954, 'alpha': 0.01987832102208697}. Best is trial 0 with value: 1.4511339438015067.
+[I 2024-10-21 10:28:11,064] Trial 7 finished with value: 1.7099077465978088 and parameters: {'gravity': 0.8784542800607968, 'alpha': 0.012508455248875833}. Best is trial 0 with value: 1.4511339438015067.
+[I 2024-10-21 10:28:11,824] Trial 8 finished with value: 1.9244113032111452 and parameters: {'gravity': 0.21321661106987372, 'alpha': 0.013051350263359468}. Best is trial 0 with value: 1.4511339438015067.
+[I 2024-10-21 10:28:12,610] Trial 9 finished with value: 2.0825973987596686 and parameters: {'gravity': 0.9354975962621719, 'alpha': 0.010174876892235132}. Best is trial 0 with value: 1.4511339438015067.
+[I 2024-10-21 10:28:13,387] Trial 10 finished with value: 1.2029039421544532 and parameters: {'gravity': 0.7016236620736255, 'alpha': 0.017289284119173683}. Best is trial 10 with value: 1.2029039421544532.
+[I 2024-10-21 10:28:14,152] Trial 11 finished with value: 1.1072656684169608 and parameters: {'gravity': 0.6884314594384848, 'alpha': 0.016984454925562845}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:14,945] Trial 12 finished with value: 1.2591551876144056 and parameters: {'gravity': 0.7207773078006254, 'alpha': 0.017178651358762557}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:15,734] Trial 13 finished with value: 1.3876079586715306 and parameters: {'gravity': 0.6398417472849625, 'alpha': 0.016714156888173116}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:16,542] Trial 14 finished with value: 1.6345807037194824 and parameters: {'gravity': 0.020190919729489498, 'alpha': 0.016969929139794337}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:17,288] Trial 15 finished with value: 1.5565886912341727 and parameters: {'gravity': 0.6607512278234499, 'alpha': 0.015585021693597025}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:18,033] Trial 16 finished with value: 1.3477692262472205 and parameters: {'gravity': 0.7942953431687371, 'alpha': 0.01825363082288944}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:18,851] Trial 17 finished with value: 1.904072315881332 and parameters: {'gravity': 0.523356322840802, 'alpha': 0.015048342649104358}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:19,741] Trial 18 finished with value: 1.984190026029415 and parameters: {'gravity': 0.5603809402075022, 'alpha': 0.018122565613200525}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:20,680] Trial 19 finished with value: 2.052688952447528 and parameters: {'gravity': 0.75640497340892, 'alpha': 0.016018872316622128}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:21,511] Trial 20 finished with value: 1.9464446205357469 and parameters: {'gravity': 0.842297490843917, 'alpha': 0.01832989760165272}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:22,279] Trial 21 finished with value: 1.1985695187787844 and parameters: {'gravity': 0.6847108228743048, 'alpha': 0.017178459185538775}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:23,073] Trial 22 finished with value: 1.375585376156856 and parameters: {'gravity': 0.6376202009536381, 'alpha': 0.018881319474881333}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:23,849] Trial 23 finished with value: 1.9362542665257418 and parameters: {'gravity': 0.5834571728913757, 'alpha': 0.016361496012146995}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:24,615] Trial 24 finished with value: 1.5323253300665813 and parameters: {'gravity': 0.7068072098901444, 'alpha': 0.01744830197875914}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:25,435] Trial 25 finished with value: 1.6784415946883753 and parameters: {'gravity': 0.8416407031369895, 'alpha': 0.014289050019731454}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:26,249] Trial 26 finished with value: 1.3934039963068736 and parameters: {'gravity': 0.769358506582432, 'alpha': 0.01536430420436569}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:27,014] Trial 27 finished with value: 1.802230318379845 and parameters: {'gravity': 0.5874011693001389, 'alpha': 0.017771385702216088}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:27,783] Trial 28 finished with value: 1.3602095785931247 and parameters: {'gravity': 0.6726800791209556, 'alpha': 0.018897063655980484}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:28,589] Trial 29 finished with value: 1.9339197604528522 and parameters: {'gravity': 0.5027167210834844, 'alpha': 0.015922270739176153}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:29,486] Trial 30 finished with value: 1.7429050188672495 and parameters: {'gravity': 0.8950095167646147, 'alpha': 0.014407400218185682}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:30,290] Trial 31 finished with value: 1.3788073798271006 and parameters: {'gravity': 0.7435410826135335, 'alpha': 0.017207875939441616}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:31,084] Trial 32 finished with value: 1.547034982181703 and parameters: {'gravity': 0.705970823208827, 'alpha': 0.0168394025565698}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:31,896] Trial 33 finished with value: 1.8508806668040405 and parameters: {'gravity': 0.8106896594275901, 'alpha': 0.018855073016269274}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:32,666] Trial 34 finished with value: 1.6448829835450098 and parameters: {'gravity': 0.5975142219450614, 'alpha': 0.017447985468308252}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:33,458] Trial 35 finished with value: 1.6153268899671263 and parameters: {'gravity': 0.7218399318928935, 'alpha': 0.016475485308175844}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:34,260] Trial 36 finished with value: 1.6449601031949372 and parameters: {'gravity': 0.9815995928560803, 'alpha': 0.019223785413856415}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:34,999] Trial 37 finished with value: 1.7312810383945418 and parameters: {'gravity': 0.4398039823990849, 'alpha': 0.014608555998478026}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:35,828] Trial 38 finished with value: 1.5236069010691562 and parameters: {'gravity': 0.49983737278646767, 'alpha': 0.01782050831868653}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:36,614] Trial 39 finished with value: 1.1825806280183047 and parameters: {'gravity': 0.6859873130749473, 'alpha': 0.016080220612954242}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:37,439] Trial 40 finished with value: 1.8540847812653558 and parameters: {'gravity': 0.61880205390422, 'alpha': 0.016122850431388846}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:38,274] Trial 41 finished with value: 1.4536695852716024 and parameters: {'gravity': 0.6823635378895211, 'alpha': 0.017090647846737708}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:39,062] Trial 42 finished with value: 1.637285834356093 and parameters: {'gravity': 0.3657287584444253, 'alpha': 0.015655715536656928}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:39,876] Trial 43 finished with value: 2.082418922574548 and parameters: {'gravity': 0.8027063636932027, 'alpha': 0.017771613831030035}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:40,678] Trial 44 finished with value: 1.799808180344053 and parameters: {'gravity': 0.9117703513898853, 'alpha': 0.016570188248304592}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:41,461] Trial 45 finished with value: 1.5948174337383954 and parameters: {'gravity': 0.5576864287194947, 'alpha': 0.01530626366993829}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:42,243] Trial 46 finished with value: 1.6533994800383658 and parameters: {'gravity': 0.6538696539294315, 'alpha': 0.01365389907468339}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:42,986] Trial 47 finished with value: 1.9582091189604043 and parameters: {'gravity': 0.8483556292375931, 'alpha': 0.01685193091108638}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:43,804] Trial 48 finished with value: 2.196566102764497 and parameters: {'gravity': 0.28497541489089306, 'alpha': 0.017368670585274887}. Best is trial 11 with value: 1.1072656684169608.
+[I 2024-10-21 10:28:44,554] Trial 49 finished with value: 1.1532342774841595 and parameters: {'gravity': 0.760022172720791, 'alpha': 0.018452234828684494}. Best is trial 11 with value: 1.1072656684169608.
