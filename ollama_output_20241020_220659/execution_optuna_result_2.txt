@@ -1,8 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241020_220659/execution_optuna_iteration_2.py", line 1
-    **Objetivo:** Optimizar los hiperparámetros de un algoritmo genético para minimizar la función de Rastrigin.
-    ^^
-SyntaxError: invalid syntax
