@@ -1,8 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241018_230630/execution_optuna_iteration_4.py", line 11
-    def objective(trial):
-    ^
-IndentationError: expected an indented block after function definition on line 8

@@ -1,0 +1,8 @@
+Exit code Optuna: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241029_090042/execution_optuna_iteration_1.py", line 8, in <module>
+    import benchmark_func as bf
+ModuleNotFoundError: No module named 'benchmark_func'

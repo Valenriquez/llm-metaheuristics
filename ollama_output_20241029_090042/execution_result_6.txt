@@ -1,0 +1,8 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241029_090042/execution_iteration_6.py", line 7, in <module>
+    import metaheuristic as mh
+ModuleNotFoundError: No module named 'metaheuristic'

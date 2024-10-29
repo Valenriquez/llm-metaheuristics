@@ -1,9 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-Traceback (most recent call last):
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241025_163942/execution_iteration_0.py", line 34, in <module>
-    evaluate_sequence_IOH(heur, problem_id, instance, dimension, num_agents, num_iterations, num_replicas)
-    ^^^^^^^^^^^^^^^^^^^^^
-NameError: name 'evaluate_sequence_IOH' is not defined

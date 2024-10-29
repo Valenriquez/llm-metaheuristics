@@ -1,3 +1,7 @@
+"""
+This code contains the ioh problem
+"""
+
 import numpy as np
 import metaheuristic as mh
 import benchmark_func as bf
@@ -7,7 +11,7 @@ sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheur
 import benchmark_func as bf
 import metaheuristic as mh
 
-class P1(bf.BasicProblem):
+class P1(bf.BasicProblem):  # not needed
     def __init__(self, variable_num, problem):
         super().__init__(variable_num)
         self.max_search_range = problem.bounds.ub
