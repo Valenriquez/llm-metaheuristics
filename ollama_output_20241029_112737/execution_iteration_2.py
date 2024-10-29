@@ -1,42 +1,34 @@
-# Name: Hybrid Metaheuristic with Swarm and Spiral Dynamics
-
+ # Name: GravitationalSearchOptimizer
 # Code:
+
 import sys
 sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
 import benchmark_func as bf
 import metaheuristic as mh
 
-fun = bf.Rastrigin(2)   
+fun = bf.Rastrigin(2)
 prob = fun.get_formatted_problem()
 
 heur = [
-    (  # Swarm operator
-        'swarm_dynamic',
-        {
-            'factor': 0.7,
-            'self_conf': 2.54,
-            'swarm_conf': 2.56,
-            'version': 'inertial',
-            'distribution': 'uniform'
+    ( # Gravitational Search Operator
+        'gravitational_search',
+        { 
+            'gravity': 1.0,
+            'alpha': 0.02
         },
-        'probabilistic'
-    ),
-    (  # Spiral operator
-        'spiral_dynamic',
-        {
-            'radius': 0.9,
-            'angle': 22.5,
-            'sigma': 0.1
-        },
-        'greedy'
+        'all'
     )
 ]
 
 met = mh.Metaheuristic(prob, heur, num_iterations=100)
 met.verbose = True
 met.run()
-
 print('x_best = {}, f_best = {}'.format(*met.get_solution()))
 
 # Short explanation and justification:
-# This metaheuristic combines the swarm and spiral dynamics operators to explore the search space effectively. The swarm operator promotes cooperation and knowledge sharing among particles, while the spiral operator encourages exploration of promising areas. This hybrid approach balances exploration and exploitation, leading to potentially better solutions.
+# The Gravitational Search Optimizer (GSO) is used to solve the Rastrigin function optimization problem with two dimensions. 
+# The GSO algorithm mimics the gravitational force among particles, where each particle represents a potential solution in the search space. 
+# The 'gravitational_search' operator is configured with parameters: 'gravity' set to 1.0 and 'alpha' set to 0.02. 
+# These parameters control the strength of the gravitational field and the scaling factor, respectively. 
+# The selector 'all' ensures that all particles participate in the search process, allowing for exploration of the entire solution space. 
+# This setup aims to balance between local exploitation and global exploration, which is suitable for a multi-dimensional optimization problem like Rastrigin function.
