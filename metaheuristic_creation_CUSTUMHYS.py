@@ -8,7 +8,6 @@ import subprocess
 import time
 import logging
 import re
-from ollama import ResponseError
 
 
 """
@@ -189,8 +188,7 @@ class MetaheuristicGenerator:
             query_embeddings=[query_embedding['embedding']],
             n_results=n_results
         )
-        
-        # Retrieve all Python files
+        # In case more python files are added to the collection
         if self.python_files_collection.count() > 0:
             total_docs = self.python_files_collection.count()
             relevant_files = self.python_files_collection.query(
@@ -198,7 +196,6 @@ class MetaheuristicGenerator:
                 n_results=total_docs  # Retrieve all documents
             )
             
-            # Sort the results by relevance score (if available)
             if 'distances' in relevant_files:
                 sorted_indices = sorted(range(len(relevant_files['distances'][0])), 
                                         key=lambda k: relevant_files['distances'][0][k])
@@ -212,7 +209,7 @@ class MetaheuristicGenerator:
         else:
             relevant_files = {"documents": ["No relevant Python files found."]}
         
-        # Construct the refinement prompt with relevant feedback and Python files
+        # Construct the refinement prompt with relevant feedback and Python collection (metaheuristic)
         refinement_prompt = f"""
         IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
         DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
