@@ -1,47 +1,74 @@
 import numpy as np
-import metaheuristic as mh
-import benchmark_func as bf
 import ioh
 import sys
-sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+from pathlib import Path
+from joblib import Parallel, delayed
+import multiprocessing
+
+project_dir = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_dir))
 import benchmark_func as bf
 import metaheuristic as mh
 from P1 import P1
-    
+
 def evaluate_sequence_IOH(sequence, problem_id, instance, dimension, num_agents, num_iterations, num_replicas):
     ioh_problem = P1.create_ioh_problem(problem_id, instance, dimension)
     fun = P1(variable_num=dimension, problem=ioh_problem)
     prob = fun.get_formatted_problem()
-    met = mh.Metaheuristic(prob, sequence, num_agents=num_agents, num_iterations=num_iterations)
-    met.verbose = True
-    met.run()
-    best_position, f_best = met.get_solution()
-    return f_best, best_position
 
-sequence = [( # Search operator 1
-    'differential_mutation',  # Perturbator
-    {  # Parameters
+    def run_metaheuristic():
+        met = mh.Metaheuristic(prob, sequence, num_agents=num_agents, num_iterations=num_iterations)
+        met.verbose = True
+        met.run()
+        best_position, f_best = met.get_solution()
+        return f_best, best_position
+
+    # Ejecutar en paralelo el número de réplicas
+    num_cores = min(multiprocessing.cpu_count(), num_replicas)
+    results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
+
+    # Extraer los valores de fitness de los resultados y calcular la métrica de rendimiento
+    fitness_values = [result[0] for result in results_parallel]
+    positions = [result[1] for result in results_parallel]
+    fitness_median = np.median(fitness_values)
+    iqr = np.percentile(fitness_values, 75) - np.percentile(fitness_values, 25)
+    performance_metric = fitness_median + iqr
+
+    # Retorna el mejor valor y la mejor posición encontrada en todas las réplicas
+    best_fitness_index = np.argmin(fitness_values)
+    best_position = positions[best_fitness_index]
+    
+    return performance_metric, best_position
+
+# Parámetros de entrada
+sequence = [(
+    'differential_mutation',  # Perturbador
+    {  
         'expression': 'current-to-best',
         'num_rands': 2,
         'factor': 1.0},
-    'greedy'  # Selector
-), (  # Search operator 2
-    'differential_crossover',  # Perturbator
-    {  # Parameters
+    'greedy'  
+), (
+    'differential_crossover', 
+    {  
         'crossover_rate': 0.2,
         'version': 'binomial'
     },
-    'greedy'  # Selector
+    'greedy'  
 )]
-problem_id= 2  #cambiar segun el problema
+problem_id = 2  
 instance = 1
 dimension = 5
 num_agents = 100
 num_iterations = 400
-num_replicas = 1
+num_replicas = 10  # Ajusta el número de réplicas según sea necesario
 
-evaluate_sequence_IOH(sequence, problem_id, instance, dimension, num_agents, num_iterations, num_replicas)
+# Ejecución de la función con réplicas
+performance_metric, best_position = evaluate_sequence_IOH(sequence, problem_id, instance, dimension, num_agents, num_iterations, num_replicas)
+print("Métrica de rendimiento (Mediana + IQR):", performance_metric)
+print("Mejor posición encontrada:", best_position)
 
+# Obtener y comparar con el óptimo
 problem = ioh.get_problem(problem_id, instance=instance, dimension=dimension)
 optimal_fitness = problem.optimum.y
-
+print("Fitness óptimo:", optimal_fitness)

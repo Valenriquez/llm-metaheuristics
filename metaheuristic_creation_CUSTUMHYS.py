@@ -36,6 +36,7 @@ class MetaheuristicGenerator:
         self.benchmark_function = benchmark_function
         self.dimensions = dimensions
         self.file_result = "" # Checking if output was succesful
+        self.extracted_code = ""
         
         logging.basicConfig(level=logging.DEBUG)
         self.logger = logging.getLogger(__name__)
@@ -110,6 +111,68 @@ class MetaheuristicGenerator:
         """ 
 
         self.optuna_refinement_prompt =  f"""
+        # Name: [Your chosen name for the optuna-enhanced metaheuristic]
+        # Code:
+
+        import optuna
+        import sys
+        from pathlib import Path
+
+        project_dir = Path(__file__).resolve().parent.parent
+        sys.path.insert(0, str(project_dir))
+
+        import benchmark_func as bf
+        import matplotlib.pyplot as plt
+
+        import matplotlib as mpl
+        mpl.rcParams.update(mpl.rcParamsDefault)
+        import  population as pp
+        import metaheuristic as mh
+        import numpy as np
+        from joblib import Parallel, delayed
+        import multiprocessing
+
+        # WRITE THE WHOLE FUNCTION
+        def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, num_replicas):
+            def run_metaheuristic():
+                met = mh.Metaheuristic(prob, sequence, num_agents=num_agents, num_iterations=num_iterations)
+                met.run()
+                _, f_best = met.get_solution()
+                return f_best
+
+            num_cores = multiprocessing.cpu_count()
+            results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
+
+            fitness_values = results_parallel
+            fitness_median = np.median(fitness_values)
+            iqr = np.percentile(fitness_values, 75) - np.percentile(fitness_values, 25)
+            performance_metric = fitness_median + iqr
+
+            return performance_metric
+
+            # Note: If a word is in the code do not remove it, but if a number is in the code, replace it with "trial.suggest_float('variable_name', 0.1, 0.9)"
+            def objective(trial):
+                heur = [
+                    using this code {self.extracted_code}
+
+                ]
+
+                fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
+                prob = fun.get_formatted_problem()
+                performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
+                
+                return performance
+
+                # WRITE THE WHOLE CODE
+                study = optuna.create_study(direction="minimize")  
+                study.optimize(objective, n_trials=50) 
+
+                print("Mejores hiperparámetros encontrados:")
+                print(study.best_params)
+
+                print("Mejor rendimiento encontrado:")
+                print(study.best_value)   
+        #  IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
         """
         self.python_files_dir = 'llm-metaheuristics/metaheuristic_builder'
         self.process_files(self.python_files_collection, self.python_files_dir)
@@ -146,7 +209,7 @@ class MetaheuristicGenerator:
     
  
     
-    def generate_optuna_prompt(self):
+    def gen_optuna(self):
         self.task_prompt_optuna = f"""
         You are a computer scientist specializing in natural computing and metaheuristic algorithms. You have been tasked with refining and improving the following output:
         Enhance the following metaheuristic code by creating a python file that incorporates Optuna for hyperparameter tuning:
@@ -165,10 +228,6 @@ class MetaheuristicGenerator:
         return full_prompt_optuna
     
     def extract_code_from_code(self, code_file):
-        #with open(code_file, 'r') as file:
-        #    content = file.read()
-        # Use regex to extract content between 'heur[' and ']'
-        # Regex pattern to capture content inside 'heur = [' and ']'
         pattern = r'heur\s*=\s*\[(.*?)\]'  # Match content inside heur = [ ]
         match = re.search(pattern, code_file, re.DOTALL)
 
@@ -238,9 +297,6 @@ class MetaheuristicGenerator:
             You must fix the results. I need the metaheuristic to run correctly. 
             Here is relevant feedback from previous iterations:
             {relevant_feedback['documents']}
-
-            Here are relevant Python files that might be helpful:
-            {relevant_files['documents']}
 
             Please analyze this output and suggest improvements and corrections. 
             Please DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ``` in the response.
@@ -330,130 +386,35 @@ class MetaheuristicGenerator:
     
     def self_refine_with_optuna(self, model, output_folder, iteration_number):
         input_file_path = os.path.join(output_folder, f'execution_iteration_{iteration_number}.py')
+        self.extracted_code = self.extract_code_from_code(input_file_path)
         
-        with open(input_file_path, 'r') as file:
-            original_code = file.read()
-
-            # Retrieve all Optuna files
-        if self.optuna_collection.count() > 0:
-            total_docs_optuna = self.optuna_collection.count()
-            relevant_files_optuna = self.optuna_collection.query(
-                query_embeddings=[ollama.embeddings(prompt=original_code, model="mxbai-embed-large")['embedding']],
-                n_results=total_docs_optuna  # Retrieve all documents
-            )
-            
-            # Sort the results by relevance score (if available)
-            if 'distances' in relevant_files_optuna:
-                sorted_indices = sorted(range(len(relevant_files_optuna['distances'][0])), 
-                                        key=lambda k: relevant_files_optuna['distances'][0][k])
-                
-                sorted_documents = [relevant_files_optuna['documents'][0][i] for i in sorted_indices]
-                relevant_files_optuna['documents'] = [sorted_documents]
-            
-            # Limit the number of documents to include in the prompt if necessary
-            max_docs_to_include = 3  # Adjust this number as needed
-            relevant_files_optuna['documents'][0] = relevant_files_optuna['documents'][0][:max_docs_to_include]
-            print("veamos", relevant_files_optuna['documents'][0])
-        else:
-            relevant_files_optuna = {"documents": ["No relevant optuna files found."]}
-
-
-        self.full_prompt_with_optuna = f"""
-        Please add Optuna to optimize the parameters of the GIVEN METAHEURISTIC. 
-        IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
-        DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
-        
-        IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
-        FOLLOW EXACTLY the following template for the optuna-enhanced metaheuristic:
-        PLEASE FOLLOW EXACTLY the following template for the optuna-enhanced metaheuristic:
-        # Name: [Your chosen name for the optuna-enhanced metaheuristic]
-        # Code:
-
-        import optuna
-        import sys
-        from pathlib import Path
-
-        project_dir = Path(__file__).resolve().parent.parent
-        sys.path.insert(0, str(project_dir))
-
-        import benchmark_func as bf
-        import matplotlib.pyplot as plt
-
-        import matplotlib as mpl
-        mpl.rcParams.update(mpl.rcParamsDefault)
-        import  population as pp
-        import metaheuristic as mh
-        import numpy as np
-        from joblib import Parallel, delayed
-        import multiprocessing
-
-        # WRITE THE WHOLE FUNCTION
-        def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, num_replicas):
-            def run_metaheuristic():
-                met = mh.Metaheuristic(prob, sequence, num_agents=num_agents, num_iterations=num_iterations)
-                met.run()
-                _, f_best = met.get_solution()
-                return f_best
-
-            num_cores = multiprocessing.cpu_count()
-            results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
-
-            fitness_values = results_parallel
-            fitness_median = np.median(fitness_values)
-            iqr = np.percentile(fitness_values, 75) - np.percentile(fitness_values, 25)
-            performance_metric = fitness_median + iqr
-
-            return performance_metric
-
-            # Note: If a word is in the code do not remove it, but if a number is in the code, replace it with "trial.suggest_float('variable_name', 0.1, 0.9)"
-            def objective(trial):
-                heur = [
-                    using this code {self.extract_code_from_code(input_file_path)}
-
-                ]
-
-                fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
-                prob = fun.get_formatted_problem()
-                performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
-                
-                return performance
-
-                # WRITE THE WHOLE CODE
-                study = optuna.create_study(direction="minimize")  
-                study.optimize(objective, n_trials=50) 
-
-                print("Mejores hiperparámetros encontrados:")
-                print(study.best_params)
-
-                print("Mejor rendimiento encontrado:")
-                print(study.best_value)   
-        #  IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
-        """
-        # In summary, this code is generating an embedding for a given prompt,
-        #  querying a collection to find the most similar document based on that
-        #  embedding, and then extracting the top result.
-
-        response = ollama.embeddings(
-                        prompt=self.full_prompt_with_optuna,
-                        model="mxbai-embed-large"
-                    )
-        results = self.optuna_collection.query(
-                query_embeddings=[response["embedding"]],
-                n_results=1
-            )
-        data = results['documents'][0][0]
-    
         current_output_optuna = ollama.generate(
-            model=model,
-            prompt= f"Using this data {data} implement correctly the optuna library"
-    
+            model="codegemma",
+            prompt=f"Using this file: {input_file_path}. Respond to this prompt: {self.role_prompt} {self.optuna_refinement_prompt}"
         )
-     
-            
-        self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True)
-            
+
+        print("printeando la respuesta, avr si hay error")
+        print(current_output_optuna['response'])
+        execution_result_optuna = self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, False)
+
+        if self.file_result != 0: 
+
+            response = ollama.embeddings(
+                            prompt = f"{self.role_prompt} {self.optuna_refinement_prompt}",
+                            model="mxbai-embed-large"
+                        )
+            results = self.optuna_collection.query(
+                    query_embeddings=[response["embedding"]],
+                    n_results=1
+                )
+            data = results['documents'][0][0]
         
-            
+            current_output_optuna = ollama.generate(
+                model=model,
+                prompt= f"Using this data {data} implement correctly the optuna library"
+        
+            )        
+        self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True) 
         return current_output_optuna['response']
        
         
@@ -590,8 +551,8 @@ class MetaheuristicGenerator:
             data = results['documents'][0][0]
 
 
-
-            optuna_prompt = self.generate_optuna_prompt()
+            """
+            optuna_prompt = self.optuna_refinement_prompt()
 
             optuna_response = ollama.embeddings(
                 prompt=optuna_prompt,
@@ -603,6 +564,7 @@ class MetaheuristicGenerator:
                 n_results=1
             )
             optuna_data = optuna_results['documents'][0][0]
+            """  
 
             # Create output folder
             self.logger.debug("Creating output folder")

@@ -1,6 +1,10 @@
 import optuna
+
 import sys
-sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+from pathlib import Path
+
+project_dir = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_dir))
 
 import benchmark_func as bf
 import matplotlib.pyplot as plt
