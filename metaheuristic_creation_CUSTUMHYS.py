@@ -389,16 +389,15 @@ class MetaheuristicGenerator:
         self.extracted_code = self.extract_code_from_code(input_file_path)
         
         current_output_optuna = ollama.generate(
-            model="codegemma",
+            model = model,
             prompt=f"Using this file: {input_file_path}. Respond to this prompt: {self.role_prompt} {self.optuna_refinement_prompt}"
         )
 
-        print("printeando la respuesta, avr si hay error")
+        print("printeando la respuesta, optuna")
         print(current_output_optuna['response'])
-        execution_result_optuna = self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, False)
+        execution_result_optuna = self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True)
 
         if self.file_result != 0: 
-
             response = ollama.embeddings(
                             prompt = f"{self.role_prompt} {self.optuna_refinement_prompt}",
                             model="mxbai-embed-large"
@@ -407,16 +406,16 @@ class MetaheuristicGenerator:
                     query_embeddings=[response["embedding"]],
                     n_results=1
                 )
-            data = results['documents'][0][0]
+            optuna_data = results['documents'][0][0]
         
             current_output_optuna = ollama.generate(
                 model=model,
-                prompt= f"Using this data {data} implement correctly the optuna library"
-        
+                prompt=f"Using this file: {input_file_path}, and this data: {optuna_data} Respond to this prompt: {self.role_prompt} {self.optuna_refinement_prompt}"
             )        
-        self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True) 
-        return current_output_optuna['response']
-       
+
+            self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True) 
+            return current_output_optuna['response']
+        
         
 
     def execute_generated_code(self, code, output_folder, iteration, is_optuna):
@@ -583,7 +582,7 @@ class MetaheuristicGenerator:
                 self.self_refine(prompt, data, output_folder, i)
                 self.logger.info(f"Refined output for iteration {i} generated")
 
-                self.self_refine_with_optuna("codegemma", output_folder, i)
+                #self.self_refine_with_optuna("codegemma", output_folder, i)
                 #self.self_refine_with_optuna(optuna_prompt, "codegemma", output_folder, i)
             self.logger.debug("Main execution completed")
             self.client.delete_collection(name="metaheuristic_builder")
