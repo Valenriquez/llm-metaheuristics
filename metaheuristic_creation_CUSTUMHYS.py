@@ -137,14 +137,13 @@ class MetaheuristicGenerator:
 
         # Name: [Your chosen name for the optuna-enhanced metaheuristic]
         # Code:
-
-        import optuna
         import sys
         from pathlib import Path
 
         project_dir = Path(__file__).resolve().parent.parent
         sys.path.insert(0, str(project_dir))
 
+        import optuna
         import benchmark_func as bf
         import matplotlib.pyplot as plt
 
