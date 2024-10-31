@@ -1,8 +1,12 @@
  # Name: GravitationalSearchMetaheuristic
 # Code:
-
 import sys
-sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+from pathlib import Path
+
+# Move up one level to the llm-metaheuristics directory
+project_dir = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_dir))
+
 import benchmark_func as bf
 import metaheuristic as mh
 

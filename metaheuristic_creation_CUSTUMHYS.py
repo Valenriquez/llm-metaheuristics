@@ -1,11 +1,8 @@
 import ollama
 import chromadb
 import os
-import benchmark_func as bf
-import sys
 import datetime
 import subprocess
-import time
 import logging
 import re
 
@@ -71,7 +68,10 @@ class MetaheuristicGenerator:
         # Name: [Your chosen name for the metaheuristic]
         # Code:
         import sys
-        sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+        from pathlib import Path
+
+        project_dir = Path(__file__).resolve().parent.parent
+        sys.path.insert(0, str(project_dir))
         import benchmark_func as bf
         import metaheuristic as mh
 
@@ -108,6 +108,9 @@ class MetaheuristicGenerator:
         # Short explanation and justification:
         # [Your explanation here, each line starting with '#']
         """ 
+
+        self.optuna_refinement_prompt =  f"""
+        """
         self.python_files_dir = 'llm-metaheuristics/metaheuristic_builder'
         self.process_files(self.python_files_collection, self.python_files_dir)
         self.optuna_files_dir = 'llm-metaheuristics/optuna_builder'
@@ -160,6 +163,20 @@ class MetaheuristicGenerator:
 
         full_prompt_optuna = self.task_prompt_optuna  # too possible to combine things 
         return full_prompt_optuna
+    
+    def extract_code_from_code(self, code_file):
+        #with open(code_file, 'r') as file:
+        #    content = file.read()
+        # Use regex to extract content between 'heur[' and ']'
+        # Regex pattern to capture content inside 'heur = [' and ']'
+        pattern = r'heur\s*=\s*\[(.*?)\]'  # Match content inside heur = [ ]
+        match = re.search(pattern, code_file, re.DOTALL)
+
+        if match:
+            extracted_content = match.group(1).strip()  # Extract the code block
+            return extracted_content
+        else:
+            return None
             
     def self_refine(self, initial_prompt, data, output_folder, number_iteration):
         current_output = ollama.generate(
@@ -204,9 +221,9 @@ class MetaheuristicGenerator:
         # Limit the number of documents to include in the prompt if necessary
         max_docs_to_include = 3  # Adjust this number as needed
         relevant_files['documents'][0] = relevant_files['documents'][0][:max_docs_to_include]
-    
         relevant_files = {"documents": ["No relevant Python files found."]}
 
+        generated_meataheuristic = self.extract_code_from_code(current_output['response'])
         if self.file_result != 0: 
         
             # Construct the refinement prompt with relevant feedback and Python collection (metaheuristic)
@@ -232,12 +249,18 @@ class MetaheuristicGenerator:
             {data}
             IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
             Use the same template as the one provided before, which is:
+            IMPORTANT:  Please create a metaheuristic different than {generated_meataheuristic}
             
+
             # Name: [Your chosen name for the metaheuristic]
             # Code:
 
             import sys
-            sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+            from pathlib import Path
+
+            project_dir = Path(__file__).resolve().parent.parent
+            sys.path.insert(0, str(project_dir))
+
             import benchmark_func as bf
             import metaheuristic as mh
 
@@ -303,18 +326,6 @@ class MetaheuristicGenerator:
             
             return refined_output['response']
 
-    def extract_code_from_code(self, code_file):
-        with open(code_file, 'r') as file:
-            content = file.read()
-        # Use regex to extract content between 'heur[' and ']'
-        # Regex pattern to capture content inside 'heur = [' and ']'
-        pattern = r'heur\s*=\s*\[(.*?)\]'  # Match content inside heur = [ ]
-        match = re.search(pattern, content, re.DOTALL)
-
-        if match:
-            extracted_content = match.group(1).strip()  # Extract the code block
-        
-            return extracted_content
     
     
     def self_refine_with_optuna(self, model, output_folder, iteration_number):
@@ -360,7 +371,10 @@ class MetaheuristicGenerator:
 
         import optuna
         import sys
-        sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+        from pathlib import Path
+
+        project_dir = Path(__file__).resolve().parent.parent
+        sys.path.insert(0, str(project_dir))
 
         import benchmark_func as bf
         import matplotlib.pyplot as plt
@@ -495,9 +509,12 @@ class MetaheuristicGenerator:
         
         # Name: [Your chosen name for the metaheuristic]
         # Code:
-
         import sys
-        sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+        from pathlib import Path
+
+        project_dir = Path(__file__).resolve().parent.parent
+        sys.path.insert(0, str(project_dir))
+
         import benchmark_func as bf
         import metaheuristic as mh
 
