@@ -38,9 +38,9 @@ class MetaheuristicGenerator:
         self.logger = logging.getLogger(__name__)
         
         
-        self.python_files_dir = 'llm-metaheuristics/metaheuristic_builder'
+        self.python_files_dir = './metaheuristic_builder'
         self.process_python_files()
-        self.optuna_files_dir = 'llm-metaheuristics/optuna_builder'
+        self.optuna_files_dir = './optuna_builder'
         self.process_optuna_files()
     
     def process_optuna_files(self):
