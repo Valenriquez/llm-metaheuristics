@@ -30,7 +30,6 @@ class NoCodeException(Exception):
 
 class MetaheuristicGenerator:
     def __init__(self, benchmark_function, dimensions, model="deepseek-coder-v2", max_iterations=7):
-        #self.experiment_name = function
         self.model = model
         self.max_iterations = max_iterations
         self.client = chromadb.Client()
@@ -39,45 +38,13 @@ class MetaheuristicGenerator:
         self.feedback_collection = self.client.create_collection(name="feedback_collection")
         self.benchmark_function = benchmark_function
         self.dimensions = dimensions
+        self.file_result = "" # Checking if output was succesful
         
         logging.basicConfig(level=logging.DEBUG)
         self.logger = logging.getLogger(__name__)
         
-        self.python_files_dir = 'llm-metaheuristics/metaheuristic_builder'
-        self.process_files(self.python_files_collection, self.python_files_dir)
-        self.optuna_files_dir = 'llm-metaheuristics/optuna_builder'
-        self.process_files(self.optuna_collection, self.optuna_files_dir)
-    
-    def process_files(self, name_collection, directory):
-        for filename in os.listdir (directory):
-            if filename.endswith('.py') or filename.endswith('.txt'):
-                file_path = os.path.join(directory, filename)
-                file_content = self.read_file(file_path)
-
-                response = ollama.embeddings(model="mxbai-embed-large", prompt=file_content)
-                embedding = response.get("embedding")
-                
-                if embedding:
-                    name_collection.add(
-                        ids=[filename],
-                        embeddings=[embedding],
-                        documents=[file_content],
-                        metadatas=[{"filename": filename}]
-                    )
-                    print(f"Added {filename} to the optuna collection")
-                else:
-                    print(f"Warning: Empty embedding generated for {filename}")
-
-        
-    def read_file(self, file_path):
-        with open(file_path, 'r') as file:
-            return file.read()
-        #self.client = LLMmanager(model)
-        #self.model = model
-        #self.f = f  # evaluation function, provides a string as feedback, a numerical value (higher is better), and a possible error string.
-    
-    def generate_prompt(self):
-        self.task_prompt = f"""
+        self.role_prompt = "You are a highly skilled computer scientist in the field of natural computing. Your task is to design novel metaheuristic algorithms."
+        self.task_prompt =  f"""
         You are a computer scientist specializing in natural computing and metaheuristic algorithms. Your task is to design a novel metaheuristic algorithm for the bf.{self.benchmark_function}({self.dimensions}) optimization problem using only the operators and selectors from the parameters_to_take.txt file.
 
         IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
@@ -140,10 +107,41 @@ class MetaheuristicGenerator:
 
         # Short explanation and justification:
         # [Your explanation here, each line starting with '#']
-        """
+        """ 
+        self.python_files_dir = 'llm-metaheuristics/metaheuristic_builder'
+        self.process_files(self.python_files_collection, self.python_files_dir)
+        self.optuna_files_dir = 'llm-metaheuristics/optuna_builder'
+        self.process_files(self.optuna_collection, self.optuna_files_dir)
+    
+    def process_files(self, name_collection, directory):
+        for filename in os.listdir (directory):
+            if filename.endswith('.py') or filename.endswith('.txt'):
+                file_path = os.path.join(directory, filename)
+                file_content = self.read_file(file_path)
 
-        full_prompt = self.task_prompt  # too possible to combine things 
-        return full_prompt
+                response = ollama.embeddings(model="mxbai-embed-large", prompt=file_content)
+                embedding = response.get("embedding")
+                
+                if embedding:
+                    name_collection.add(
+                        ids=[filename],
+                        embeddings=[embedding],
+                        documents=[file_content],
+                        metadatas=[{"filename": filename}]
+                    )
+                    print(f"Added {filename} to the optuna collection")
+                else:
+                    print(f"Warning: Empty embedding generated for {filename}")
+
+        
+    def read_file(self, file_path):
+        with open(file_path, 'r') as file:
+            return file.read()
+        #self.client = LLMmanager(model)
+        #self.model = model
+        #self.f = f  # evaluation function, provides a string as feedback, a numerical value (higher is better), and a possible error string.
+    
+ 
     
     def generate_optuna_prompt(self):
         self.task_prompt_optuna = f"""
@@ -188,121 +186,123 @@ class MetaheuristicGenerator:
             query_embeddings=[query_embedding['embedding']],
             n_results=n_results
         )
-        # In case more python files are added to the collection
-        if self.python_files_collection.count() > 0:
-            total_docs = self.python_files_collection.count()
-            relevant_files = self.python_files_collection.query(
-                query_embeddings=[query_embedding['embedding']],
-                n_results=total_docs  # Retrieve all documents
+        
+        #self.python_files_collection.count() > 0:
+        total_docs = self.python_files_collection.count()
+        relevant_files = self.python_files_collection.query(
+            query_embeddings=[query_embedding['embedding']],
+            n_results=total_docs  # Retrieve all documents
+        )
+            
+        if 'distances' in relevant_files:
+            sorted_indices = sorted(range(len(relevant_files['distances'][0])), 
+                                    key=lambda k: relevant_files['distances'][0][k])
+            
+            sorted_documents = [relevant_files['documents'][0][i] for i in sorted_indices]
+            relevant_files['documents'] = [sorted_documents]
+        
+        # Limit the number of documents to include in the prompt if necessary
+        max_docs_to_include = 3  # Adjust this number as needed
+        relevant_files['documents'][0] = relevant_files['documents'][0][:max_docs_to_include]
+    
+        relevant_files = {"documents": ["No relevant Python files found."]}
+
+        if self.file_result != 0: 
+        
+            # Construct the refinement prompt with relevant feedback and Python collection (metaheuristic)
+            refinement_prompt = f"""
+            IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
+            DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
+            You are a computer scientist specializing in natural computing and metaheuristic algorithms. You have been tasked with refining and improving the following output:
+
+            {current_output['response']}
+            The code was executed with the following result:
+            {execution_result}
+            You must fix the results. I need the metaheuristic to run correctly. 
+            Here is relevant feedback from previous iterations:
+            {relevant_feedback['documents']}
+
+            Here are relevant Python files that might be helpful:
+            {relevant_files['documents']}
+
+            Please analyze this output and suggest improvements and corrections. 
+            Please DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ``` in the response.
+            Please DO NOT USE ANY operators or parameters that are not in the parameters_to_take.txt file.
+            This is the parameters_to_take.txt file:
+            {data}
+            IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
+            Use the same template as the one provided before, which is:
+            
+            # Name: [Your chosen name for the metaheuristic]
+            # Code:
+
+            import sys
+            sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+            import benchmark_func as bf
+            import metaheuristic as mh
+
+
+            fun = bf.{self.benchmark_function}({self.dimensions})
+            prob = fun.get_formatted_problem()
+
+            heur = [
+                ( # Search operator 1
+                '[operator_name]',
+                {{ 
+                    'parameter1': value1,
+                    'parameter2': value2,
+                    ... more parameters as needed
+                }},
+                '[selector_name]'
+                ),
+                (  
+                '[operator_name]',
+                {{
+                    'parameter1': value1,
+                    'parameter2': value2,
+                    ... more parameters as needed
+                }},
+                '[selector_name]'
+            )
+        ]
+
+            met = mh.Metaheuristic(prob, heur, num_iterations=100)
+            met.verbose = True
+            met.run()
+            print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
+
+
+            # Short explanation and justification:
+            # [Your explanation here, each line starting with '#']
+
+            REMEMBER: 
+            1. EVERY EXPLANATION MUST START WITH '#'. 
+            2. DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```.
+            3. ONLY USE INFORMATION FROM THE parameters_to_take.txt FILE.
+            DO NOT INVENT ANY NEW INFORMATION.
+            4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
+            5. ENSURE ALL PARAMETER NAMES AND VALUES APPEAR IN parameters_to_take.txt.
+            6. If you ever use genetic crossover, you must use genetic mutation as well. 
+            7. Verifying that only operators and parameters from parameters_to_take.txt are used.
+            8. Checking for any logical errors or inconsistencies.
+            9. Improving the explanation and justification.
+
+            Provide your refined version of the entire output, not just the changes.
+            """
+
+            refined_output = ollama.generate(
+            model="deepseek-coder-v2",
+            prompt=refinement_prompt
             )
             
-            if 'distances' in relevant_files:
-                sorted_indices = sorted(range(len(relevant_files['distances'][0])), 
-                                        key=lambda k: relevant_files['distances'][0][k])
-                
-                sorted_documents = [relevant_files['documents'][0][i] for i in sorted_indices]
-                relevant_files['documents'] = [sorted_documents]
+            # Code repeats itself
+            self.execute_generated_code(refined_output['response'], output_folder, number_iteration, False)
             
-            # Limit the number of documents to include in the prompt if necessary
-            max_docs_to_include = 3  # Adjust this number as needed
-            relevant_files['documents'][0] = relevant_files['documents'][0][:max_docs_to_include]
-        else:
-            relevant_files = {"documents": ["No relevant Python files found."]}
-        
-        # Construct the refinement prompt with relevant feedback and Python collection (metaheuristic)
-        refinement_prompt = f"""
-        IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
-        DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
-        You are a computer scientist specializing in natural computing and metaheuristic algorithms. You have been tasked with refining and improving the following output:
+            
+            #current_output = refined_output
+            
+            return refined_output['response']
 
-        {current_output['response']}
-        The code was executed with the following result:
-        {execution_result}
-        You must fix the results. I need the metaheuristic to run correctly. 
-        Here is relevant feedback from previous iterations:
-        {relevant_feedback['documents']}
-
-        Here are relevant Python files that might be helpful:
-        {relevant_files['documents']}
-
-        Please analyze this output and suggest improvements and corrections. 
-        Please DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ``` in the response.
-        Please DO NOT USE ANY operators or parameters that are not in the parameters_to_take.txt file.
-        This is the parameters_to_take.txt file:
-        {data}
-        IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
-        Use the same template as the one provided before, which is:
-        
-        # Name: [Your chosen name for the metaheuristic]
-        # Code:
-
-        import sys
-        sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
-        import benchmark_func as bf
-        import metaheuristic as mh
-
-
-        fun = bf.{self.benchmark_function}({self.dimensions})
-        prob = fun.get_formatted_problem()
-
-        heur = [
-            ( # Search operator 1
-            '[operator_name]',
-            {{ 
-                'parameter1': value1,
-                'parameter2': value2,
-                ... more parameters as needed
-            }},
-            '[selector_name]'
-            ),
-            (  
-            '[operator_name]',
-            {{
-                'parameter1': value1,
-                'parameter2': value2,
-                ... more parameters as needed
-            }},
-            '[selector_name]'
-        )
-    ]
-
-        met = mh.Metaheuristic(prob, heur, num_iterations=100)
-        met.verbose = True
-        met.run()
-        print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
-
-
-        # Short explanation and justification:
-        # [Your explanation here, each line starting with '#']
-
-        REMEMBER: 
-        1. EVERY EXPLANATION MUST START WITH '#'. 
-        2. DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```.
-        3. ONLY USE INFORMATION FROM THE parameters_to_take.txt FILE.
-        DO NOT INVENT ANY NEW INFORMATION.
-        4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
-        5. ENSURE ALL PARAMETER NAMES AND VALUES APPEAR IN parameters_to_take.txt.
-        6. If you ever use genetic crossover, you must use genetic mutation as well. 
-        7. Verifying that only operators and parameters from parameters_to_take.txt are used.
-        8. Checking for any logical errors or inconsistencies.
-        9. Improving the explanation and justification.
-
-        Provide your refined version of the entire output, not just the changes.
-        """
-
-        refined_output = ollama.generate(
-        model="deepseek-coder-v2",
-        prompt=refinement_prompt
-        )
-        
-        # Write refined output
-        self.execute_generated_code(refined_output['response'], output_folder, number_iteration, False)
-        
-       
-        #current_output = refined_output
-     
-        return refined_output['response']
-    
     def extract_code_from_code(self, code_file):
         with open(code_file, 'r') as file:
             content = file.read()
@@ -449,20 +449,18 @@ class MetaheuristicGenerator:
         # os.path.join()`: This function is used to create a proper file path string 
         # that works across different operating systems.
         file_name =  os.path.join(output_folder, f'{prefix}iteration_{iteration}.py')
-        #file_path = os.path.join(output_folder,  f'{prefix}{file_name}.py')
         #print(file_path)
         with open(file_name, 'w') as f:
             f.write(code)
         
         try:
-            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=60)
+            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=100)
             execution_result = f"Exit code: {result.returncode}\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
-            
+            self.file_result = result.returncode
             result_file_name = f'{prefix}result_{iteration}.txt'
             result_file_path = os.path.join(output_folder, result_file_name)
             with open(result_file_path, 'w') as f:
                 f.write(execution_result)
-            
             return execution_result
         except subprocess.TimeoutExpired:
             return "Execution timed out after 30 seconds"
@@ -557,7 +555,7 @@ class MetaheuristicGenerator:
     def run(self):
         self.logger.debug("Starting main execution")
         try:
-            prompt = self.generate_prompt()
+            prompt = self.role_prompt + self.task_prompt
             
             response = ollama.embeddings(
                 prompt=prompt,
@@ -613,7 +611,7 @@ class MetaheuristicGenerator:
             self.client.delete_collection(name="optuna_collection")
             self.client.delete_collection(name="feedback_collection")
         except Exception as e:
-            self.slogger.error(f"An error occurred in the main execution: {str(e)}")
+            self.logger.error(f"An error occurred in the main execution: {str(e)}")
             self.logger.exception("Exception details:")
             raise
 
