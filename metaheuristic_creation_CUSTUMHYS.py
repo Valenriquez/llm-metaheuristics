@@ -283,7 +283,7 @@ class MetaheuristicGenerator:
         relevant_files = {"documents": ["No relevant Python files found."]}
 
         generated_meataheuristic = self.extract_code_from_code(current_output['response'])
-        if self.file_result != 0: 
+        while self.file_result != 0: 
         
             # Construct the refinement prompt with relevant feedback and Python collection (metaheuristic)
             refinement_prompt = f"""
@@ -397,7 +397,7 @@ class MetaheuristicGenerator:
         print(current_output_optuna['response'])
         execution_result_optuna = self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True)
 
-        if self.file_result != 0: 
+        while self.file_result != 0: 
             response = ollama.embeddings(
                             prompt = f"{self.role_prompt} {self.optuna_refinement_prompt}",
                             model="mxbai-embed-large"
@@ -582,7 +582,7 @@ class MetaheuristicGenerator:
                 self.self_refine(prompt, data, output_folder, i)
                 self.logger.info(f"Refined output for iteration {i} generated")
 
-                #self.self_refine_with_optuna("codegemma", output_folder, i)
+                self.self_refine_with_optuna("codegemma", output_folder, i)
                 #self.self_refine_with_optuna(optuna_prompt, "codegemma", output_folder, i)
             self.logger.debug("Main execution completed")
             self.client.delete_collection(name="metaheuristic_builder")
