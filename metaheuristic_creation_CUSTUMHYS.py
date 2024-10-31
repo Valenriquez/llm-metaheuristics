@@ -111,6 +111,30 @@ class MetaheuristicGenerator:
         """ 
 
         self.optuna_refinement_prompt =  f"""
+        You are a computer scientist specializing in natural computing and metaheuristic algorithms. Your task is to design a novel metaheuristic algorithm for the bf.{self.benchmark_function}({self.dimensions}) optimization problem using only the operators and selectors from the parameters_to_take.txt file.
+
+        IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
+        DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
+
+        INSTRUCTIONS:
+        1. Use only the function: bf.{self.benchmark_function}({self.dimensions})
+        2. Use only operators and selectors from parameters_to_take.txt.
+        3. Use only the parameters of the operator chosen from parameters_to_take.txt.
+        4. The options inside the array are the ones you can choose from to fill each parameter.
+        5. Only use one variable per parameter
+        6. Do Not use the whole array when writing the variable of the parameter.
+        7. Write the variables without an array format
+        8. Write the variable as a float or string format.
+        9. The search space is between -1.0 (lower bound) and 1.0 (upper bound)
+        10. Set num_iterations to 100
+        12. Each operator must have its own selector
+        13. Fill all parameters for the chosen operator with your best recommendations. You must read the complete parameters_to_take.txt file to know all the parameters for each operator.
+        14. You can use Two operator per metaheuristic if you think that is the best option, but do not use more than three operators.
+        15. Create only one metaheuristic per response
+        16. DO NOT use any information or knowledge outside of what is provided in the parameters_to_take.txt file
+
+        FORMAT YOUR RESPONSE EXACTLY AS FOLLOWS:
+
         # Name: [Your chosen name for the optuna-enhanced metaheuristic]
         # Code:
 
@@ -263,6 +287,7 @@ class MetaheuristicGenerator:
             n_results=n_results
         )
         
+        """ 
         #self.python_files_collection.count() > 0:
         total_docs = self.python_files_collection.count()
         relevant_files = self.python_files_collection.query(
@@ -277,13 +302,14 @@ class MetaheuristicGenerator:
             sorted_documents = [relevant_files['documents'][0][i] for i in sorted_indices]
             relevant_files['documents'] = [sorted_documents]
         
-        # Limit the number of documents to include in the prompt if necessary
         max_docs_to_include = 3  # Adjust this number as needed
         relevant_files['documents'][0] = relevant_files['documents'][0][:max_docs_to_include]
         relevant_files = {"documents": ["No relevant Python files found."]}
-
-        generated_meataheuristic = self.extract_code_from_code(current_output['response'])
+        """
+        print("self.file_result_NORMAL", self.file_result)
         while self.file_result != 0: 
+            generated_meataheuristic = self.extract_code_from_code(current_output['response'])
+        
         
             # Construct the refinement prompt with relevant feedback and Python collection (metaheuristic)
             refinement_prompt = f"""
@@ -386,17 +412,20 @@ class MetaheuristicGenerator:
     
     def self_refine_with_optuna(self, model, output_folder, iteration_number):
         input_file_path = os.path.join(output_folder, f'execution_iteration_{iteration_number}.py')
+        with open(input_file_path, 'r') as f:
+            file_contents = f.read()
         self.extracted_code = self.extract_code_from_code(input_file_path)
-        
+        print("letsee --- input_file_path", input_file_path)
         current_output_optuna = ollama.generate(
             model = model,
-            prompt=f"Using this file: {input_file_path}. Respond to this prompt: {self.role_prompt} {self.optuna_refinement_prompt}"
+            prompt=f"Using this information of the file generated before: {file_contents}. Respond to this prompt: {self.role_prompt} {self.optuna_refinement_prompt}"
         )
 
         print("printeando la respuesta, optuna")
         print(current_output_optuna['response'])
-        execution_result_optuna = self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True)
+        self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True)
 
+        print("self.file_result_optuna", self.file_result)
         while self.file_result != 0: 
             response = ollama.embeddings(
                             prompt = f"{self.role_prompt} {self.optuna_refinement_prompt}",
