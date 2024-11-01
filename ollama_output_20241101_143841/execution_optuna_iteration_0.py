@@ -1,4 +1,4 @@
-# Name: Enhanced Metaheuristic using Crossover and Mutation Operators
+# Name: Enhanced Metaheuristic with Two Operators
 
 # Code:
 import sys
@@ -38,23 +38,24 @@ def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, nu
 
 def objective(trial):
     heur = [
-        (  # Crossover operator
+        (  # Search operator 1
             'crossover',
             {
-                'p': trial.suggest_float('p', 0.1, 0.9)  # Crossover probability
+                'crossover_probability': trial.suggest_float('crossover_probability', 0.1, 0.9),
+                'crossover_type': 'uniform'
             },
-            'tournament'  # Tournament selector
+            'tournament'
         ),
-        (  # Mutation operator
+        (  # Search operator 2
             'mutation',
             {
-                'p': trial.suggest_float('p', 0.1, 0.9),  # Mutation probability
-                'sigma': trial.suggest_float('sigma', 0.1, 1.0)  # Mutation strength
+                'mutation_probability': trial.suggest_float('mutation_probability', 0.1, 0.9),
+                'mutation_type': 'gaussian'
             },
-            'uniform'  # Uniform selector
+            'roulette'
         )
     ]
-    fun = bf.Rastrigin(2)
+    fun = bf.Rastrigin(2) # This is the selected problem, the problem may vary depending on the case.
     prob = fun.get_formatted_problem()
     performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
 
@@ -63,8 +64,8 @@ def objective(trial):
 study = optuna.create_study(direction="minimize")
 study.optimize(objective, n_trials=50)
 
-print("Best hyperparameters found:")
+print("Mejores hiperparámetros encontrados:")
 print(study.best_params)
 
-print("Best performance found:")
+print("Mejor rendimiento encontrado:")
 print(study.best_value)

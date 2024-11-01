@@ -2,8 +2,8 @@ Exit code: 1
 Stdout:
 
 Stderr:
-[I 2024-11-01 14:38:01,571] A new study created in memory with name: no-name-63c83df8-1e87-4ef5-977b-1559822a3fe1
-[W 2024-11-01 14:38:01,609] Trial 0 failed with parameters: {'p': 0.7069759370466226, 'sigma': 0.7730312569393905} because of the following error: AttributeError("module 'operators' has no attribute 'crossover'").
+[I 2024-11-01 14:51:42,530] A new study created in memory with name: no-name-ec5cbf4c-6e38-42b2-a8db-a644041c8a9a
+[W 2024-11-01 14:51:42,563] Trial 0 failed with parameters: {'crossover_probability': 0.3152165123447437, 'mutation_probability': 0.5998844574166675} because of the following error: AttributeError("module 'operators' has no attribute 'crossover'").
 joblib.externals.loky.process_executor._RemoteTraceback: 
 """
 Traceback (most recent call last):
@@ -13,7 +13,7 @@ Traceback (most recent call last):
   File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 598, in __call__
     return [func(*args, **kwargs)
             ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_132337/execution_optuna_iteration_0.py", line 25, in run_metaheuristic
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_143841/execution_optuna_iteration_0.py", line 25, in run_metaheuristic
     met.run()
   File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 143, in run
     self.apply_search_operator(perturbator, selector)
@@ -29,10 +29,10 @@ Traceback (most recent call last):
   File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
     value_or_values = func(trial)
                       ^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_132337/execution_optuna_iteration_0.py", line 59, in objective
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_143841/execution_optuna_iteration_0.py", line 60, in objective
     performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_132337/execution_optuna_iteration_0.py", line 30, in evaluate_sequence_performance
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_143841/execution_optuna_iteration_0.py", line 30, in evaluate_sequence_performance
     results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 2007, in __call__
@@ -50,7 +50,7 @@ Traceback (most recent call last):
   File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 763, in _return_or_raise
     raise self._result
 AttributeError: module 'operators' has no attribute 'crossover'
-[W 2024-11-01 14:38:01,612] Trial 0 failed with value None.
+[W 2024-11-01 14:51:42,565] Trial 0 failed with value None.
 joblib.externals.loky.process_executor._RemoteTraceback: 
 """
 Traceback (most recent call last):
@@ -60,7 +60,7 @@ Traceback (most recent call last):
   File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 598, in __call__
     return [func(*args, **kwargs)
             ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_132337/execution_optuna_iteration_0.py", line 25, in run_metaheuristic
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_143841/execution_optuna_iteration_0.py", line 25, in run_metaheuristic
     met.run()
   File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 143, in run
     self.apply_search_operator(perturbator, selector)
@@ -73,7 +73,7 @@ AttributeError: module 'operators' has no attribute 'crossover'
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_132337/execution_optuna_iteration_0.py", line 64, in <module>
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_143841/execution_optuna_iteration_0.py", line 65, in <module>
     study.optimize(objective, n_trials=50)
   File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/study/study.py", line 475, in optimize
     _optimize(
@@ -87,10 +87,10 @@ Traceback (most recent call last):
   File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
     value_or_values = func(trial)
                       ^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_132337/execution_optuna_iteration_0.py", line 59, in objective
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_143841/execution_optuna_iteration_0.py", line 60, in objective
     performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_132337/execution_optuna_iteration_0.py", line 30, in evaluate_sequence_performance
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_143841/execution_optuna_iteration_0.py", line 30, in evaluate_sequence_performance
     results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 2007, in __call__

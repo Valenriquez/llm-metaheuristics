@@ -218,6 +218,7 @@ class MetaheuristicGenerator:
         #  IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
         """
         self.python_files_dir = 'llm-metaheuristics/metaheuristic_builder'
+        
         self.process_files(self.python_files_collection, self.python_files_dir)
         self.optuna_files_dir = 'llm-metaheuristics/optuna_builder'
         self.process_files(self.optuna_collection, self.optuna_files_dir)
@@ -416,7 +417,7 @@ class MetaheuristicGenerator:
         with open(input_file_path, 'r') as f:
             file_contents = f.read()
         self.extracted_code = self.extract_code_from_code(input_file_path)
-        print("letsee --- input_file_path", input_file_path)
+        print("letsee --- input_file_path", self.extracted_code)
         current_output_optuna = ollama.generate(
             model = model,
             prompt=f"Using this information of the file generated before: {file_contents}. Respond to this prompt: {self.role_prompt} {self.optuna_refinement_prompt}"

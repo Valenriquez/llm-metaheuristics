@@ -1,6 +1,8 @@
-# Name: Enhanced Metaheuristic using Crossover and Mutation Operators
+# Name: Optuna-Enhanced Hybrid Metaheuristic with Two Operators
 
-# Code:
+**Code:**
+
+```python
 import sys
 from pathlib import Path
 
@@ -38,23 +40,24 @@ def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, nu
 
 def objective(trial):
     heur = [
-        (  # Crossover operator
-            'crossover',
+        (  # Search operator 1
+            'Crossover',
             {
-                'p': trial.suggest_float('p', 0.1, 0.9)  # Crossover probability
+                'crossover_type': 'uniform',
+                'probability': trial.suggest_float('crossover_probability', 0.1, 0.9)
             },
-            'tournament'  # Tournament selector
+            'Tournament'
         ),
-        (  # Mutation operator
-            'mutation',
+        (  # Search operator 2
+            'Mutation',
             {
-                'p': trial.suggest_float('p', 0.1, 0.9),  # Mutation probability
-                'sigma': trial.suggest_float('sigma', 0.1, 1.0)  # Mutation strength
+                'mutation_type': 'gaussian',
+                'standard_deviation': trial.suggest_float('mutation_std', 0.1, 0.9)
             },
-            'uniform'  # Uniform selector
+            'Roulette Wheel'
         )
     ]
-    fun = bf.Rastrigin(2)
+    fun = bf.Rastrigin(2)  # Selected problem
     prob = fun.get_formatted_problem()
     performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
 
@@ -68,3 +71,4 @@ print(study.best_params)
 
 print("Best performance found:")
 print(study.best_value)
+```
