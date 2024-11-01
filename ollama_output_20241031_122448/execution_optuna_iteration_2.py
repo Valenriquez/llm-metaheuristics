@@ -1,4 +1,4 @@
-# Name: Optuna-Enhanced Heuristic for Rastrigin(2) Optimization
+# Name: Swarm Metaheuristic with Inertial Version and Gaussian Distribution Enhanced with Optuna
 
 # Code:
 
@@ -20,6 +20,32 @@ import numpy as np
 from joblib import Parallel, delayed
 import multiprocessing
 
+# Note: If a word is in the code do not remove it, but if a number is in the code, replace it with "trial.suggest_float('variable_name', 0.1, 0.9)"
+def objective(trial):
+    factor = trial.suggest_float('factor', 0.1, 0.9)
+    self_conf = trial.suggest_float('self_conf', 0.1, 0.9)
+    swarm_conf = trial.suggest_float('swarm_conf', 0.1, 0.9)
+
+    heur = [
+        (  # Search operator 1
+            'swarm_dynamic',
+            {
+                'factor': factor,
+                'self_conf': self_conf,
+                'swarm_conf': swarm_conf,
+                'version': 'inertial',
+                'distribution': 'gaussian'
+            },
+            'probabilistic'
+        )
+    ]
+
+    fun = bf.Rastrigin(2) # This is the selected problem, the problem may vary depending on the case.
+    prob = fun.get_formatted_problem()
+    performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
+    
+    return performance
+
 def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, num_replicas):
     def run_metaheuristic():
         met = mh.Metaheuristic(prob, sequence, num_agents=num_agents, num_iterations=num_iterations)
@@ -37,23 +63,8 @@ def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, nu
 
     return performance_metric
 
-def objective(trial):
-    heur = [
-        trial.suggest_float('operator_1_parameter_1', -1.0, 1.0),
-        trial.suggest_float('operator_1_parameter_2', -1.0, 1.0),
-        trial.suggest_float('operator_2_parameter_1', -1.0, 1.0),
-        trial.suggest_float('operator_2_parameter_2', -1.0, 1.0),
-        # Add more operators and parameters here as needed
-    ]
-
-    fun = bf.Rastrigin(2)
-    prob = fun.get_formatted_problem()
-    performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
-
-    return performance
-
-study = optuna.create_study(direction="minimize")
-study.optimize(objective, n_trials=50)
+study = optuna.create_study(direction="minimize")  
+study.optimize(objective, n_trials=50) 
 
 print("Mejores hiperparámetros encontrados:")
 print(study.best_params)

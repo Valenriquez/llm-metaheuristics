@@ -8,11 +8,14 @@ import re
 
 
 """
+CURRENLY WORKING ON THIS FILE ...
+
 More straightforward information
 Creates Optuna and metaheuristic,
 model="deepseek-coder-v2" and "codegemma"
 Added  prompt= f"Using this data {data} implement correctly the optuna library"
 Instead of an "optuna prompt"
+
 
 - Also modifies the output 
 
