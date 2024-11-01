@@ -1,0 +1,18 @@
+Exit code: 1
+Stdout:
+
+Search operators to employ:
+local_random_walk(probability=0.75,scale=1.0,distribution='gaussian') with metropolis
+greedy() with all
+--------------------------------------------------
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_125331/execution_iteration_0.py", line 35, in <module>
+    met.run()
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 143, in run
+    self.apply_search_operator(perturbator, selector)
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 99, in apply_search_operator
+    exec('Operators.' + operator_name + '(self.pop,' + operator_params)
+  File "<string>", line 1, in <module>
+AttributeError: module 'operators' has no attribute 'greedy'

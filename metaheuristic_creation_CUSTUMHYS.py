@@ -179,10 +179,27 @@ class MetaheuristicGenerator:
             # Note: If a word is in the code do not remove it, but if a number is in the code, replace it with "trial.suggest_float('variable_name', 0.1, 0.9)"
             def objective(trial):
                 heur = [
-                    using this code {self.extracted_code}
-
+                YOU NEED TO USE EXACTLY THIS CODE {self.extracted_code}
+                in then next format:
+                    (  # Search operator 1
+                    '[operator_name]',
+                    {{
+                        'parameter1': value1,
+                        'parameter2': value2,
+                        more parameters as needed
+                    }},
+                    '[selector_name]'
+                ),
+                (
+                    '[operator_name]',
+                    {{
+                        'parameter1': value1,
+                        'parameter2': value2,
+                        ... more parameters as needed
+                    }},
+                    '[selector_name]'
+                    )
                 ]
-
                 fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
                 prob = fun.get_formatted_problem()
                 performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
@@ -234,24 +251,6 @@ class MetaheuristicGenerator:
         #self.f = f  # evaluation function, provides a string as feedback, a numerical value (higher is better), and a possible error string.
     
  
-    
-    def gen_optuna(self):
-        self.task_prompt_optuna = f"""
-        You are a computer scientist specializing in natural computing and metaheuristic algorithms. You have been tasked with refining and improving the following output:
-        Enhance the following metaheuristic code by creating a python file that incorporates Optuna for hyperparameter tuning:
-        REMEMBER: 
-        1. EVERY EXPLANATION MUST START WITH '#'. 
-        2. DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```
-        3. ONLY USE INFORMATION FROM THE optuna_builder folder (the one in the optuna_collection) and the information provided in this prompt.
-        4. DO NOT INCLUDE ANY COMMENTS IN THE CODE SECTION.
-        5. ENSURE ALL PARAMETER NAMES AND VALUES APPEAR IN parameters_to_take.txt.
-        6. If you ever use genetic crossover, you must use genetic mutation as well. 
-        8. Checking for any logical errors or inconsistencies.
-        9. Improving the explanation and justification.   
-        """
-
-        full_prompt_optuna = self.task_prompt_optuna  # too possible to combine things 
-        return full_prompt_optuna
     
     def extract_code_from_code(self, code_file):
         pattern = r'heur\s*=\s*\[(.*?)\]'  # Match content inside heur = [ ]
@@ -408,7 +407,7 @@ class MetaheuristicGenerator:
             
             #current_output = refined_output
             
-            return refined_output['response']
+        return refined_output['response']
 
     
     
@@ -445,7 +444,7 @@ class MetaheuristicGenerator:
             )        
 
             self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True) 
-            return current_output_optuna['response']
+        return current_output_optuna['response']
         
         
 
@@ -459,7 +458,7 @@ class MetaheuristicGenerator:
             f.write(code)
         
         try:
-            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=100)
+            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=200)
             execution_result = f"Exit code: {result.returncode}\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
             self.file_result = result.returncode
             result_file_name = f'{prefix}result_{iteration}.txt'

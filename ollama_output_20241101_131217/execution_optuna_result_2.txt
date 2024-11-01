@@ -1,0 +1,8 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241101_131217/execution_optuna_iteration_2.py", line 1
+    **Name:** Swarm-Based Metaheuristic with Adaptive Inertia and Levy Distribution
+    ^^
+SyntaxError: invalid syntax
