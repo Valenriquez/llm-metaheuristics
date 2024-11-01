@@ -369,8 +369,8 @@ class MetaheuristicGenerator:
                     ... more parameters as needed
                 }},
                 '[selector_name]'
-            )
-        ]
+                )
+            ]
 
             met = mh.Metaheuristic(prob, heur, num_iterations=100)
             met.verbose = True
@@ -405,9 +405,9 @@ class MetaheuristicGenerator:
             self.execute_generated_code(refined_output['response'], output_folder, number_iteration, False)
             
             
-            #current_output = refined_output
+            current_output = refined_output
             
-        return refined_output['response']
+        return current_output['response']
 
     
     
