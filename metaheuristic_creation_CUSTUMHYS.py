@@ -46,8 +46,6 @@ class MetaheuristicGenerator:
         
         self.role_prompt = "You are a highly skilled computer scientist in the field of natural computing. Your task is to design novel metaheuristic algorithms."
         self.task_prompt =  f"""
-        You are a computer scientist specializing in natural computing and metaheuristic algorithms. Your task is to design a novel metaheuristic algorithm for the bf.{self.benchmark_function}({self.dimensions}) optimization problem using only the operators and selectors from the parameters_to_take.txt file.
-
         IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
         DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
 
@@ -114,28 +112,17 @@ class MetaheuristicGenerator:
         """ 
 
         self.optuna_refinement_prompt =  f"""
-        You are a computer scientist specializing in natural computing and metaheuristic algorithms. Your task is to design a novel metaheuristic algorithm for the bf.{self.benchmark_function}({self.dimensions}) optimization problem using only the operators and selectors from the parameters_to_take.txt file.
-
         IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
         DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
 
         INSTRUCTIONS:
         1. Use only the function: bf.{self.benchmark_function}({self.dimensions})
-        2. Use only operators and selectors from parameters_to_take.txt.
-        3. Use only the parameters of the operator chosen from parameters_to_take.txt.
-        4. The options inside the array are the ones you can choose from to fill each parameter.
-        5. Only use one variable per parameter
-        6. Do Not use the whole array when writing the variable of the parameter.
-        7. Write the variables without an array format
-        8. Write the variable as a float or string format.
-        9. The search space is between -1.0 (lower bound) and 1.0 (upper bound)
-        10. Set num_iterations to 100
-        12. Each operator must have its own selector
-        13. Fill all parameters for the chosen operator with your best recommendations. You must read the complete parameters_to_take.txt file to know all the parameters for each operator.
-        14. You can use Two operator per metaheuristic if you think that is the best option, but do not use more than three operators.
-        15. Create only one metaheuristic per response
-        16. DO NOT use any information or knowledge outside of what is provided in the parameters_to_take.txt file
-
+        2. Use only operators and selectors provided before .
+        3. Each operator must have its own selector
+        4. If the parameter is a variable that provides a number, you must change it:
+        trial.suggest_float('name_variable', 0.01, 0.9) # name_variable must be changed accordingly  
+        
+       
         FORMAT YOUR RESPONSE EXACTLY AS FOLLOWS:
 
         # Name: [Your chosen name for the optuna-enhanced metaheuristic]
@@ -179,6 +166,7 @@ class MetaheuristicGenerator:
             # Note: If a word is in the code do not remove it, but if a number is in the code, replace it with "trial.suggest_float('variable_name', 0.1, 0.9)"
             def objective(trial):
                 heur = [
+            
                 YOU NEED TO USE EXACTLY THIS CODE {self.extracted_code}
                 in then next format:
                     (  # Search operator 1
@@ -282,7 +270,6 @@ class MetaheuristicGenerator:
         )
         
         query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output['response'])
-        
         n_results = max(1, min(number_iteration, 7))
         relevant_feedback = self.feedback_collection.query(
             query_embeddings=[query_embedding['embedding']],
@@ -416,7 +403,7 @@ class MetaheuristicGenerator:
         input_file_path = os.path.join(output_folder, f'execution_iteration_{iteration_number}.py')
         with open(input_file_path, 'r') as f:
             file_contents = f.read()
-        self.extracted_code = self.extract_code_from_code(input_file_path)
+        self.extracted_code = self.extract_code_from_code(file_contents)
         print("letsee --- input_file_path", self.extracted_code)
         current_output_optuna = ollama.generate(
             model = model,
@@ -425,12 +412,20 @@ class MetaheuristicGenerator:
 
         print("printeando la respuesta, optuna")
         print(current_output_optuna['response'])
-        self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True)
+        execution_result_optuna = self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True)
 
+        feedback_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output_optuna['response'] + execution_result_optuna)
+        self.feedback_collection.add(
+            ids=[f"iteration_{iteration_number}_optuna"],
+            embeddings=[feedback_embedding['embedding']],
+            documents=[current_output_optuna['response'] + "\n" + execution_result_optuna],
+            metadatas=[{"iteration": iteration_number}]
+        )
+        
         print("self.file_result_optuna", self.file_result)
         while self.file_result != 0: 
             response = ollama.embeddings(
-                            prompt = f"{self.role_prompt} {self.optuna_refinement_prompt}",
+                            prompt=f"Using this information of the file generated before: {file_contents}. Respond to this prompt: {self.role_prompt} {self.optuna_refinement_prompt}",
                             model="mxbai-embed-large"
                         )
             results = self.optuna_collection.query(
@@ -441,7 +436,7 @@ class MetaheuristicGenerator:
         
             current_output_optuna = ollama.generate(
                 model=model,
-                prompt=f"Using this file: {input_file_path}, and this data: {optuna_data} Respond to this prompt: {self.role_prompt} {self.optuna_refinement_prompt}"
+                prompt=f"Create the optuna refinement python file using this data: {optuna_data} and this data {self.role_prompt} {self.optuna_refinement_prompt}"
             )        
 
             self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True) 
@@ -613,7 +608,7 @@ class MetaheuristicGenerator:
                 self.self_refine(prompt, data, output_folder, i)
                 self.logger.info(f"Refined output for iteration {i} generated")
 
-                self.self_refine_with_optuna("codegemma", output_folder, i)
+                self.self_refine_with_optuna("llama3.2", output_folder, i)
                 #self.self_refine_with_optuna(optuna_prompt, "codegemma", output_folder, i)
             self.logger.debug("Main execution completed")
             self.client.delete_collection(name="metaheuristic_builder")
