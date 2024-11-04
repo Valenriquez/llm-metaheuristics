@@ -2,78 +2,29 @@ Exit code: 1
 Stdout:
 
 Stderr:
-[I 2024-11-04 12:48:02,514] A new study created in memory with name: no-name-464e4c9f-ebe5-44f7-a4bf-d94ff1660c72
-[W 2024-11-04 12:48:02,536] Trial 0 failed with parameters: {'mutation_probability': 0.4590627260685942, 'crossover_type': 'two-point', 'crossover_distance': 3.31478142651431} because of the following error: AttributeError("module 'operators' has no attribute 'mutate'").
-joblib.externals.loky.process_executor._RemoteTraceback: 
-"""
-Traceback (most recent call last):
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/_utils.py", line 72, in __call__
-    return self.func(**kwargs)
-           ^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 598, in __call__
-    return [func(*args, **kwargs)
-            ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241104_123951/execution_optuna_iteration_1.py", line 24, in run_metaheuristic
-    met.run()
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 143, in run
-    self.apply_search_operator(perturbator, selector)
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 99, in apply_search_operator
-    exec('Operators.' + operator_name + '(self.pop,' + operator_params)
-  File "<string>", line 1, in <module>
-AttributeError: module 'operators' has no attribute 'mutate'
-"""
-
-The above exception was the direct cause of the following exception:
-
+[I 2024-11-04 12:54:07,225] A new study created in memory with name: no-name-e7f7ce8b-9dc4-49ac-8076-de34feafa87c
+[W 2024-11-04 12:54:07,226] Trial 0 failed with parameters: {'num_samples': 64, 'num_iterations': 3.287497611089272, 'temperature_schedule': 'linear'} because of the following error: ValueError('Cannot set different distribution kind to the same parameter name.').
 Traceback (most recent call last):
   File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
     value_or_values = func(trial)
                       ^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241104_123951/execution_optuna_iteration_1.py", line 59, in objective
-    performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241104_123951/execution_optuna_iteration_1.py", line 29, in evaluate_sequence_performance
-    results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 2007, in __call__
-    return output if self.return_generator else list(output)
-                                                ^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1650, in _get_outputs
-    yield from self._retrieve()
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1754, in _retrieve
-    self._raise_error_fast()
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1789, in _raise_error_fast
-    error_job.get_result(self.timeout)
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 745, in get_result
-    return self._return_or_raise()
-           ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 763, in _return_or_raise
-    raise self._result
-AttributeError: module 'operators' has no attribute 'mutate'
-[W 2024-11-04 12:48:02,538] Trial 0 failed with value None.
-joblib.externals.loky.process_executor._RemoteTraceback: 
-"""
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241104_123951/execution_optuna_iteration_1.py", line 52, in objective
+    'num_iterations': trial.suggest_int('num_iterations', 1, 100),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/_convert_positional_args.py", line 83, in converter_wrapper
+    return func(**kwargs)
+           ^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py", line 324, in suggest_int
+    suggested_value = int(self._suggest(name, distribution))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py", line 620, in _suggest
+    distributions.check_distribution_compatibility(trial.distributions[name], distribution)
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/distributions.py", line 660, in check_distribution_compatibility
+    raise ValueError("Cannot set different distribution kind to the same parameter name.")
+ValueError: Cannot set different distribution kind to the same parameter name.
+[W 2024-11-04 12:54:07,228] Trial 0 failed with value None.
 Traceback (most recent call last):
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/_utils.py", line 72, in __call__
-    return self.func(**kwargs)
-           ^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 598, in __call__
-    return [func(*args, **kwargs)
-            ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241104_123951/execution_optuna_iteration_1.py", line 24, in run_metaheuristic
-    met.run()
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 143, in run
-    self.apply_search_operator(perturbator, selector)
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 99, in apply_search_operator
-    exec('Operators.' + operator_name + '(self.pop,' + operator_params)
-  File "<string>", line 1, in <module>
-AttributeError: module 'operators' has no attribute 'mutate'
-"""
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241104_123951/execution_optuna_iteration_1.py", line 64, in <module>
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241104_123951/execution_optuna_iteration_1.py", line 66, in <module>
     study.optimize(objective, n_trials=50) 
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/study/study.py", line 475, in optimize
@@ -88,24 +39,17 @@ Traceback (most recent call last):
   File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
     value_or_values = func(trial)
                       ^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241104_123951/execution_optuna_iteration_1.py", line 59, in objective
-    performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241104_123951/execution_optuna_iteration_1.py", line 29, in evaluate_sequence_performance
-    results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 2007, in __call__
-    return output if self.return_generator else list(output)
-                                                ^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1650, in _get_outputs
-    yield from self._retrieve()
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1754, in _retrieve
-    self._raise_error_fast()
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1789, in _raise_error_fast
-    error_job.get_result(self.timeout)
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 745, in get_result
-    return self._return_or_raise()
-           ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 763, in _return_or_raise
-    raise self._result
-AttributeError: module 'operators' has no attribute 'mutate'
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241104_123951/execution_optuna_iteration_1.py", line 52, in objective
+    'num_iterations': trial.suggest_int('num_iterations', 1, 100),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/_convert_positional_args.py", line 83, in converter_wrapper
+    return func(**kwargs)
+           ^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py", line 324, in suggest_int
+    suggested_value = int(self._suggest(name, distribution))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py", line 620, in _suggest
+    distributions.check_distribution_compatibility(trial.distributions[name], distribution)
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/.venv/lib/python3.12/site-packages/optuna/distributions.py", line 660, in check_distribution_compatibility
+    raise ValueError("Cannot set different distribution kind to the same parameter name.")
+ValueError: Cannot set different distribution kind to the same parameter name.

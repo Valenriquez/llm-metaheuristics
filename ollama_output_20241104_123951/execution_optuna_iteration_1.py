@@ -1,4 +1,4 @@
-# Name: Rastrigin Metaheuristic Optimizer
+# Name: RastriginOptuna
 # Code:
 import sys
 from pathlib import Path
@@ -37,21 +37,23 @@ def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, nu
 
 def objective(trial):
     heur = [
-        (  # Search operator 1
-            'mutate',
+        (
+            'RandomSearch',
             {
-                'probability': trial.suggest_float('mutation_probability', 0.01, 0.9),
+                'num_samples': trial.suggest_int('num_samples', 1, 100),
+                'num_iterations': trial.suggest_float('num_iterations', 0.01, 10.0)
             },
-            'float_selector'
+            'UniformSelector'
         ),
         (
-            'crossover',
+            'SimulatedAnnealing',
             {
-                'type': trial.suggest_categorical('crossover_type', ['single-point', 'two-point']),
-                'distance': trial.suggest_float('crossover_distance', 1.0, 5.0),
+                'temperature_schedule': trial.suggest_categorical('temperature_schedule', ['linear', 'logistic']),
+                'num_iterations': trial.suggest_int('num_iterations', 1, 100),
+                'num_agents': trial.suggest_float('num_agents', 0.1, 10.0)
             },
-            'int_selector'
-        )
+            'RandomSelector'
+        ),
     ]
 
     fun = bf.Rastrigin(2) # This is the selected problem, the problem may vary depending on the case.

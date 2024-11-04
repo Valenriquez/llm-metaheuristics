@@ -399,8 +399,8 @@ class MetaheuristicGenerator:
 
     
     
-    def self_refine_with_optuna(self, model, output_folder, iteration_number):
-        input_file_path = os.path.join(output_folder, f'execution_iteration_{iteration_number}.py')
+    def self_refine_with_optuna(self, model, output_folder, number_iteration):
+        input_file_path = os.path.join(output_folder, f'execution_iteration_{number_iteration}.py')
         with open(input_file_path, 'r') as f:
             file_contents = f.read()
         self.extracted_code = self.extract_code_from_code(file_contents)
@@ -412,7 +412,7 @@ class MetaheuristicGenerator:
 
         print("printeando la respuesta, optuna")
         print(current_output_optuna['response'])
-        execution_result_optuna = self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True)
+        execution_result_optuna = self.execute_generated_code(current_output_optuna['response'], output_folder, number_iteration, True)
 
         feedback_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output_optuna['response'] + execution_result_optuna)
         self.feedback_collection.add(
@@ -439,16 +439,16 @@ class MetaheuristicGenerator:
                 prompt=f"Create the optuna refinement python file using this data: {optuna_data} and this data {self.role_prompt} {self.optuna_refinement_prompt}"
             )        
 
-            self.execute_generated_code(current_output_optuna['response'], output_folder, iteration_number, True) 
+            self.execute_generated_code(current_output_optuna['response'], output_folder, number_iteration, True) 
         return current_output_optuna['response']
         
         
 
-    def execute_generated_code(self, code, output_folder, iteration, is_optuna):
+    def execute_generated_code(self, code, output_folder, number_iteration, is_optuna):
         prefix = "execution_optuna_" if is_optuna else "execution_"
         # os.path.join()`: This function is used to create a proper file path string 
         # that works across different operating systems.
-        file_name =  os.path.join(output_folder, f'{prefix}iteration_{iteration}.py')
+        file_name =  os.path.join(output_folder, f'{prefix}iteration_{number_iteration}.py')
         #print(file_path)
         with open(file_name, 'w') as f:
             f.write(code)
@@ -457,7 +457,7 @@ class MetaheuristicGenerator:
             result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=200)
             execution_result = f"Exit code: {result.returncode}\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
             self.file_result = result.returncode
-            result_file_name = f'{prefix}result_{iteration}.txt'
+            result_file_name = f'{prefix}result_{number_iteration}.txt'
             result_file_path = os.path.join(output_folder, result_file_name)
             with open(result_file_path, 'w') as f:
                 f.write(execution_result)
