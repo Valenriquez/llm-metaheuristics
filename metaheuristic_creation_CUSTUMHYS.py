@@ -416,10 +416,10 @@ class MetaheuristicGenerator:
 
         feedback_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output_optuna['response'] + execution_result_optuna)
         self.feedback_collection.add(
-            ids=[f"iteration_{iteration_number}_optuna"],
+            ids=[f"iteration_{number_iteration}_optuna"],
             embeddings=[feedback_embedding['embedding']],
             documents=[current_output_optuna['response'] + "\n" + execution_result_optuna],
-            metadatas=[{"iteration": iteration_number}]
+            metadatas=[{"iteration": number_iteration}]
         )
         
         print("self.file_result_optuna", self.file_result)
@@ -595,7 +595,7 @@ class MetaheuristicGenerator:
             self.logger.debug("Creating output folder")
             current_dir = os.path.dirname(os.path.abspath(__file__))
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_folder = os.path.join(current_dir, f'ollama_output_{timestamp}')
+            output_folder = os.path.join(current_dir, f'ollama_output_{self.benchmark_function}{self.dimensions}_{timestamp}')
 
             os.makedirs(output_folder)
             self.logger.info(f"Created new folder: {output_folder}")

@@ -1,9 +1,0 @@
-Exit code Optuna: 1
-Stdout:
-
-Stderr:
-Traceback (most recent call last):
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/ollama_output_20241029_090042/execution_optuna_iteration_0.py", line 20, in <module>
-    problem_id = trial.suggest_categorical("problem_id", [1, 2])
-                 ^^^^^
-NameError: name 'trial' is not defined
