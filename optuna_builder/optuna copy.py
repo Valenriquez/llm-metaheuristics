@@ -1,6 +1,9 @@
 import optuna
 import sys
-sys.path.append('/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics')
+from pathlib import Path
+
+project_dir = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_dir))
 
 import benchmark_func as bf
 import matplotlib.pyplot as plt
@@ -30,24 +33,39 @@ def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, nu
 
     return performance_metric
 
-# Note: If a word is in the code do not remove it, but if a number is in the code, replace it with "trial.suggest_float('variable_name', 0.1, 0.9)"
+# These metaheuristics are just an example, of how it should be implemented.
 def objective(trial):
     heur = [
-        # Here we need the operators and parameters
-    ]
-
-    fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
+        ( # Search operator 1
+        'gravitational_search',
+        { 
+        'gravity': trial.suggest_float('scale', 0.01, 1.0),
+        'alpha': trial.suggest_float('scale', 0.01, 1.0),
+    },
+    'all'
+    ),
+    (   # Search operator 2
+    'random_flight',
+    {
+        'scale': trial.suggest_float('scale', 0.01, 1.0),
+        'distribution': 'levy',
+        'beta': trial.suggest_float('scale', 0.01, 2.0),
+    },
+    'probabilistic'
+    )
+]
+    
+    fun = bf.{self.benchmark_function}{self.dimensions}
     prob = fun.get_formatted_problem()
     performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
-    
+
     return performance
 
-study = optuna.create_study(direction="minimize")  
-study.optimize(objective, n_trials=50) 
+study = optuna.create_study(direction="minimize")
+study.optimize(objective, n_trials=50)
 
 print("Mejores hiperparámetros encontrados:")
 print(study.best_params)
 
 print("Mejor rendimiento encontrado:")
 print(study.best_value)
-    

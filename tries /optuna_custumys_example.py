@@ -36,12 +36,12 @@ def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, nu
 
 def objective(trial):
     heur = [
-        ( # Search operator 1
-        'gravitational_search',
-        { 
-        'gravity': trial.suggest_float('scale', 0.01, 1.0),
-        'alpha': trial.suggest_float('scale', 0.01, 1.0),
-    },
+    ( # Search operator 1
+    'gravitational_search',
+    { 
+    'gravity': trial.suggest_float('scale', 0.01, 1.0),
+    'alpha': trial.suggest_float('scale', 0.01, 1.0),
+},
     'all'
     ),
     (   # Search operator 2
