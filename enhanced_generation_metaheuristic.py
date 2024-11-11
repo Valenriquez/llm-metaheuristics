@@ -128,11 +128,13 @@ class GerateMetaheuristic:
             output = ollama.generate(
             model = self.model,
             prompt = f"""Modify this metaheuristic: {extracted_content}.So that if the parameter is a variable that provides a number, you must change it to:
-            name_variable = trial.suggest_float('name_variable', 0.01, 0.9). The O.01 and 0.9 provided is just an example. You can have different ranges, but please do not use ranges that:
+            name_variable = trial.suggest_float('name_variable', 0.01, 0.9), 
+            The O.01 and 0.9 provided is just an example. You can have different ranges, but please do not use ranges that:
             - Are above 0.9 if the variable is radius
             - Are above 25 if the variable is angle
             - Are above 3 if the variable is swarm_conf or self_conf
-            PLEASE do not modify anything else of the  {extracted_content}, just what I told you to. 
+            ALWAYS use a coma after modifying or writing a variable parameter.
+            PLEASE do not modify anything else of the, just do what I told you to. 
             Do not add any more words or paragraphs, just follow this instructions. 
             """
             ) 
@@ -242,8 +244,7 @@ import optuna
 import sys
 from pathlib import Path
 
-project_dir = Path(__file__).resolve().parent.parent.parent # REMEMBER TO WRITE THIS LINE CORRECTLY, IT IS WRITTEN LIKE '.parent.parent.parent'
-
+project_dir = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(project_dir))
 
 import benchmark_func as bf
@@ -298,7 +299,7 @@ print(study.best_value)
         current_output_optuna = ollama.generate(
             model = self.model,
             prompt= f"""Follow this prompt: {optuna_task}, take into account that this was the given error {self.file_result_error},
-            you should fix it. Do not add any more words or paragraphs, just follow this instructions. 
+            you should fix it. Do not add any more words or paragraphs, just follow these instructions. 
             """
         )
 
@@ -414,6 +415,10 @@ print(study.best_value)
 
                 self.self_refine_with_optuna(output_folder, i)
 
+            # -------------------- 
+            self.client.delete_collection(name="metaheuristic_builder")
+            self.client.delete_collection(name="optuna_collection")
+            self.client.delete_collection(name="feedback_collection")
         except Exception as e:
             self.logger.error(f"An error occurred in the main execution: {str(e)}")
             self.logger.exception("Exception details:")

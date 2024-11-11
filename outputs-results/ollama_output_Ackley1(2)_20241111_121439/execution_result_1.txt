@@ -1,0 +1,18 @@
+Exit code: 1
+Stdout:
+
+Search operators to employ:
+gravitational_search(gravity=0.5,alpha=0.01) with greedy
+spiral_mutation(radius=0.8,angle=24.0,sigma=0.05) with proprobistic
+--------------------------------------------------
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/outputs-results/ollama_output_Ackley1(2)_20241111_121439/execution_iteration_1.py", line 36, in <module>
+    met.run()
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 143, in run
+    self.apply_search_operator(perturbator, selector)
+  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/metaheuristic.py", line 99, in apply_search_operator
+    exec('Operators.' + operator_name + '(self.pop,' + operator_params)
+  File "<string>", line 1, in <module>
+AttributeError: module 'operators' has no attribute 'spiral_mutation'
