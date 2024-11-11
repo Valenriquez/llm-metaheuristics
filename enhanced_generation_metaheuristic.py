@@ -165,6 +165,15 @@ class GerateMetaheuristic:
         )
         data = results['documents'][0][0]
 
+        ### FEEDBACK -- need to check it out
+        query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=output['response'])
+        n_results = max(1, min(number_iteration, 7))
+        relevant_feedback = self.feedback_collection.query(
+            query_embeddings=[query_embedding['embedding']],
+            n_results=n_results
+        )
+         ### FEEDBACK 
+
         # generate a response combining the prompt and data we retrieved in step 2
         output = ollama.generate(
         model = self.model,
@@ -185,8 +194,18 @@ class GerateMetaheuristic:
             # generate a response combining the prompt and data we retrieved in step 2
             output = ollama.generate(
             model = self.model,
-            prompt = f"Using this data: {data}. Respond to this prompt: {self.prompt}"
+            prompt = f"Using this data: {data}. Respond to this prompt: {self.prompt}. 
+            Take a look on the feedback: {relevant_feedback}"
             ) 
+            # relevant_feedback {'ids': [['iteration_1']], 'distances': [[0.0]], 'metadatas': [[{'f_best': 0.0425590285629589}]], 'embeddings': None, 'documents': [["# Name: spiral_mutation\n# Code:\nimport sys\nfrom pathlib import Path\n\nproject_dir = Path(__file__).resolve().parent.parent.parent\nsys.path.insert(0, str(project_dir))\nimport benchmark_func as bf\nimport metaheuristic as mh\n\nfun = bf.Ackley1(2)\nprob = fun.get_formatted_problem()\n\nheur = [\n    (  # Search operator 1\n        'gravitational_search',\n        {\n            'gravity': 0.5,\n            'alpha': 0.01\n        },\n        'greedy'\n    ),\n    (\n        'spiral_mutation',\n        {\n            'radius': 0.8,\n            'angle': 24.0,\n            'sigma': 0.05\n        },\n        'proprobistic'\n    )\n]\n\nmet = mh.Metaheuristic(prob, heur, num_iterations=100)\nmet.verbose = True\nmet.run()\n\nprint('x_best = {}, f_best = {}'.format(*met.get_solution()))\n"]],
+            #  'uris': None, 'data': None, 'included': ['metadatas', 'documents', 'distances']}
+
+
+            # relevant_feedback['documents']} [["# Name: spiral_mutation\n# Code:\nimport sys\nfrom pathlib 
+            # import Path\n\nproject_dir = Path(__file__).resolve().parent.parent.parent\
+            # nsys.path.insert(0, str(project_dir))\nimport benchmark_func as bf\nimport metaheuristic as mh\n\nfun = bf.Ackley1(2)\nprob =
+            #  fun.get_formatted_problem()\n\nheur = [\n    (  # Search operator 1\n        'gravitational_search',\n        {\n            'gravity': 0.5,\n            'alpha': 0.01\n        },\n        'greedy'\n    ),\n    (\n        'spiral_mutation',\n        {\n            'radius': 0.8,\n            'angle': 24.0,\n            'sigma': 0.05\n        },\n        'proprobistic'\n    )\n]\n\nmet = mh.Metaheuristic(prob, heur, num_iterations=100)\nmet.verbose = True\nmet.run()\n\nprint('x_best = {}, f_best = {}'.format(*met.get_solution()))\n"]]
+            # INFO:__main__:Refined output for iteration 1 generated
 
             if print(output['response']) != "":
                 checker_variable += 1
