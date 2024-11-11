@@ -32,6 +32,7 @@ def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, nu
 
     return performance_metric
 
+
 def objective(trial):
     heur = [
         (  # Search operator 1
