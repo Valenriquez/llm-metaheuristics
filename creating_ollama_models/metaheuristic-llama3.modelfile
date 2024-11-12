@@ -145,7 +145,7 @@ FORMAT YOUR RESPONSE EXACTLY AS FOLLOWS:
 import sys
 from pathlib import Path
 
-project_dir = Path(__file__).resolve().parent.parent.parent
+project_dir = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_dir))
 import benchmark_func as bf
 import metaheuristic as mh
@@ -190,7 +190,7 @@ WHEN IMPLEMENTING THE OPTUNA FILE: FORMAT YOUR RESPONSE EXACTLY AS FOLLOWS:
 import sys
 from pathlib import Path
 
-project_dir = Path(__file__).resolve().parent.parent.parent
+project_dir = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_dir))
 
 import optuna

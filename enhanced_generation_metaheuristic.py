@@ -6,7 +6,11 @@ import subprocess
 import logging
 import re
 import pathlib
+import sys
+from pathlib import Path
 
+#project_dir = Path(__file__).resolve().parents[2]
+#sys.path.insert(0, str(project_dir))
 
 
 """
@@ -68,7 +72,6 @@ class GerateMetaheuristic:
 
         python_files_directory = 'llm-metaheuristics/metaheuristic_builder'
         optuna_files_dir = 'llm-metaheuristics/optuna_builder'
-
         for d in os.listdir(python_files_directory):
             file_path = os.path.join(python_files_directory, d)
             if os.path.isfile(file_path):  # Check if it's a file
@@ -155,24 +158,15 @@ class GerateMetaheuristic:
     def self_refine(self, output_folder, number_iteration):
         current_output = ""
         checker_variable = 1 # variable to count how many times it has created a metaheuristic. 
-        response = ollama.embeddings(
+        output = ollama.embeddings(
         prompt=self.prompt,
         model="mxbai-embed-large"
         )
         results = self.python_collection.query(
-        query_embeddings=[response["embedding"]],
+        query_embeddings=[output["embedding"]],
         n_results=1
         )
         data = results['documents'][0][0]
-
-        ### FEEDBACK -- need to check it out
-        query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=output['response'])
-        n_results = max(1, min(number_iteration, 7))
-        relevant_feedback = self.feedback_collection.query(
-            query_embeddings=[query_embedding['embedding']],
-            n_results=n_results
-        )
-         ### FEEDBACK 
 
         # generate a response combining the prompt and data we retrieved in step 2
         output = ollama.generate(
@@ -189,13 +183,25 @@ class GerateMetaheuristic:
         print( "num-iter----",number_iteration , "------", "self.f_best", self.f_best,  "-", self.first_f_best)
         # Must create a functionable and better-fitness metaheuristic
 
+
+          # Process feedback using the response
+        response_text = output['response']
+        query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=response_text)
+
+         # Set the number of feedback results to retrieve
+        n_results = max(1, min(number_iteration, 7))
+        relevant_feedback = self.feedback_collection.query(
+            query_embeddings=[query_embedding['embedding']],
+            n_results=n_results
+        )
+
         #or (self.f_best > self.first_f_best)
         while self.file_result != 0 or self.f_best > self.first_f_best: 
             # generate a response combining the prompt and data we retrieved in step 2
             output = ollama.generate(
             model = self.model,
-            prompt = f"Using this data: {data}. Respond to this prompt: {self.prompt}. 
-            Take a look on the feedback: {relevant_feedback}"
+            prompt = f"""Using this data: {data}. Respond to this prompt: {self.prompt}. 
+            Take a look on the feedback: {relevant_feedback}"""
             ) 
             # relevant_feedback {'ids': [['iteration_1']], 'distances': [[0.0]], 'metadatas': [[{'f_best': 0.0425590285629589}]], 'embeddings': None, 'documents': [["# Name: spiral_mutation\n# Code:\nimport sys\nfrom pathlib import Path\n\nproject_dir = Path(__file__).resolve().parent.parent.parent\nsys.path.insert(0, str(project_dir))\nimport benchmark_func as bf\nimport metaheuristic as mh\n\nfun = bf.Ackley1(2)\nprob = fun.get_formatted_problem()\n\nheur = [\n    (  # Search operator 1\n        'gravitational_search',\n        {\n            'gravity': 0.5,\n            'alpha': 0.01\n        },\n        'greedy'\n    ),\n    (\n        'spiral_mutation',\n        {\n            'radius': 0.8,\n            'angle': 24.0,\n            'sigma': 0.05\n        },\n        'proprobistic'\n    )\n]\n\nmet = mh.Metaheuristic(prob, heur, num_iterations=100)\nmet.verbose = True\nmet.run()\n\nprint('x_best = {}, f_best = {}'.format(*met.get_solution()))\n"]],
             #  'uris': None, 'data': None, 'included': ['metadatas', 'documents', 'distances']}
@@ -214,7 +220,7 @@ class GerateMetaheuristic:
             self.execute_generated_code(output['response'], output_folder, number_iteration, False)
             current_output = output
             print("current_output-need-to-se", current_output)
-            if checker_variable >= 3:
+            if checker_variable > 6:
                 print("Reached maximum iterations, exiting loop.")
                 break
         
@@ -263,7 +269,7 @@ import optuna
 import sys
 from pathlib import Path
 
-project_dir = Path(__file__).resolve().parents[3]
+project_dir = Path(__file__).resolve().parents[2] # Remember to write well this line: 'project_dir = Path(__file__).resolve().parents[2]'
 sys.path.insert(0, str(project_dir))
 
 import benchmark_func as bf
@@ -413,7 +419,11 @@ print(study.best_value)
         
     
     def run(self):
+        #self.client = chromadb.Client()
         self.logger.debug("Starting main execution")
+        #self.client.delete_collection(name="metaheuristic_builder")
+        #self.client.delete_collection(name="optuna_collection")
+        #self.client.delete_collection(name="feedback_collection")
         try:
             # Create output folder
             self.logger.debug("Creating output folder")
@@ -430,9 +440,8 @@ print(study.best_value)
             for i in range(self.max_iterations):
                 self.logger.debug(f"Starting refinement iteration {i}")
                 self.self_refine(output_folder, i)
-                self.logger.info(f"Refined output for iteration {i} generated")
-
-                self.self_refine_with_optuna(output_folder, i)
+                # self.logger.info(f"Refined output for iteration {i} generated")
+                # self.self_refine_with_optuna(output_folder, i)
 
             # -------------------- 
             self.client.delete_collection(name="metaheuristic_builder")
