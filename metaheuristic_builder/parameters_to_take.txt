@@ -14,8 +14,12 @@ These are the following explanations:
 - "swarm_dynamic" operator: Is an algorithm that models collective behavior, where individual agents (solutions) share information and are influenced by both their own best positions and the best position of the entire swarm. Parameters such as self_conf (self-confidence), swarm_conf (swarm confidence), and distribution (e.g., uniform, Gaussian, or Levy) govern how agents move and interact, making this operator effective for balancing exploration and exploitation in complex landscapes.
 
 When creating the metaheuristics use at the first iteration only one search operator, and as the iterations keep increasing, you can add more and more operators. 
+At the same time, if the dimension is 3 or bigger, you should add more than 2 metaheuristic operators with it's parameters and selector, you could add more than two metaheuristics too. 
 Also, remember to write the operators' names, virables' names and selectors' names exactly as shown down below. For example, the operators' names are ALL ALWAYS written in lower case and with a '_' instead of a space between words.
 So write the parameters' exactly as shown down below. 
+
+
+
 These are the parameters to take, (REMEMBER that each operaotr must have its own selector, and that depending on the selected operator, YOU MUST ONLY USE USE ONE VARIABLE PER PARAMETER, DO NOT USE THE WHOLE ARRAY, and write the variable without an array format, but as a float or string format):
 {
   "random_search": {  # operator

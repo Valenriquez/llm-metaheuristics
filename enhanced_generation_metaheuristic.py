@@ -63,7 +63,7 @@ class GerateMetaheuristic:
 
         self.prompt = f"""You are a highly skilled computer scientist in the field of natural computing. Your task is to design a metaheuristic algorithm, 
         you should only use the information provided in the collection. Remember that when writing the operator's names, they should be ALL in LOWER CASE AND WITH A '_' 
-        instead of typing a space. 
+        instead of typing a space. Remember that, if the dimension is 3 or bigger, you should add more than 2 metaheuristic operators with it's parameters and selector, you could add more than two metaheuristics too. 
         In the 'fun' variable you must change it too: 'fun = bf.{self.benchmark_function}({self.dimensions})'
         In case there was an error, please fix it. This is the error: {self.file_result_error}.
         The metaheuristic must get a smaller fitness soultion, the actual fitness is: {self.f_best}.
@@ -453,7 +453,7 @@ print(study.best_value)
             raise         
 
 if __name__ == "__main__":
-    generator = GerateMetaheuristic("Ackley1", 2, 7)
+    generator = GerateMetaheuristic("Rastrigin", 10, 7)
     generator.run()
     logging.basicConfig(level=logging.DEBUG)
     
