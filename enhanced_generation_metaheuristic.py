@@ -196,7 +196,8 @@ class GerateMetaheuristic:
         )
 
         #or (self.f_best > self.first_f_best)
-        while self.file_result != 0 or self.f_best > self.first_f_best: 
+        ##  or self.f_best > self.first_f_best
+        while self.file_result != 0: 
             # generate a response combining the prompt and data we retrieved in step 2
             output = ollama.generate(
             model = self.model,
@@ -224,7 +225,7 @@ class GerateMetaheuristic:
                 print("Reached maximum iterations, exiting loop.")
                 break
         
-        self.first_f_best = self.f_best
+        #self.first_f_best = self.f_best
         
         print("current_output-need-to-see-outside-while", current_output)
         
@@ -444,16 +445,13 @@ print(study.best_value)
                 # self.self_refine_with_optuna(output_folder, i)
 
             # -------------------- 
-            self.client.delete_collection(name="metaheuristic_builder")
-            self.client.delete_collection(name="optuna_collection")
-            self.client.delete_collection(name="feedback_collection")
         except Exception as e:
             self.logger.error(f"An error occurred in the main execution: {str(e)}")
             self.logger.exception("Exception details:")
             raise         
 
 if __name__ == "__main__":
-    generator = GerateMetaheuristic("Rastrigin", 10, 7)
+    generator = GerateMetaheuristic("Bohachevsky", 2, 7)
     generator.run()
     logging.basicConfig(level=logging.DEBUG)
     
