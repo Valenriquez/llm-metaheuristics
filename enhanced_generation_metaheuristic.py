@@ -31,10 +31,12 @@ Uses: myllama3:latest
 Which means that will run till the output is correct and till the fitness is better than the previous one. 
 Although there is a break after the third try. 
 
+-- myqwen2.5:latest
+
 """
 # will try soon: ollama pull bge-large
 class GerateMetaheuristic:
-    def __init__(self, benchmark_function, dimensions, max_iterations, model="qwen2.5-coder:latest", model_embed="mxbai-embed-large"):
+    def __init__(self, benchmark_function, dimensions, max_iterations, model="myqwen2.5:latest", model_embed="mxbai-embed-large"):
         self.model = model
         self.model_embed = model_embed
         self.max_iterations = max_iterations
@@ -64,58 +66,9 @@ class GerateMetaheuristic:
 
         self.prompt = f"""You are a highly skilled computer scientist in the field of natural computing. Your task is to design a metaheuristic algorithm, 
         you should only use the information that was provided to you. 
-        Remember to follow this template, DO NOT USE ANY OTHER TEMPLATE:
-
-        # Name: [Your chosen name for the metaheuristic]
-        # Code:
-
-        import sys
-        from pathlib import Path
-
-        project_dir = Path(__file__).resolve().parent.parent.parent
-        sys.path.insert(0, str(project_dir))
-
-        import benchmark_func as bf
-        import metaheuristic as mh
-
-
-        fun = bf.{self.benchmark_function}({self.dimensions})
-        prob = fun.get_formatted_problem()
-
-        heur = [
-            ( # Search operator 1
-            '[operator_name]',
-            {{ 
-                'parameter1': value1,
-                'parameter2': value2,
-                ... more parameters as needed
-            }},
-            '[selector_name]'
-            ),
-            (  
-            '[operator_name]',
-            {{
-                'parameter1': value1,
-                'parameter2': value2,
-                ... more parameters as needed
-            }},
-            '[selector_name]'
-            )
-        ]
-
-        met = mh.Metaheuristic(prob, heur, num_iterations=100)
-        met.verbose = True
-        met.run()
-        print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
-
-
-        # Short explanation and justification:
-        # [Your explanation here, each line starting with '#']
-
-
         Remember that when writing the operator's names, they should be ALL in LOWER CASE AND WITH A '_' 
         instead of typing a space. Remember that, if the dimension is 3 or bigger, you should use a bigger selector, as there is more space to cover.
-        In the 'fun' variable you must change it too: 'fun = bf.{self.benchmark_function}({self.dimensions})'
+        Please in the 'fun' variable you must change it too: 'fun = bf.{self.benchmark_function}({self.dimensions})'
         In case there was an error, please fix it. This is the error: {self.file_result_error}.
         """""
 
@@ -254,7 +207,8 @@ class GerateMetaheuristic:
             # generate a response combining the prompt and data we retrieved in step 2
             output = ollama.generate(
             model = self.model,
-            prompt = f"Using this data: {data}. Prompt the following data: {data}"
+            prompt = f"""Using this data: {data}. Respond to this prompt: {self.prompt}. 
+             Take a look on the feedback: {relevant_feedback}"""
             ) 
 
             # prompt = f"Using this data: {data}. Prompt the following data: {data}"
@@ -509,7 +463,7 @@ print(study.best_value)
             raise         
 
 if __name__ == "__main__":
-    generator = GerateMetaheuristic("Bohachevsky", 2, 7)
+    generator = GerateMetaheuristic("Bohachevsky", 2,10)
     generator.run()
     logging.basicConfig(level=logging.DEBUG)
     
