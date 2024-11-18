@@ -1,0 +1,9 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/new-td/llm-metaheuristics/outputs-results/ollama_output_Bohachevsky(2)_20241118_134424/execution_iteration_0.py", line 11, in <module>
+    fun = bf.ackley_3d() # This is the selected problem, the problem may vary depending on the case.
+          ^^^^^^^^^^^^
+AttributeError: module 'benchmark_func' has no attribute 'ackley_3d'

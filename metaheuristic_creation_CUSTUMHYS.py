@@ -31,7 +31,7 @@ class NoCodeException(Exception):
  
 
 class MetaheuristicGenerator:
-    def __init__(self, benchmark_function, dimensions, model="deepseek-coder-v2", max_iterations=7):
+    def __init__(self, benchmark_function, dimensions, model="qwen2.5-coder:latest", max_iterations=7):
         self.model = model
         self.max_iterations = max_iterations
         self.client = chromadb.Client()
@@ -257,7 +257,7 @@ class MetaheuristicGenerator:
             
     def self_refine(self, initial_prompt, data, output_folder, number_iteration):
         current_output = ollama.generate(
-            model="myllama3:latest",
+            model="qwen2.5-coder:latest",
             prompt=f"Using this data: {data}. Respond to this prompt: {initial_prompt}"
         )
 
@@ -382,7 +382,7 @@ class MetaheuristicGenerator:
             """
 
             refined_output = ollama.generate(
-            model="deepseek-coder-v2",
+            model="qwen2.5-coder:latest",
             prompt=refinement_prompt
             )
             
@@ -519,7 +519,7 @@ class MetaheuristicGenerator:
             print("this is -- optuna data", optuna_data)
  
             refined_output_optuna = ollama.generate(
-            model="myllama3:latest",
+            model="qwen2.5-coder:latest",
             prompt=f"Using this data {data_optuna}, respond to this prompt {refinement_optuna_prompt}"
             )
             
@@ -640,7 +640,7 @@ class MetaheuristicGenerator:
                 self.self_refine(prompt, data, output_folder, i)
                 self.logger.info(f"Refined output for iteration {i} generated")
 
-                self.self_refine_with_optuna("deepseek-coder-v2", data_optuna, output_folder, i)
+                #self.self_refine_with_optuna("deepseek-coder-v2", data_optuna, output_folder, i)
                 #self.self_refine_with_optuna(optuna_prompt, "codegemma", output_folder, i)
             self.logger.debug("Main execution completed")
             self.client.delete_collection(name="metaheuristic_builder")

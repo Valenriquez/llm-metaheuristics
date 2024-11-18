@@ -32,10 +32,11 @@ Which means that will run till the output is correct and till the fitness is bet
 Although there is a break after the third try. 
 
 """
-
+# will try soon: ollama pull bge-large
 class GerateMetaheuristic:
-    def __init__(self, benchmark_function, dimensions, max_iterations, model="myllama3:latest"):
+    def __init__(self, benchmark_function, dimensions, max_iterations, model="qwen2.5-coder:latest", model_embed="mxbai-embed-large"):
         self.model = model
+        self.model_embed = model_embed
         self.max_iterations = max_iterations
 
         ## METAHEURISTIC CREATION
@@ -62,11 +63,60 @@ class GerateMetaheuristic:
         #self.optuna_collection = client.create_collection(name="optuna_collection")
 
         self.prompt = f"""You are a highly skilled computer scientist in the field of natural computing. Your task is to design a metaheuristic algorithm, 
-        you should only use the information provided in the collection. Remember that when writing the operator's names, they should be ALL in LOWER CASE AND WITH A '_' 
-        instead of typing a space. Remember that, if the dimension is 3 or bigger, you should add more than 2 metaheuristic operators with it's parameters and selector, you could add more than two metaheuristics too. 
+        you should only use the information that was provided to you. 
+        Remember to follow this template, DO NOT USE ANY OTHER TEMPLATE:
+
+        # Name: [Your chosen name for the metaheuristic]
+        # Code:
+
+        import sys
+        from pathlib import Path
+
+        project_dir = Path(__file__).resolve().parent.parent.parent
+        sys.path.insert(0, str(project_dir))
+
+        import benchmark_func as bf
+        import metaheuristic as mh
+
+
+        fun = bf.{self.benchmark_function}({self.dimensions})
+        prob = fun.get_formatted_problem()
+
+        heur = [
+            ( # Search operator 1
+            '[operator_name]',
+            {{ 
+                'parameter1': value1,
+                'parameter2': value2,
+                ... more parameters as needed
+            }},
+            '[selector_name]'
+            ),
+            (  
+            '[operator_name]',
+            {{
+                'parameter1': value1,
+                'parameter2': value2,
+                ... more parameters as needed
+            }},
+            '[selector_name]'
+            )
+        ]
+
+        met = mh.Metaheuristic(prob, heur, num_iterations=100)
+        met.verbose = True
+        met.run()
+        print('x_best = {{}}, f_best = {{}}'.format(*met.get_solution()))
+
+
+        # Short explanation and justification:
+        # [Your explanation here, each line starting with '#']
+
+
+        Remember that when writing the operator's names, they should be ALL in LOWER CASE AND WITH A '_' 
+        instead of typing a space. Remember that, if the dimension is 3 or bigger, you should use a bigger selector, as there is more space to cover.
         In the 'fun' variable you must change it too: 'fun = bf.{self.benchmark_function}({self.dimensions})'
         In case there was an error, please fix it. This is the error: {self.file_result_error}.
-        The metaheuristic must get a smaller fitness soultion, the actual fitness is: {self.f_best}.
         """""
 
 
@@ -76,7 +126,7 @@ class GerateMetaheuristic:
             file_path = os.path.join(python_files_directory, d)
             if os.path.isfile(file_path):  # Check if it's a file
                 file_content = self.read_file(file_path)
-                response = ollama.embeddings(model="mxbai-embed-large", prompt=file_content)
+                response = ollama.embeddings(model=self.model_embed, prompt=file_content)
                 embedding = response.get("embedding")
                 if embedding:
                     self.python_collection.add(
@@ -95,7 +145,7 @@ class GerateMetaheuristic:
             file_path = os.path.join(python_files_directory, d)
             if os.path.isfile(file_path):  # Check if it's a file
                 file_content = self.read_file(file_path)
-                response = ollama.embeddings(model="mxbai-embed-large", prompt=file_content)
+                response = ollama.embeddings(model=self.model_embed, prompt=file_content)
                 embedding = response.get("embedding")
                 if embedding:
                     self.optuna_collection.add(
@@ -113,7 +163,7 @@ class GerateMetaheuristic:
     def extract_code_from_code_with_optuna(self, code_file):
         response_optuna = ollama.embeddings(
         prompt="Take a look to the parameters of the operators and selectors provided.",
-        model="mxbai-embed-large"
+        model=self.model_embed
         )
         results_optuna = self.python_collection.query(
         query_embeddings=[response_optuna["embedding"]],
@@ -160,7 +210,7 @@ class GerateMetaheuristic:
         checker_variable = 1 # variable to count how many times it has created a metaheuristic. 
         output = ollama.embeddings(
         prompt=self.prompt,
-        model="mxbai-embed-large"
+        model=self.model_embed
         )
         results = self.python_collection.query(
         query_embeddings=[output["embedding"]],
@@ -168,10 +218,13 @@ class GerateMetaheuristic:
         )
         data = results['documents'][0][0]
 
+        print("Data being used:", data)
+        print("Prompt being passed:", f"Using this data: {data}.  Respond to this prompt: {self.prompt}")
+
         # generate a response combining the prompt and data we retrieved in step 2
         output = ollama.generate(
         model = self.model,
-        prompt = f"Using this data: {data}. Respond to this prompt: {self.prompt}"
+        prompt = f"Using this data: {data}.  Respond to this prompt: {self.prompt}",
         ) 
         self.execute_generated_code(output['response'], output_folder, number_iteration, False)
         #print("execution_result-need-to-see", execution_result)
@@ -186,7 +239,7 @@ class GerateMetaheuristic:
 
           # Process feedback using the response
         response_text = output['response']
-        query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=response_text)
+        query_embedding = ollama.embeddings(model=self.model_embed, prompt=response_text)
 
          # Set the number of feedback results to retrieve
         n_results = max(1, min(number_iteration, 7))
@@ -201,9 +254,14 @@ class GerateMetaheuristic:
             # generate a response combining the prompt and data we retrieved in step 2
             output = ollama.generate(
             model = self.model,
-            prompt = f"""Using this data: {data}. Respond to this prompt: {self.prompt}. 
-            Take a look on the feedback: {relevant_feedback}"""
+            prompt = f"Using this data: {data}. Prompt the following data: {data}"
             ) 
+
+            # prompt = f"Using this data: {data}. Prompt the following data: {data}"
+            #prompt = f"""Using this data: {data}. Respond to this prompt: {self.prompt}. 
+            # Take a look on the feedback: {relevant_feedback}"""
+
+
             # relevant_feedback {'ids': [['iteration_1']], 'distances': [[0.0]], 'metadatas': [[{'f_best': 0.0425590285629589}]], 'embeddings': None, 'documents': [["# Name: spiral_mutation\n# Code:\nimport sys\nfrom pathlib import Path\n\nproject_dir = Path(__file__).resolve().parent.parent.parent\nsys.path.insert(0, str(project_dir))\nimport benchmark_func as bf\nimport metaheuristic as mh\n\nfun = bf.Ackley1(2)\nprob = fun.get_formatted_problem()\n\nheur = [\n    (  # Search operator 1\n        'gravitational_search',\n        {\n            'gravity': 0.5,\n            'alpha': 0.01\n        },\n        'greedy'\n    ),\n    (\n        'spiral_mutation',\n        {\n            'radius': 0.8,\n            'angle': 24.0,\n            'sigma': 0.05\n        },\n        'proprobistic'\n    )\n]\n\nmet = mh.Metaheuristic(prob, heur, num_iterations=100)\nmet.verbose = True\nmet.run()\n\nprint('x_best = {}, f_best = {}'.format(*met.get_solution()))\n"]],
             #  'uris': None, 'data': None, 'included': ['metadatas', 'documents', 'distances']}
 
@@ -230,7 +288,7 @@ class GerateMetaheuristic:
         print("current_output-need-to-see-outside-while", current_output)
         
         ## FEEDBACK PROCESS: Must be after the while, since I must only store the metaheuristics that ran well. 
-        feedback_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=output['response'])
+        feedback_embedding = ollama.embeddings(model=self.model_embed, prompt=output['response'])
         self.feedback_collection.add(
             ids=[f"iteration_{number_iteration}"],
             embeddings=[feedback_embedding['embedding']],
@@ -238,7 +296,7 @@ class GerateMetaheuristic:
             metadatas={"f_best": self.f_best}
         )
         
-        query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=output['response'])
+        query_embedding = ollama.embeddings(model=self.model_embed, prompt=output['response'])
         n_results = max(1, min(number_iteration, 7))
         relevant_feedback = self.feedback_collection.query(
             query_embeddings=[query_embedding['embedding']],
@@ -357,14 +415,14 @@ print(study.best_value)
         print("current_output_optuna-need-to-see-outside-while", current_output_optuna)
         
         ## FEEDBACK PROCESS: Must be after the while, since I must only store the metaheuristics that ran well. 
-        feedback_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output_optuna['response'])
+        feedback_embedding = ollama.embeddings(model=self.model_embed, prompt=current_output_optuna['response'])
         self.feedback_collection.add(
             ids=[f"iteration_{number_iteration}"],
             embeddings=[feedback_embedding['embedding']],
             documents=[current_output_optuna['response'] + "\n" ]
         )
         
-        query_embedding = ollama.embeddings(model="mxbai-embed-large", prompt=current_output_optuna['response'])
+        query_embedding = ollama.embeddings(model=self.model_embed, prompt=current_output_optuna['response'])
         n_results = max(1, min(number_iteration, 7))
         relevant_feedback = self.feedback_collection.query(
             query_embeddings=[query_embedding['embedding']],
@@ -401,7 +459,7 @@ print(study.best_value)
             f.write(code)
         
         try:
-            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=200)
+            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=50)
             execution_result = f"Exit code: {result.returncode}\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
             self.file_result = result.returncode
             self.file_result_error = result.stderr
