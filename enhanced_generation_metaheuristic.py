@@ -300,6 +300,8 @@ class GerateMetaheuristic:
         
         ## FEEDBACK PROCESS: Must be after the while, since I must only store the metaheuristics that ran well. 
         output_response = output['response']
+
+        """  
         # Ensuring that the variable chunk is always a list.
         if not isinstance(output_response, list): 
             chunks = [output_response]   
@@ -313,6 +315,7 @@ class GerateMetaheuristic:
         embeddings, metadata = self.get_embeddings(filename, modelname, chunks, output_response, output['response'])
         print("embeddings",embeddings)
         print("metadata",metadata)
+        """
                 
         """ 
         feedback_embedding = ollama.embeddings(model=self.model_embed, prompt=output['response'])
@@ -333,7 +336,7 @@ class GerateMetaheuristic:
         print("relevant_feedback['documents']}", relevant_feedback['documents'])
         """
 
-        return current_output
+        return output_response
 
 
     def self_refine_with_optuna(self, output_folder, number_iteration):
@@ -528,7 +531,7 @@ print(study.best_value)
                 self.logger.debug(f"Starting refinement iteration {i}")
                 self.self_refine(output_folder, i)
                 # self.logger.info(f"Refined output for iteration {i} generated")
-                # self.self_refine_with_optuna(output_folder, i)
+                self.self_refine_with_optuna(output_folder, i)
 
             # -------------------- 
         except Exception as e:

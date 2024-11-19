@@ -1,10 +1,9 @@
 [tool.poetry]
-name = "llm-poetry"
+name = "llm-metaheuristics"
 version = "0.1.0"
-description = "Dependencies for a LLM metaheuristic generation project"
+description = "Dependencies for an LLM Metaheuristic generator"
 authors = ["Valenriquez <enriquezlimvaleria@outlook.com>"]
 readme = "README.md"
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
