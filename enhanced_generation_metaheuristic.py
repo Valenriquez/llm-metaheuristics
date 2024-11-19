@@ -8,10 +8,10 @@ import re
 import pathlib
 import sys
 from pathlib import Path
+import json
 
 #project_dir = Path(__file__).resolve().parents[2]
 #sys.path.insert(0, str(project_dir))
-
 
 """
 Uses: myllama3:latest 
@@ -68,7 +68,7 @@ class GerateMetaheuristic:
         you should only use the information that was provided to you. 
         Remember that when writing the operator's names, they should be ALL in LOWER CASE AND WITH A '_' 
         instead of typing a space. Remember that, if the dimension is 3 or bigger, you should use a bigger selector, as there is more space to cover.
-        Please in the 'fun' variable you must change it too: 'fun = bf.{self.benchmark_function}({self.dimensions})'
+        Please in the 'fun' variable you must change it too: 'fun = bf.{self.benchmark_function}({self.dimensions})', do not change these values given. 
         In case there was an error, please fix it. This is the error: {self.file_result_error}.
         """""
 
@@ -156,10 +156,62 @@ class GerateMetaheuristic:
     def read_file(self, file_path):
         with open(file_path, 'r') as file:
             return file.read()
+        
+
+    def load_embeddings(self, filename):
+        """Check if the embeddings file exists and load it."""
+        filepath = f"feedback_embeddings/{filename}.json"
+        if not os.path.exists(filepath):
+            return False
+        with open(filepath, "r") as f:
+            return json.load(f)
+
+    def save_embeddings(self, filename, embeddings, metadata):
+        """Save embeddings and additional metadata to a JSON file."""
+        # Ensure the feedback_embeddings folder exists
+        folder = "feedback_embeddings"
+        if not os.path.exists(folder):
+            os.makedirs(folder) 
+            print(f"Created folder: {folder}")
+        
+        # Save the file in the correct folder
+        filepath = f"{folder}/{filename}.json"
+        data_to_save = {
+            "embeddings": embeddings,
+            "metadata": metadata  # Includes prompt, output, etc.
+        }
+        with open(filepath, "w") as f:
+            json.dump(data_to_save, f, indent=4)
+
+
+    def get_embeddings(self, filename, modelname, chunks, prompt, response):
+        """Retrieve or compute embeddings, save them with metadata."""
+        # Check if embeddings are already saved
+        if (data := self.load_embeddings(filename)) is not False:
+            return data["embeddings"], data["metadata"]
+
+        # Get embeddings from Ollama
+        embeddings = [
+            ollama.embeddings(model=modelname, prompt=chunk)["embedding"]
+            for chunk in chunks
+        ]
+
+        # Metadata includes the original prompt and its response
+        metadata = {
+            "prompt": prompt,
+            "response": response,
+            "model": modelname
+        }
+
+        # Save embeddings and metadata
+        self.save_embeddings(filename, embeddings, metadata)
+        return embeddings, metadata
+
             
 
     def self_refine(self, output_folder, number_iteration):
         current_output = ""
+        relevant_feedback = ""
         checker_variable = 1 # variable to count how many times it has created a metaheuristic. 
         output = ollama.embeddings(
         prompt=self.prompt,
@@ -177,7 +229,8 @@ class GerateMetaheuristic:
         # generate a response combining the prompt and data we retrieved in step 2
         output = ollama.generate(
         model = self.model,
-        prompt = f"Using this data: {data}.  Respond to this prompt: {self.prompt}",
+        prompt = f"""Using this data: {data}. Respond to this prompt: {self.prompt}. 
+            Take a look on the feedback: {relevant_feedback}"""
         ) 
         self.execute_generated_code(output['response'], output_folder, number_iteration, False)
         #print("execution_result-need-to-see", execution_result)
@@ -203,45 +256,65 @@ class GerateMetaheuristic:
 
         #or (self.f_best > self.first_f_best)
         ##  or self.f_best > self.first_f_best
-        while self.file_result != 0: 
-            # generate a response combining the prompt and data we retrieved in step 2
+        while self.file_result != 0:
+            output = ollama.embeddings(
+                prompt=self.prompt,
+                model=self.model_embed
+            )
+            results = self.python_collection.query(
+                query_embeddings=[output["embedding"]],
+                n_results=1
+            )
+            data = results['documents'][0][0]
+            
+            # Debugging data and feedback
+            print(f"Loop Iteration {checker_variable}, Data: {data}, Feedback: {relevant_feedback}")
+
             output = ollama.generate(
-            model = self.model,
-            prompt = f"""Using this data: {data}. Respond to this prompt: {self.prompt}. 
-             Take a look on the feedback: {relevant_feedback}"""
-            ) 
+                model=self.model,
+                prompt=f"""Using this data: {data}. Respond to this prompt: {self.prompt}. 
+                Take a look on the feedback: {relevant_feedback}"""
+            )
 
-            # prompt = f"Using this data: {data}. Prompt the following data: {data}"
-            #prompt = f"""Using this data: {data}. Respond to this prompt: {self.prompt}. 
-            # Take a look on the feedback: {relevant_feedback}"""
+            response = output.get('response', "")
+            if not response:
+                print("No valid response generated. Skipping iteration.")
+                continue
 
+            # Increment checker_variable if response is valid
+            checker_variable += 1
+            print("checker_variable:", checker_variable)
 
-            # relevant_feedback {'ids': [['iteration_1']], 'distances': [[0.0]], 'metadatas': [[{'f_best': 0.0425590285629589}]], 'embeddings': None, 'documents': [["# Name: spiral_mutation\n# Code:\nimport sys\nfrom pathlib import Path\n\nproject_dir = Path(__file__).resolve().parent.parent.parent\nsys.path.insert(0, str(project_dir))\nimport benchmark_func as bf\nimport metaheuristic as mh\n\nfun = bf.Ackley1(2)\nprob = fun.get_formatted_problem()\n\nheur = [\n    (  # Search operator 1\n        'gravitational_search',\n        {\n            'gravity': 0.5,\n            'alpha': 0.01\n        },\n        'greedy'\n    ),\n    (\n        'spiral_mutation',\n        {\n            'radius': 0.8,\n            'angle': 24.0,\n            'sigma': 0.05\n        },\n        'proprobistic'\n    )\n]\n\nmet = mh.Metaheuristic(prob, heur, num_iterations=100)\nmet.verbose = True\nmet.run()\n\nprint('x_best = {}, f_best = {}'.format(*met.get_solution()))\n"]],
-            #  'uris': None, 'data': None, 'included': ['metadatas', 'documents', 'distances']}
+            try:
+                self.execute_generated_code(response, output_folder, number_iteration, False)
+            except Exception as e:
+                print(f"Error executing code: {e}")
+                continue
 
-
-            # relevant_feedback['documents']} [["# Name: spiral_mutation\n# Code:\nimport sys\nfrom pathlib 
-            # import Path\n\nproject_dir = Path(__file__).resolve().parent.parent.parent\
-            # nsys.path.insert(0, str(project_dir))\nimport benchmark_func as bf\nimport metaheuristic as mh\n\nfun = bf.Ackley1(2)\nprob =
-            #  fun.get_formatted_problem()\n\nheur = [\n    (  # Search operator 1\n        'gravitational_search',\n        {\n            'gravity': 0.5,\n            'alpha': 0.01\n        },\n        'greedy'\n    ),\n    (\n        'spiral_mutation',\n        {\n            'radius': 0.8,\n            'angle': 24.0,\n            'sigma': 0.05\n        },\n        'proprobistic'\n    )\n]\n\nmet = mh.Metaheuristic(prob, heur, num_iterations=100)\nmet.verbose = True\nmet.run()\n\nprint('x_best = {}, f_best = {}'.format(*met.get_solution()))\n"]]
-            # INFO:__main__:Refined output for iteration 1 generated
-
-            if print(output['response']) != "":
-                checker_variable += 1
-            print("checker_variable----->>>>>", checker_variable)
-
-            self.execute_generated_code(output['response'], output_folder, number_iteration, False)
-            current_output = output
-            print("current_output-need-to-se", current_output)
             if checker_variable > 6:
                 print("Reached maximum iterations, exiting loop.")
                 break
-        
-        #self.first_f_best = self.f_best
-        
-        print("current_output-need-to-see-outside-while", current_output)
+
+            
+        #print("current_output-need-to-see-outside-while", current_output)
         
         ## FEEDBACK PROCESS: Must be after the while, since I must only store the metaheuristics that ran well. 
+        output_response = output['response']
+        # Ensuring that the variable chunk is always a list.
+        if not isinstance(output_response, list): 
+            chunks = [output_response]   
+        else:
+            chunks = output_response    
+
+        filename = f"execution_result_{number_iteration}.txt"
+        modelname = "mxbai-embed-large"
+
+        # Retrieve or compute embeddings and save metadata
+        embeddings, metadata = self.get_embeddings(filename, modelname, chunks, output_response, output['response'])
+        print("embeddings",embeddings)
+        print("metadata",metadata)
+                
+        """ 
         feedback_embedding = ollama.embeddings(model=self.model_embed, prompt=output['response'])
         self.feedback_collection.add(
             ids=[f"iteration_{number_iteration}"],
@@ -258,6 +331,7 @@ class GerateMetaheuristic:
         )
         print("relevant_feedback", relevant_feedback)
         print("relevant_feedback['documents']}", relevant_feedback['documents'])
+        """
 
         return current_output
 
@@ -413,7 +487,7 @@ print(study.best_value)
             f.write(code)
         
         try:
-            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=50)
+            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=60)
             execution_result = f"Exit code: {result.returncode}\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
             self.file_result = result.returncode
             self.file_result_error = result.stderr
@@ -463,7 +537,7 @@ print(study.best_value)
             raise         
 
 if __name__ == "__main__":
-    generator = GerateMetaheuristic("Bohachevsky", 2,10)
+    generator = GerateMetaheuristic("Rastrigin", 5, 15)
     generator.run()
     logging.basicConfig(level=logging.DEBUG)
     

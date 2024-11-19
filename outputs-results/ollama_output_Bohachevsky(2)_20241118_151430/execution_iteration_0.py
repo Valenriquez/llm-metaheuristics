@@ -1,15 +1,14 @@
-# Name: Harmony Search with Gravitational Search Algorithm (HS-GSA)
-
+# Name: HybridMetaheuristic
 # Code:
 import sys
 from pathlib import Path
 
-project_dir = Path(__file__).resolve().parents[2]  # Remember to write well this line: 'project_dir = Path(__file__).resolve().parents[2]'
+project_dir = Path(__file__).resolve().parents[2] # Remember to write well this line: 'project_dir = Path(__file__).resolve().parents[2]'
 sys.path.insert(0, str(project_dir))
 import benchmark_func as bf
 import metaheuristic as mh
 
-fun = bf.Sphere(3)  # This is the selected problem, the problem may vary depending on the case.
+fun = bf.ackley(5) # This is the selected problem, the problem may vary depending on the case.
 prob = fun.get_formatted_problem()
 
 heur = [
@@ -22,21 +21,26 @@ heur = [
         'greedy'
     ),
     (
-        'random_sample',
-        {},
+        'random_flight',
+        {
+            'scale': 1.0,
+            'distribution': 'levy',
+            'beta': 1.5
+        },
         'all'
+        
     )
 ]
 
-met = mh.Metaheuristic(prob, heur, num_iterations=100)
+met = mh.Metaheuristic(prob, heur, num_iterations=200)
 met.verbose = True
 met.run()
 
 print('x_best = {}, f_best = {}'.format(*met.get_solution()))
 
 # Short explanation and justification:
-# Harmony Search (HS) is an optimization algorithm inspired by the improvisation process of musicians in a music ensemble. It mimics the behavior of musicians adjusting their pitches harmoniously to achieve better musical outcomes.
-# Gravitational Search Algorithm (GSA) is another optimization technique that models the law of gravity and Newton's laws of motion for search space exploration, exploiting the idea of mass distribution and gravitational pull for seeking the optimal solution.
-# By combining HS with GSA, we aim to leverage the harmony-building process in HS with the robust global search capability of GSA. The `gravitational_search` operator helps guide the solution particles towards a better region by simulating gravity, while the `random_sample` operator introduces diversity and randomness to escape local minima. This hybrid approach is expected to enhance the exploration-exploitation trade-off, leading to improved convergence and solution quality.
-# The use of the 'greedy' selector ensures that each operator's contribution is evaluated based on its immediate impact, favoring operators that provide better solutions or progress more significantly towards the optimal value.
-# The `num_iterations` parameter controls the number of iterations for the metaheuristic to run, providing enough time for the combined search strategy to converge.
+# The HybridMetaheuristic combines Gravitational Search (GSA) and Random Flight (RF) to create a hybrid approach for solving optimization problems.
+# GSA is chosen due to its capability in exploring the search space effectively, while RF adds local exploration through random walks which can help in fine-tuning the solution.
+# The 'greedy' selector is used for GSA as it tends to move towards solutions that offer immediate improvements, enhancing global exploration.
+# The 'all' selector is employed for RF to consider all potential moves during each iteration, increasing the likelihood of finding a better local optimum.
+# This combination aims to balance between exploitation and exploration, potentially leading to improved performance on a variety of benchmark functions.

@@ -1,0 +1,19 @@
+Exit code: 1
+Stdout:
+
+Search operators to employ:
+random_sample(parameter1=None) with all
+local_random_walk(probability=0.75,scale=1.0,distribution='uniform') with probabilistic
+swarm_dynamic(factor=0.7,self_conf=2.54,swarm_conf=2.56,version='inertial',distribution='uniform') with probabilistic
+--------------------------------------------------
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/new-td/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(10)_20241118_185544/execution_iteration_2.py", line 47, in <module>
+    met.run()
+  File "/Users/valeriaenriquezlimon/Documents/new-td/llm-metaheuristics/metaheuristic.py", line 143, in run
+    self.apply_search_operator(perturbator, selector)
+  File "/Users/valeriaenriquezlimon/Documents/new-td/llm-metaheuristics/metaheuristic.py", line 99, in apply_search_operator
+    exec('Operators.' + operator_name + '(self.pop,' + operator_params)
+  File "<string>", line 1, in <module>
+TypeError: random_sample() got an unexpected keyword argument 'parameter1'
