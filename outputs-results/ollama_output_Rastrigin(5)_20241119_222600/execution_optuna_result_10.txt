@@ -1,0 +1,8 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(5)_20241119_222600/execution_optuna_iteration_10.py", line 1
+    ```python
+    ^
+SyntaxError: invalid syntax

@@ -1,0 +1,18 @@
+Exit code: 1
+Stdout:
+
+Search operators to employ:
+centralized_swarm_optimization(self_conf=0.7349886025784094,swarm_conf=2.665057830738751,version='inertial') with roulette_wheel_selection
+particle_swarm_optimization(radius=0.5021392394715066,angle=0.20071936209445168,sigma=0.876130951284041) with elite_selection
+--------------------------------------------------
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(5)_20241120_122641/execution_iteration_1.py", line 37, in <module>
+    met.run()
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/metaheuristic.py", line 144, in run
+    self.apply_search_operator(perturbator, selector)
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/metaheuristic.py", line 100, in apply_search_operator
+    exec('Operators.' + operator_name + '(self.pop,' + operator_params)
+  File "<string>", line 1, in <module>
+AttributeError: module 'operators' has no attribute 'centralized_swarm_optimization'

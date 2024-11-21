@@ -8,6 +8,7 @@ Created on Thu Sep 26 16:56:01 2019
 """
 
 import numpy as np
+from numpy import *
 import operators as Operators
 from population import Population
 

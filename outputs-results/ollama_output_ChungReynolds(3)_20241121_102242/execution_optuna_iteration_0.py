@@ -2,7 +2,7 @@ import optuna
 import sys
 from pathlib import Path
 
-project_dir = Path(__file__).resolve().parent.parent.parent
+project_dir = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_dir))
 
 import benchmark_func as bf
@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 
 import matplotlib as mpl
 mpl.rcParams.update(mpl.rcParamsDefault)
-import  population as pp
 import metaheuristic as mh
 import numpy as np
 from joblib import Parallel, delayed
@@ -33,36 +32,30 @@ def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, nu
 
     return performance_metric
 
-# These metaheuristics are just an example, of how it should be implemented.
 def objective(trial):
     heur = [
-        ( # Search operator 1
-        'gravitational_search',
-        { 
-        'gravity': trial.suggest_float('scale', 0.01, 1.0),
-        'alpha': trial.suggest_float('scale', 0.01, 1.0),
-    },
-    'all'
-    ),
-    (   # Search operator 2
-    'random_flight',
-    {
-        'scale': trial.suggest_float('scale', 0.01, 1.0),
-        'distribution': 'levy',
-        'beta': trial.suggest_float('scale', 0.01, 2.0),
-    },
-    'probabilistic'
-    )
-]
-    
-    fun = bf.{self.benchmark_function}{self.dimensions}
+        ('swarm_dynamic', {
+            'factor': trial.suggest_float('factor', 0.1, 0.9),
+            'self_conf': trial.suggest_categorical('self_conf', ['2.54']),
+            'swarm_conf': trial.suggest_categorical('swarm_conf', ['2.56']),
+            'version': trial.suggest_categorical('version', ['inertial']),
+            'distribution': trial.suggest_categorical('distribution', ['uniform'])
+        }, 'probabilistic'),
+        ('spiral_dynamic', {
+            'radius': trial.suggest_float('radius', 0.1, 0.8), 
+            'angle': trial.suggest_float('angle', 0.1, 24),
+            'sigma': trial.suggest_float('sigma', 0.05, 0.2)
+        }, 'probabilistic')
+    ]
+
+    fun = bf.ChungReynolds(3)
     prob = fun.get_formatted_problem()
     performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
 
     return performance
 
 study = optuna.create_study(direction="minimize")
-study.optimize(objective, n_trials=50)
+study.optimize(objective, n_trials=15)
 
 print("Mejores hiperparámetros encontrados:")
 print(study.best_params)
