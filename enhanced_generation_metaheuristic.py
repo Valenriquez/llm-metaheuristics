@@ -32,11 +32,11 @@ Which means that will run till the output is correct and till the fitness is bet
 Although there is a break after the third try. 
 
 -- myqwen2.5:latest
-
+-- mxbai-embed-large
 """
 # will try soon: ollama pull bge-large
 class GerateMetaheuristic:
-    def __init__(self, benchmark_function, dimensions, max_iterations, model="myqwen2.5:latest", model_embed="mxbai-embed-large"):
+    def __init__(self, benchmark_function, dimensions, max_iterations, model="myqwen2.5:latest", model_embed="all-minilm:latest"):
         self.model = model
         self.model_embed = model_embed
         self.max_iterations = max_iterations
@@ -76,8 +76,8 @@ class GerateMetaheuristic:
         """""
 
 
-        python_files_directory = 'llm-metaheuristics/metaheuristic_builder'
-        optuna_files_dir = 'llm-metaheuristics/optuna_builder'
+        python_files_directory = os.path.join(os.path.dirname(__file__), 'metaheuristic_builder')
+        optuna_files_dir = os.path.join(os.path.dirname(__file__), 'optuna_builder')
         for d in os.listdir(python_files_directory):
             file_path = os.path.join(python_files_directory, d)
             if os.path.isfile(file_path):  # Check if it's a file
@@ -137,11 +137,12 @@ class GerateMetaheuristic:
             output = ollama.generate(
             model = self.model,
             prompt = f"""Modify this metaheuristic: {extracted_content}.So that if the parameter is a variable that provides a number, you must change it to:
-            name_variable = trial.suggest_float('name_variable', 0.01, 0.9), 
+            name_variable = trial.suggest_float('name_variable', 0.01, 0.9), DO NOT change the given format, YOU CAN NOT ADD ONLY ONE VALUE OR VARIABLE
             The O.01 and 0.9 provided is just an example. You can have different ranges, but please do not use ranges that:
             - Are above 0.9 if the variable is radius
             - Are above 25 if the variable is angle
             - Are above 3 if the variable is swarm_conf or self_conf
+            This for example is INCORRECT:  'name_variable': trial.suggest_categorical('name_variable', ['2.54']), the CORRECT VERSION IS:  'name_variable': trial.suggest_float('name_variable', 0.01, 0.9),
             ALWAYS use a coma after modifying or writing a variable parameter.
             If the parameter provides a category, such as: 
             - "version": "inertial" or "constriction"
@@ -149,7 +150,9 @@ class GerateMetaheuristic:
             - "pairing": "rank" or "cost" or "random" or"tournament_2_100"
             - "crossover": "single" or "two" or "uniform" or "blend" or "linear_0.5_0.5"
             - "expression": "rand" or "best" or "current" or  "current-to-best" or "rand-to-best" or "rand-to-best-and-current"
-            You should modify it to, for example:  'category_name': trial.suggest_categorical('category_name',['category_parameter', "category_parameter" , "category_parameter"])
+            You should modify it to, for example:  'category_name': trial.suggest_categorical('category_name',['category_parameter', "category_parameter" , "category_parameter"]),
+            do not change the given format, YOU CAN NOT ADD ONLY ONE VALUE OR VARIABLE. This for example is INCORRECT:  'category_name': trial.suggest_categorical('category_name', ['category_parameter']), the CORRECT VERSION IS:    'category_name': trial.suggest_categorical('category_name',['category_parameter', "category_parameter" , "category_parameter"]),
+
 
             PLEASE do not modify anything else of the, just do what I told you to. 
             Do not add any more words or paragraphs, just follow this instructions. 
@@ -176,15 +179,18 @@ class GerateMetaheuristic:
         hyperparameters_pattern = r"Mejores hiperparámetros encontrados:\n({.*?})"
         performance_pattern = r"Mejor rendimiento encontrado:\n([\d.]+)"
 
-        # Extract hyperparameters
-        hyperparameters_match = re.search(hyperparameters_pattern, code_file, re.DOTALL)
-        hyperparameters = eval(hyperparameters_match.group(1)) if hyperparameters_match else None
+        hyperparameters_pattern = r"Mejores hiperparámetros encontrados:\n({.*?})"
+        performance_pattern = r"Mejor rendimiento encontrado:\n([\d.]+)"
 
-        # Extract performance
+        hyperparameters_match = re.search(hyperparameters_pattern, code_file, re.DOTALL)
+        hyperparameters_dict = eval(hyperparameters_match.group(1)) if hyperparameters_match else None
+
         performance_match = re.search(performance_pattern, code_file)
         performance_found = float(performance_match.group(1)) if performance_match else None
 
-        return hyperparameters, performance_found
+        
+
+        return hyperparameters_dict, performance_found
 
         
     def read_file(self, file_path):
@@ -196,7 +202,7 @@ class GerateMetaheuristic:
         relevant_feedback = ""
         checker_variable = 1 # variable to count how many times it has created a metaheuristic. 
         output = ollama.embeddings(
-        prompt=self.prompt,
+        prompt="give me all the operators, with its parameters and its selectors' options",
         model=self.model_embed
         )
         results = self.python_collection.query(
@@ -205,8 +211,20 @@ class GerateMetaheuristic:
         )
         data = results['documents'][0][0]
 
+
          ## OPTUNA CHECKER
         if number_iteration > 1 or number_iteration == 1:  # if something changes
+
+            metaheuristic_file = f"/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/{self.folder_name}/execution_iteration_{number_iteration-1}.py"
+            base_path_m = "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results"
+            folder_name_m = self.folder_name
+            file_name_m = f"execution_iteration_{number_iteration-1}.py"
+
+            meta_file_path = os.path.join(base_path_m, folder_name_m, file_name_m)
+
+            with open(meta_file_path, 'r', encoding='utf-8') as file:
+                metaheuristic_code_file = file.read()
+
             base_path = "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results"
             folder_name = self.folder_name
             file_name = f"execution_optuna_result_{number_iteration-1}.txt"
@@ -228,8 +246,37 @@ class GerateMetaheuristic:
                     self.hyperparameters, self.performance_found = self.get_preferential_values(file_path)
                     print("Extracted Hyperparameters:", self.hyperparameters)
                     print("Extracted Performance:", self.performance_found)
-        
-        print("Data being used:", data)
+            
+            if self.hyperparameters:
+                # Define the expected variables
+                expected_variables = {
+                    'scale', 'elite_rate', 'mutation_rate', 'probability',
+                    'gravity', 'alpha', 'beta', 'dt', 'mating_pool_factor',
+                    'num_rands', 'pairing', 'crossover', 'radius', 'angle',
+                    'sigma', 'factor', 'self_conf', 'swarm_conf', 'version',
+                    'expression', 'distribution'
+                }
+
+                # Filter and process the hyperparameters
+                found_hyperparameters = {
+                    key: (float(value) if isinstance(value, (int, float)) else value)
+                    for key, value in self.hyperparameters.items()
+                    if key in expected_variables and value != ''
+                }
+
+                # Convert the dictionary to a string
+                parameters_str = json.dumps(found_hyperparameters, indent=4)
+
+                # Save the string and pass it to the feedback collection
+                numero = number_iteration
+                print(parameters_str)  # Optional: Print the result
+
+                self.feedback_collection.add(
+                    documents=[metaheuristic_code_file, parameters_str],
+                    metadatas=[{'source': 'metaheuristic_code_file'}, {'source': 'parameters'}],
+                    ids=[f"{numero}_id_0", f"{numero}_id_1"]
+                )
+        #print("Data being used:", data)
         print("Prompt being passed:", f"Using this data: ...  Respond to this prompt: {self.prompt}, these are the hy: {self.hyperparameters}")
 
         # generate a response combining the prompt and data we retrieved in step 2
@@ -241,11 +288,7 @@ class GerateMetaheuristic:
             Take a look on the feedback: {relevant_feedback}"""
         ) 
         self.execute_generated_code(output['response'], output_folder, number_iteration, False)
-        #print("execution_result-need-to-see", execution_result)
-
-        ## CHECKING THE FITNESS
-        #file_name =  os.path.join(output_folder, f'execution_result_{number_iteration}.txt')
-        #self.extract_best_performance(file_name)
+        #print("execution_result-need-to-see", execution_results
 
         print( "num-iter----",number_iteration , "------", "self.f_best", self.f_best,  "-", self.first_f_best)
         # Must create a functionable and better-fitness metaheuristic
@@ -276,7 +319,7 @@ class GerateMetaheuristic:
             data = results['documents'][0][0]
             
             # Debugging data and feedback
-            print(f"Loop Iteration {checker_variable}, Data: {data}, Feedback: {relevant_feedback}")
+            #print(f"Loop Iteration {checker_variable}, Data: {data}, Feedback: {relevant_feedback}")
 
             output = ollama.generate(
                 model=self.model,
@@ -333,7 +376,7 @@ class GerateMetaheuristic:
         )
         
         query_embedding = ollama.embeddings(model=self.model_embed, prompt=output['response'])
-        n_results = max(1, min(number_iteration, 7))
+        n_results = 1
         relevant_feedback = self.feedback_collection.query(
             query_embeddings=[query_embedding['embedding']],
             n_results=n_results
@@ -459,7 +502,7 @@ print(study.best_value)
         )
         
         query_embedding = ollama.embeddings(model=self.model_embed, prompt=current_output_optuna['response'])
-        n_results = max(1, min(number_iteration, 7))
+        n_results = 1
         relevant_feedback = self.feedback_collection.query(
             query_embeddings=[query_embedding['embedding']],
             n_results=n_results
@@ -546,7 +589,7 @@ print(study.best_value)
             raise         
 
 if __name__ == "__main__":
-    generator = GerateMetaheuristic("ChungReynolds", 3, 15)
+    generator = GerateMetaheuristic("Rastrigin", 13, 15)
     generator.run()
     logging.basicConfig(level=logging.DEBUG)
     

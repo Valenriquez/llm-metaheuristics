@@ -1,9 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-Traceback (most recent call last):
-  File "/Users/valeriaenriquezlimon/Documents/new-td/llm-metaheuristics/outputs-results/ollama_output_Bohachevsky(2)_20241118_152839/execution_iteration_1.py", line 12, in <module>
-    fun = bf.benchmark_function_1(dimension=3) # This is the selected problem, the problem may vary depending on the case.
-          ^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: module 'benchmark_func' has no attribute 'benchmark_function_1'
