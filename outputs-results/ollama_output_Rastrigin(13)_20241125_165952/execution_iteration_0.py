@@ -1,0 +1,52 @@
+# Name: MetaHeuristicOptimized
+# Code:
+import sys
+from pathlib import Path
+
+project_dir = Path(__file__).resolve().parents[2]  # Remember to write well this line: 'project_dir = Path(__file__).resolve().parents[2]'
+sys.path.insert(0, str(project_dir))
+import benchmark_func as bf
+import metaheuristic as mh
+
+fun = bf.Sphere(50)  # This is the selected problem, the problem may vary depending on the case.
+prob = fun.get_formatted_problem()
+
+# Search operator 1: Random Sample
+# The random sample operator selects a random solution from the search space without any bias or preference towards any particular solution.
+heur = [
+    (
+        'random_sample',
+        {},
+        'greedy'
+    ),
+    (
+        'gravitational_search',
+        {
+            'gravity': 1.0,
+            'alpha': 0.02
+        },
+        'metropolis'
+    )
+]
+
+met = mh.Metaheuristic(prob, heur, num_iterations=500)
+met.verbose = True
+# met.run()
+
+# Initialise the fitness register
+fitness = []
+# Run the metaheuristic with the same problem 30 times
+for rep in range(30):
+    met = mh.Metaheuristic(prob, heur, num_iterations=1000, num_agents=5)  # Please add more agents depending on the size of the dimension.
+    met.reset_historicals()
+    met.verbose = False
+    met.run()
+    print('rep = {}, x_best = {}, f_best = {}'.format(rep+1, *met.get_solution()))
+    
+    fitness.append(met.historical['fitness'])
+    
+# Short explanation and justification:
+# This metaheuristic combines the random sample operator with gravitational search. The random sample operator helps in exploring the solution space randomly,
+# while gravitational search is known for its ability to converge towards the global optimum effectively. By combining these two operators, we aim to balance
+# exploration and exploitation, leading to better convergence properties. The Metropolis selector ensures that even suboptimal solutions have a chance of being accepted,
+# which aids in escaping local minima and finding the global minimum more efficiently.

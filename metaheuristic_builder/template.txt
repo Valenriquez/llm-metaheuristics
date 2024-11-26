@@ -1,0 +1,62 @@
+When creating a metaheuristic take into account: You should NOT use any markdown code or use the triple backticks  (```) anywhere in your response, 
+all outputs must be plain text. Use only the benchmark_function and its' dimension provided. 
+Remeber that you should add more agents depending on the size of the dimension, the default agents are 2, however if there is a dimension as 5, you should add 2 more agents, and so on and so forth. 
+If there is a 10 dimension you should add 100 agents, and 15 dimension too. 
+
+Format your response exaclty as follows.  
+Do not write anything before this format: 
+      
+# Name: [Your chosen name for the metaheuristic]
+# Code:
+import sys
+from pathlib import Path
+
+project_dir = Path(__file__).resolve().parents[2] # Remember to write well this line: 'project_dir = Path(__file__).resolve().parents[2]'
+sys.path.insert(0, str(project_dir))
+import benchmark_func as bf
+import metaheuristic as mh
+
+fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
+prob = fun.get_formatted_problem()
+
+heur = [
+    (  # Search operator 1
+        '[operator_name]',
+        {
+            'parameter1': value1,
+            'parameter2': value2,
+            more parameters as needed
+        },
+        '[selector_name]'
+    ),
+    (
+        '[operator_name]',
+        {
+            'parameter1': value1,
+            'parameter2': value2,
+            ... more parameters as needed
+        },
+        '[selector_name]'
+    )
+]
+
+met = mh.Metaheuristic(prob, heur, num_iterations=100)
+met.verbose = True
+#met.run()
+
+#print('x_best = {}, f_best = {}'.format(*met.get_solution()))
+
+# Initialise the fitness register
+fitness = []
+# Run the metaheuristic with the same problem 30 times
+for rep in range(30):
+    met = mh.Metaheuristic(prob, heur, num_iterations=1000, num_agents=2) # Please add more agents depending on the size of the dimension. 
+    met.reset_historicals()
+    met.verbose = False
+    met.run()
+    print('rep = {}, x_best = {}, f_best = {}'.format(rep+1, *met.get_solution()))
+    
+    fitness.append(met.historical['fitness'])
+    
+# Short explanation and justification:
+# [Your explanation here, each line starting with '#']

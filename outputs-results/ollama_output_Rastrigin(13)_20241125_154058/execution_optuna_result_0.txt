@@ -1,0 +1,8 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(13)_20241125_154058/execution_optuna_iteration_0.py", line 3
+    import optuna import sys from pathlib import Path project_dir = Path(__file__).resolve().parents[2] # Remember to write well this line: 'project_dir = Path(__file__).resolve().parents[2]' sys.path.insert(0, str(project_dir))
+                  ^^^^^^
+SyntaxError: invalid syntax

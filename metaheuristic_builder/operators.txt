@@ -1,0 +1,104 @@
+When creating the metaheuristics use at the first iteration only one search operator, and as the iterations keep increasing, you can add more and more operators. 
+At the same time, if the dimension is 3 or bigger, you should add more than 2 metaheuristic operators with it's parameters and selector, you could add more than two metaheuristics too. 
+Also, remember to write the operators' names, virables' names and selectors' names exactly as shown down below. For example, the operators' names are ALL ALWAYS written in lower case and with a '_' instead of a space between words.
+So write the parameters' exactly as shown down below. 
+
+These are the parameters to take, (REMEMBER that each operaotr must have its own selector, and that depending on the selected operator, YOU MUST ONLY USE USE ONE VARIABLE PER PARAMETER, DO NOT USE THE WHOLE ARRAY, and write the variable without an array format, but as a float or string format):
+Also consider, that if the dimension is bigger than 3, you must select selectors that have more space, such as 'all'.
+{
+  "random_search": {  # operator
+    { # parameters
+      "scale": 1.0 or 0.01,
+      "distribution": "uniform" or "gaussian" or "levy"
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+  },
+  "central_force_dynamic": {  # operator
+    { # parameters
+      "gravity": 0.001,
+      "alpha": 0.01,
+      "beta": 1.5,
+      "dt": 1.0
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+  },
+  "differential_mutation": { # operator
+    { # parameters
+      "expression": "rand" or "best" or "current" or  "current-to-best" or "rand-to-best" or "rand-to-best-and-current",
+      "num_rands": 1,
+      "factor": 1.0
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+  },
+  "firefly_dynamic": { # operator
+    { # parameters
+      "distribution": "uniform" or "gaussian" or "levy",
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gamma": 100.0
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+  },
+  "genetic_crossover": { # operator: - If you decide to use the operator genetic_crossover, then you must use genetic_mutation too. And vice versa. 
+    { # parameters
+      "pairing": "rank" or "cost" or "random" or"tournament_2_100",
+      "crossover": "single" or "two" or "uniform" or "blend" or "linear_0.5_0.5",
+      "mating_pool_factor": 0.4
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+  },
+  "genetic_mutation": { # operator: - If you decide to use the operator genetic_crossover, then you must use genetic_mutation too. And vice versa. 
+    { # parameters
+      "scale": 1.0,
+      "elite_rate": 0.1,
+      "mutation_rate": 0.25,
+      "distribution": "uniform" or "gaussian" or "levy"
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+  },
+  "gravitational_search": { # operator
+    { # parameters
+      "gravity": 1.0,
+      "alpha": 0.02
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+  },
+  "random_flight": { # operator
+    { # parameters
+      "scale": 1.0,
+      "distribution": "levy" or "uniform" or"gaussian",
+      "beta": 1.5
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+  },
+  "local_random_walk": { # operator
+    { # parameters
+      "probability": 0.75,
+      "scale": 1.0,
+      "distribution": "uniform" or "gaussian" or "levy"
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+  },
+  "random_sample": { # operator
+    { }
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+  },
+  "spiral_dynamic": { # operator
+    { # parameters
+      "radius": 0.9,
+      "angle": 22.5,
+      "sigma": 0.1
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+  },
+  "swarm_dynamic": { # operator
+   { # parameters
+      "factor": 0.7 or 1.0,
+      "self_conf": 2.54,
+      "swarm_conf": 2.56,
+      "version": "inertial" or "constriction",
+      "distribution": "uniform" or "gaussian" or "levy"
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+  }
+}
