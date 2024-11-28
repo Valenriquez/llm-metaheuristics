@@ -47,6 +47,7 @@ class GerateMetaheuristic:
         self.dimensions = dimensions
         self.hyperparameters = ""
         self.performance_found = ""
+        self.best_performance = 200
 
         self.folder_name = ""
 
@@ -279,13 +280,36 @@ class GerateMetaheuristic:
         print("data-from-py-collection----", data)
         # QUERY FOR THE TEMPLATE 
 
-        
+        ## PERFORMANCE BUT WHILE CHECKING IF FILE EXISTS:
+        num = number_iteration - 1
+        file_name = f"execution_result_{num}.txt"
+
+        # Check if the file exists
+        if os.path.exists(file_name):
+            # Process the file if it exists
+            all_f_values = self.process_file(file_name)
+            last_performance = self.calculate_performance(all_f_values)
+            try:
+                last_performance_list = [float(value.strip()) for value in last_performance.split(",")]
+                last_performance_int = sum(last_performance_list) / len(last_performance_list)
+                print("Best performance so far, in while:", last_performance_int)
+            except ValueError as e:
+                print("Error processing performance values:", e)
+        else:
+            # Continue to the next iteration if the file does not exist
+            print(f"File {file_name} does not exist, skipping...")
+        ## PERFORMANCE BUT WHILE CHECKING IF FILE EXISTS:
+
 
          ## OPTUNA CHECKER
         if number_iteration > 1 or number_iteration == 1:  # if something changes
             ## Getting the performance execution_result_0.txt
             all_f_values = self.process_file(f"execution_result_{number_iteration-1}.txt")
             last_performance = self.calculate_performance(all_f_values)
+            # Split the string by commas and strip whitespace
+            last_performance_list = [float(value.strip()) for value in last_performance.split(",")]
+            last_performance_int = sum(last_performance_list) / len(last_performance_list)
+            print("Best performance so far, above 1 iter:",last_performance_int )
 
             #metaheuristic_file = f"/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/{self.folder_name}/execution_iteration_{number_iteration-1}.py"
             base_path_m = "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results"
@@ -336,7 +360,6 @@ class GerateMetaheuristic:
                     if key in expected_variables and value != ''
                 }
 
-                # Convert the dictionary to a string
                 parameters_str = json.dumps(found_hyperparameters, indent=4)
 
                 # Save the string and pass it to the feedback collection
@@ -358,10 +381,10 @@ class GerateMetaheuristic:
             n_results=n_results
         )
         print("relevant,feedback", relevant_feedback)
-        print(f"Retrieved data: {data}")
+        #print(f"Retrieved data: {data}")
         #print("Data being used:", data)
         print("Prompt being passed:", f"Using this data: ...  Respond to this prompt: {self.prompt}, these are the hy: {self.hyperparameters}")
-        print(f"These are ---- {self.feedback_collection.peek()}")
+        #print(f"These are ---- {self.feedback_collection.peek()}")
         # generate a response combining the prompt and data we retrieved in step 2
         output = ollama.generate(
         model = self.model,
@@ -404,18 +427,7 @@ class GerateMetaheuristic:
         )
         """
 
-        while self.file_result != 0:
-            """  
-            output = ollama.embeddings(
-                prompt=self.prompt,
-                model=self.model_embed
-            )
-            results = self.python_collection.query(
-                query_embeddings=[output["embedding"]],
-                n_results=1
-            )
-            data = results['documents'][0][0]
-            """
+        while self.file_result != 0 or last_performance_int > self.best_performance:
             # Debugging data and feedback
             #print(f"Loop Iteration {checker_variable}, Data: {data}, Feedback: {relevant_feedback}")
 
@@ -426,7 +438,7 @@ class GerateMetaheuristic:
                 {relevant_feedback}
                 Respond to this prompt: {self.prompt},
                 From the data provided, extract operators while ensuring a variety of strategies. Do not limit to just two or three specific types.
-                Strictly match the information below, and these parameters {self.hyperparameters} (if no parameters given, ignore it).
+                Strictly match the information below, and you need to use exactly these parameters {self.hyperparameters} (if no parameters given, ignore it).
                 Do not invent information.
                 {data}
                 
@@ -441,11 +453,6 @@ class GerateMetaheuristic:
             if not response:
                 print("No valid response generated. Skipping iteration.")
                 continue
-
-            # Increment checker_variable if response is valid
-            checker_variable += 1
-            print("checker_variable:", checker_variable)
-
             try:
                 self.execute_generated_code(response, output_folder, number_iteration, False)
             except Exception as e:
@@ -453,9 +460,24 @@ class GerateMetaheuristic:
                 continue
 
             if checker_variable > 6:
-                print("Reached maximum iterations, exiting loop.")
+                print("More than 6 iterations so far ...")
+
+            if number_iteration > 1 or number_iteration == 1: 
+                num = number_iteration-1
+                all_f_values = self.process_file(f"execution_result_{num}.txt")
+                last_performance = self.calculate_performance(all_f_values)
+                last_performance_list = [float(value.strip()) for value in last_performance.split(",")]
+                last_performance_int = sum(last_performance_list) / len(last_performance_list)
+                print("Best performance so far, in while:",last_performance_int )
+            else:
+                last_performance_int = self.best_performance
+                print("Best performance so far:",last_performance_int )
+
+
                 
-       
+        if last_performance_int < self.best_performance:
+            self.best_performance = last_performance_int
+     
         output_response = output['response']
 
         """  

@@ -1,0 +1,1 @@
+The best performing trial was number 14 with a value of 60.04357732905738.
