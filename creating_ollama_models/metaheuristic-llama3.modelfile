@@ -2,7 +2,7 @@
 FROM qwen2.5-coder
 
 # set the temperature to 1 [higher is more creative, lower is more coherent]
-PARAMETER temperature 0
+PARAMETER temperature 0.3
 
 # set the system message
 SYSTEM """
