@@ -1,0 +1,9 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(3)_20241205_122710/execution_iteration_1.py", line 11, in <module>
+    fun = bf.benchmark_function(dimensions) # This is the selected problem, the problem may vary depending on the case.
+          ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'benchmark_func' has no attribute 'benchmark_function'
