@@ -1,8 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(3)_20241205_140426/execution_optuna_iteration_0.py", line 1
-    Certainly! Below is the modified version of your code with the specified parameters and selectors. I've included comments to clarify each part.
-                                                                                                        ^
-SyntaxError: unterminated string literal (detected at line 1)

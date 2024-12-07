@@ -1,8 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(13)_20241126_104057/execution_iteration_1.py", line 1
-    The best performing trial was number 14 with a value of 60.04357732905738.
-        ^^^^
-SyntaxError: invalid syntax

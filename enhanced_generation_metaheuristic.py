@@ -270,8 +270,8 @@ class GerateMetaheuristic:
         self.file_result = 1 # Necessary for new metaheuristics
 
         # Calling optuna - - - - - - - - - - - - - - - - - - -
-        # 
         self.perform_optuna_tuning(output_folder, 0)
+
 
         # Veryfying if exploration or refinement - - - - - - - - - - - - - - - - - - -
 
@@ -521,91 +521,13 @@ class GerateMetaheuristic:
 
         return output_response
     
-
-    # D
-    def perform_optuna_tuning2(self, output_folder, number_iteration):
-        # Query for the Optuna Template - - - - - - - - - - - - - - - - - - -
-        optuna_template = ollama.embeddings(
-        prompt="give me the given template to create an optuna template",
-        model=self.model_embed
-        )
-        results = self.python_collection.query(
-        query_embeddings=[optuna_template["embedding"]],
-        n_results=2
-        )
-        optuna_template = results['documents'][0][0]
-        print("optuna_template", optuna_template)
-
-        # Query for the Optuna Template - - - - - - - - - - - - - - - - - - -
-        optuna_task =  f"""You are a highly skilled computer scientist in the field of natural computing. 
-        The metaheuristic should be tuned and added on the right part of the template.
-        The metaheuristic should be tuned on the following way: 
-
-        DO NOT ADD any new parameters. 
-        You must make the following changes based on the parameter type:
-
-        1. **If the parameter provides a numeric value:**
-        - Change it to the format:
-            name_variable = trial.suggest_float('name_variable', lower_limit, upper_limit)
-        - Use appropriate ranges for `lower_limit` and `upper_limit`. 
-            - **Rules for ranges:**
-            - For **radius**, the maximum is 0.9.
-            - For **angle**, the maximum is 25.
-            - For **swarm_conf** or **self_conf**, the maximum is 3.
-        - **Incorrect Example:**
-            'name_variable': trial.suggest_categorical('name_variable', ['2.54'])
-        - **Correct Example:**
-            'name_variable': trial.suggest_float('name_variable', 0.01, 0.9)
-        - Always include a comma after the modified parameter.
-
-        2. **If the parameter provides a category:**
-        - Modify it to the format:
-            'category_name': trial.suggest_categorical('category_name', ['option_1', 'option_2', 'option_3'])
-        - Include at least **two options**. Avoid using only one option.
-        - **Incorrect Example:**
-            'category_name': trial.suggest_categorical('category_name', ['option_1'])
-        - **Correct Example:**
-            'category_name': trial.suggest_categorical('category_name', ['option_1', 'option_2', 'option_3'])
-
-        3. **Rules for specific category types:**
-        - "version": "inertial", "constriction"
-        - "distribution": "uniform", "gaussian", "levy"
-        - "pairing": "rank", "cost", "random", "tournament_2_100"
-        - "crossover": "single", "two", "uniform", "blend", "linear_0.5_0.5"
-        - "expression": "rand", "best", "current", "current-to-best", "rand-to-best", "rand-to-best-and-current"
-
-        4. **General Guidelines:**
-        - Do not change anything else in the metaheuristic. Only modify the parameters as instructed.
-        - Do not add extra words, explanations, or paragraphs. Follow these instructions strictly.
-        Now add the tuned metaheuristic on the right part of the template, which is: {optuna_template}
-"""""
-        current_output_optuna = ollama.generate(
-            model = self.model,
-            prompt= f"""Follow this prompt: {optuna_task}
-            """
-        )
-        execution_result_optuna = self.execute_generated_code(current_output_optuna['response'], output_folder, number_iteration, True)
-
-        while self.file_result != 0: 
-            # generate a response combining the prompt and data we retrieved in step 2
-            output = ollama.generate(
-            model = self.model,
-            prompt=f"""Respond to this prompt: {optuna_task},
-            Remeber that when writing the response You should NOT use any markdown code or use the triple backticks  (```) anywhere in your response.
-            If you encounter an error, address it as follows: {self.file_result_error}
-            """
-            )
-            execution_result_optuna = self.execute_generated_code(output['response'], output_folder, number_iteration, True)
-        return execution_result_optuna
-
     """
     perform_optuna_tuning: 
     """
-
     def perform_optuna_tuning(self, output_folder, number_iteration):
         # Query for the Optuna Template - - - - - - - - - - - - - - - - - - -
         optuna_template = ollama.embeddings(
-        prompt="This is the optuna template",
+        prompt="give me the optuna template",
         model=self.model_embed
         )
         results = self.python_collection.query(
@@ -614,7 +536,6 @@ class GerateMetaheuristic:
         )
         optuna_template = results['documents'][0][0]
         print("optuna_template", optuna_template)
-
         # Query for the Optuna Template - - - - - - - - - - - - - - - - - - -
 
       
@@ -627,6 +548,7 @@ class GerateMetaheuristic:
         extracted_metaheuristic = self.extract_code_from_code_with_optuna(self.file_contents)
         # Getting the Optuna Tuned Metaheuristic - - - - - - - - - - - - - - - - - - -
 
+        # Query for the Optuna File Generation - - - - - - - - - - - - - - - - - - -
         optuna_task =  f"""You are a highly skilled computer scientist in the field of natural computing. 
         You should NOT use any markdown code or use the triple backticks  (```) anywhere in your response. All outputs must be plain text. 
         You must write exactly the following code, DO NOT INVENT NEW THINGS, NOR WORDS, NOR PARAGRAPHS, NOR ANYTHING, FOLLOW THE EXACT TEMPLATE:
@@ -635,21 +557,23 @@ class GerateMetaheuristic:
             heur = [
                 {extracted_metaheuristic} 
             ]
+        
+        Please in the 'fun' variable you must change it too: 'fun = bf.{self.benchmark_function}({self.dimensions})'
         """""
-
         current_output_optuna = ollama.generate(
             model = self.model,
             prompt= f"""Follow this prompt: {optuna_task}
             """
         )
-
         execution_result_optuna = self.execute_generated_code(current_output_optuna['response'], output_folder, number_iteration, True)
+        # Query for the Optuna File Generation - - - - - - - - - - - - - - - - - - -
+
+        # While for the Optuna File Generation - - - - - - - - - - - - - - - - - - -
         while self.file_result != 0: 
             output = ollama.generate(
             model = self.model,
-            prompt=f"""Respond to this prompt: {optuna_task},
-            Remeber that when writing the response You should NOT use any markdown code or use the triple backticks  (```) anywhere in your response.
-            If you encounter an error, address it as follows: {self.file_result_error}            
+            prompt=f"""Follow this prompt: {optuna_task},
+            If you encounter an error, fix it, these are the errors: {self.file_result_error}            
             """
             ) 
             if print(output['response']) != "":
@@ -657,7 +581,22 @@ class GerateMetaheuristic:
             print("checker_variable--OPTUNA--->>>>>", checker_variable)
 
             execution_result_optuna = self.execute_generated_code(output['response'], output_folder, number_iteration, True)
-           
+        # While for the Optuna File Generation - - - - - - - - - - - - - - - - - - -
+
+        self.file_result = 1 # Resetting the variable
+        # Getting the Hyperparameters - - - - - - - - - - - - - - - - - - -
+        current_directory = os.getcwd()
+        folder_name = self.folder_name
+        file_name = f"execution_iteration_{number_iteration-1}.py"
+
+        file_path = os.path.join(current_directory, folder_name, file_name)
+        self.hyperparameters, self.performance_found = self.get_preferential_values(file_path)
+        print("hyperparameters", self.hyperparameters)
+        print("performance_found", self.performance_found)
+
+        
+
+
         """ 
         ## FEEDBACK PROCESS: Must be after the while, since I must only store the metaheuristics that ran well. 
         feedback_embedding = ollama.embeddings(model=self.model_embed, prompt=current_output_optuna['response'])
@@ -687,9 +626,8 @@ class GerateMetaheuristic:
         file_name =  os.path.join(output_folder, f'{prefix}iteration_{number_iteration}.py')
         with open(file_name, 'w') as f:
             f.write(code)
-        
         try:
-            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=15)
+            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=6)
             execution_result = f"Exit code: {result.returncode}\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
             self.file_result = result.returncode
             self.file_result_error = result.stderr

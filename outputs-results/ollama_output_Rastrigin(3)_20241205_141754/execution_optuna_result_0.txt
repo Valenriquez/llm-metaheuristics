@@ -1,8 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(3)_20241205_141754/execution_optuna_iteration_0.py", line 1
-    When modifying the `objective` function to include the two specified search operators—`spiral_dynamic` and `local_random_walk`—while adhering to the given parameter ranges, here is how the modified part of the function should look:
-                                                                                         ^
-SyntaxError: invalid character '—' (U+2014)

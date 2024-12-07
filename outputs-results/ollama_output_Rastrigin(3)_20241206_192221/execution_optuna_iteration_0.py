@@ -4,7 +4,7 @@ import optuna
 import sys
 from pathlib import Path
 
-project_dir = Path(__file__).resolve().parents[2] # Remember to write well this line: 'project_dir = Path(__file__).resolve().parents[2]'
+project_dir = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_dir))
 
 import benchmark_func as bf
@@ -36,11 +36,24 @@ def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, nu
 
 def objective(trial):
     heur = [
-        ### The metaheuristic goes here below:
-
+        # Modified Metaheuristic
+(  # Search operator 1
+    'spiral_dynamic',
+    {
+        'radius': trial.suggest_float('radius', 0.01, 0.9),
+        'angle': trial.suggest_float('angle', 0.5, 25),
+        'sigma': trial.suggest_float('sigma', 0.01, 0.3)
+    },
+    'probabilistic'
+),
+(
+    'random_sample',
+    {},
+    'greedy'
+), 
     ]
 
-    fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
+    fun = bf.Rastrigin(3) # This is the selected problem
     prob = fun.get_formatted_problem()
     performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
 
