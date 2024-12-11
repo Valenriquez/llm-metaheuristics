@@ -34,36 +34,35 @@ def evaluate_sequence_performance(sequence, prob, num_agents, num_iterations, nu
 
 def objective(trial):
     heur = [
-        # Search operator 1
-(
-    'random_search',
-    {
-        'min_value': -5.12,
-        'max_value': 5.12
-    },
-    'best_agent'
-),
-(
-    'swarm_dynamic',
-    {
-        'radius': trial.suggest_float('radius', 0.01, 0.9),
-        'angle': trial.suggest_float('angle', 0.01, 25),
-        'sigma': trial.suggest_float('sigma', 0.01, 0.9),
-        'factor': trial.suggest_float('factor', 0.01, 0.9),
-        'self_conf': trial.suggest_float('self_conf', 0.01, 3),
-        'swarm_conf': trial.suggest_float('swarm_conf', 0.01, 3),
-        'version': trial.suggest_categorical('version', ['inertial', 'constriction']),
-        'distribution': trial.suggest_categorical('distribution', ['uniform', 'gaussian', 'levy'])
-    },
-    'best_agent'
-),
-(
-    'differential_evolution',
-    {
-        'F': trial.suggest_float('F', 0.1, 25),
-        'CR': trial.suggest_float('CR', 0.1, 3)
-    },
-    'worst_agent'
+        (
+        'spiral_dynamic',
+        {
+            'radius': trial.suggest_float('radius', 0.1, 0.9), 
+            'angle': trial.suggest_float('angle', 1, 25), 
+            'sigma': trial.suggest_float('sigma', 0.01, 0.3) 
+        },
+        'greedy'
+    ),
+    (
+        'swarm_dynamic',
+        {
+            'factor': trial.suggest_float('factor', 0.01, 0.9), 
+            'self_conf': trial.suggest_float('self_conf', 1, 3), 
+            'swarm_conf': trial.suggest_float('swarm_conf', 1, 3), 
+            'version': trial.suggest_categorical('version',['inertial', "constriction"]), 
+            'distribution': trial.suggest_categorical('distribution',['uniform', "gaussian", "levy"])
+        },
+        'greedy'
+    ),
+    (
+        'local_random_walk',
+        {
+            'probability': trial.suggest_float('probability', 0.1, 0.9), 
+            'scale': trial.suggest_float('scale', 0.1, 0.9), 
+            'distribution': trial.suggest_categorical('distribution',['uniform', "gaussian", "levy"])
+        },
+        'greedy'
+    )
     ]
 
     fun = bf.Rastrigin(15)

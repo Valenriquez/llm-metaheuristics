@@ -65,9 +65,9 @@ def objective(trial):
     )
     ]
 
-    fun = bf.Rastrigin(15)
+    fun = bf.Ackley1(15)
     prob = fun.get_formatted_problem()
-    performance = evaluate_sequence_performance(heur, prob, num_agents=50, num_iterations=100, num_replicas=30)
+    performance = evaluate_sequence_performance(heur, prob, num_agents=75, num_iterations=100, num_replicas=30)
 
     return performance
 

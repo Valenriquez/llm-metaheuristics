@@ -8,7 +8,7 @@ sys.path.insert(0, str(project_dir))
 import benchmark_func as bf
 import metaheuristic as mh
 
-fun = bf.Ackley1(3)  # Selected problem with dimension 3.
+fun = bf.Ackley1(15)  # Selected problem with dimension 3.
 prob = fun.get_formatted_problem()
 
 heur = [
@@ -53,7 +53,7 @@ print('x_best = {}, f_best = {}'.format(*met.get_solution()))
 fitness = []
 # Run the metaheuristic with the same problem 30 times
 for rep in range(30):
-    met = mh.Metaheuristic(prob, heur, num_iterations=1000, num_agents=5)  # Please add more agents depending on the size of the dimension.
+    met = mh.Metaheuristic(prob, heur, num_iterations=1000, num_agents=75)  # Please add more agents depending on the size of the dimension.
     met.reset_historicals()
     met.verbose = False
     met.run()
