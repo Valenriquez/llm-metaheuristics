@@ -1,0 +1,24 @@
+Exit code: 0
+Stdout:
+Mejores hiperparámetros encontrados:
+{'radius': 0.8938681757995983, 'angle': 24.695894665634782, 'sigma': 0.09813165089039985}
+Mejor rendimiento encontrado:
+0.0027902381258329
+
+Stderr:
+[I 2024-12-11 20:52:26,967] A new study created in memory with name: no-name-b9658f73-39af-4f06-843a-14ab7fb00c3b
+[I 2024-12-11 20:52:29,713] Trial 0 finished with value: 1.2493172932767918 and parameters: {'radius': 0.5521554809284107, 'angle': 22.597474273192315, 'sigma': 0.2940931450101129}. Best is trial 0 with value: 1.2493172932767918.
+[I 2024-12-11 20:52:30,612] Trial 1 finished with value: 0.0035380250793126677 and parameters: {'radius': 0.8938048518995434, 'angle': 24.696748643383366, 'sigma': 0.10207542667327439}. Best is trial 1 with value: 0.0035380250793126677.
+[I 2024-12-11 20:52:31,496] Trial 2 finished with value: 5.640221032903731 and parameters: {'radius': 0.1862220092983088, 'angle': 21.434403113028075, 'sigma': 0.043305028385639335}. Best is trial 1 with value: 0.0035380250793126677.
+[I 2024-12-11 20:52:32,452] Trial 3 finished with value: 2.1415546177897795 and parameters: {'radius': 0.5137807294542832, 'angle': 23.434549653384536, 'sigma': 0.19123046661706472}. Best is trial 1 with value: 0.0035380250793126677.
+[I 2024-12-11 20:52:33,571] Trial 4 finished with value: 2.287449637587722 and parameters: {'radius': 0.38033946657369067, 'angle': 21.09950982029894, 'sigma': 0.17702767808123865}. Best is trial 1 with value: 0.0035380250793126677.
+[I 2024-12-11 20:52:34,547] Trial 5 finished with value: 0.23355297723169244 and parameters: {'radius': 0.6208704785482109, 'angle': 23.038217680568977, 'sigma': 0.23881182658324035}. Best is trial 1 with value: 0.0035380250793126677.
+[I 2024-12-11 20:52:35,506] Trial 6 finished with value: 2.154743749065151 and parameters: {'radius': 0.4812483050191933, 'angle': 20.252694657344836, 'sigma': 0.2285909282854779}. Best is trial 1 with value: 0.0035380250793126677.
+[I 2024-12-11 20:52:36,456] Trial 7 finished with value: 0.5895720502387762 and parameters: {'radius': 0.5794715741704434, 'angle': 20.163929869239837, 'sigma': 0.16095172700375152}. Best is trial 1 with value: 0.0035380250793126677.
+[I 2024-12-11 20:52:37,675] Trial 8 finished with value: 4.816246801180535 and parameters: {'radius': 0.22574067568610837, 'angle': 20.6029952844806, 'sigma': 0.2993598670526164}. Best is trial 1 with value: 0.0035380250793126677.
+[I 2024-12-11 20:52:38,734] Trial 9 finished with value: 1.1117799854159074 and parameters: {'radius': 0.5168824064461409, 'angle': 21.774554008246646, 'sigma': 0.17030833136952409}. Best is trial 1 with value: 0.0035380250793126677.
+[I 2024-12-11 20:52:39,660] Trial 10 finished with value: 0.002795170521529222 and parameters: {'radius': 0.8924046924687813, 'angle': 24.897284091134182, 'sigma': 0.07576375652586058}. Best is trial 10 with value: 0.002795170521529222.
+[I 2024-12-11 20:52:40,561] Trial 11 finished with value: 0.003839395002992241 and parameters: {'radius': 0.8978138824907373, 'angle': 24.937578634076367, 'sigma': 0.07536818984184851}. Best is trial 10 with value: 0.002795170521529222.
+[I 2024-12-11 20:52:41,455] Trial 12 finished with value: 0.0027902381258329 and parameters: {'radius': 0.8938681757995983, 'angle': 24.695894665634782, 'sigma': 0.09813165089039985}. Best is trial 12 with value: 0.0027902381258329.
+[I 2024-12-11 20:52:42,348] Trial 13 finished with value: 0.07822879830803053 and parameters: {'radius': 0.7512804354383811, 'angle': 23.961273708785424, 'sigma': 0.10410796411039638}. Best is trial 12 with value: 0.0027902381258329.
+[I 2024-12-11 20:52:43,253] Trial 14 finished with value: 0.12359804577008582 and parameters: {'radius': 0.7338599092659587, 'angle': 24.14886092120347, 'sigma': 0.022270682845477778}. Best is trial 12 with value: 0.0027902381258329.

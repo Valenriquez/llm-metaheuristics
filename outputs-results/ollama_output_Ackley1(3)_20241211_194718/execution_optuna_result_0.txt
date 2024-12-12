@@ -1,0 +1,24 @@
+Exit code: 0
+Stdout:
+Mejores hiperparámetros encontrados:
+{'factor': 0.10194636166725285, 'self_conf': 1.0553505666408856, 'swarm_conf': 2.4309272229501095, 'version': 'constriction', 'distribution': 'uniform'}
+Mejor rendimiento encontrado:
+1.5196114687476836e-05
+
+Stderr:
+[I 2024-12-11 19:53:20,901] A new study created in memory with name: no-name-bce0b96f-fa49-427e-a102-03bd158e6f16
+[I 2024-12-11 19:53:23,871] Trial 0 finished with value: 0.5832206623219767 and parameters: {'factor': 0.3153971933350193, 'self_conf': 1.5582084187308014, 'swarm_conf': 1.2455918381215516, 'version': 'constriction', 'distribution': 'gaussian'}. Best is trial 0 with value: 0.5832206623219767.
+[I 2024-12-11 19:53:24,753] Trial 1 finished with value: 0.00038415013857662217 and parameters: {'factor': 0.142585524407437, 'self_conf': 1.2641722369972404, 'swarm_conf': 2.683237277406774, 'version': 'constriction', 'distribution': 'uniform'}. Best is trial 1 with value: 0.00038415013857662217.
+[I 2024-12-11 19:53:25,504] Trial 2 finished with value: 0.0012225786447244147 and parameters: {'factor': 0.46914731045976316, 'self_conf': 2.301944287509335, 'swarm_conf': 2.983816428251655, 'version': 'constriction', 'distribution': 'levy'}. Best is trial 1 with value: 0.00038415013857662217.
+[I 2024-12-11 19:53:26,241] Trial 3 finished with value: 0.9999425515003519 and parameters: {'factor': 0.5456562557023468, 'self_conf': 1.0907287705098356, 'swarm_conf': 1.6118903765969657, 'version': 'inertial', 'distribution': 'gaussian'}. Best is trial 1 with value: 0.00038415013857662217.
+[I 2024-12-11 19:53:26,973] Trial 4 finished with value: 0.09633959702563111 and parameters: {'factor': 0.3019147760003333, 'self_conf': 1.5198558528494788, 'swarm_conf': 1.2417244702926433, 'version': 'constriction', 'distribution': 'uniform'}. Best is trial 1 with value: 0.00038415013857662217.
+[I 2024-12-11 19:53:27,750] Trial 5 finished with value: 3.0962516268664606 and parameters: {'factor': 0.7303837312431697, 'self_conf': 2.611479979503339, 'swarm_conf': 1.5897018856404184, 'version': 'inertial', 'distribution': 'levy'}. Best is trial 1 with value: 0.00038415013857662217.
+[I 2024-12-11 19:53:28,510] Trial 6 finished with value: 2.8949774476201924 and parameters: {'factor': 0.7478486115112649, 'self_conf': 1.9560002007633084, 'swarm_conf': 2.0505168449189486, 'version': 'constriction', 'distribution': 'gaussian'}. Best is trial 1 with value: 0.00038415013857662217.
+[I 2024-12-11 19:53:29,255] Trial 7 finished with value: 3.463441608808557 and parameters: {'factor': 0.7604442766710475, 'self_conf': 1.9924334190985542, 'swarm_conf': 2.9664906841397753, 'version': 'inertial', 'distribution': 'gaussian'}. Best is trial 1 with value: 0.00038415013857662217.
+[I 2024-12-11 19:53:29,985] Trial 8 finished with value: 0.2846453359718959 and parameters: {'factor': 0.49855667026297334, 'self_conf': 2.8892705388238635, 'swarm_conf': 1.4304288142118768, 'version': 'inertial', 'distribution': 'gaussian'}. Best is trial 1 with value: 0.00038415013857662217.
+[I 2024-12-11 19:53:30,726] Trial 9 finished with value: 0.2765758966327798 and parameters: {'factor': 0.4924405914486246, 'self_conf': 2.1971071176000647, 'swarm_conf': 1.3954801927590914, 'version': 'inertial', 'distribution': 'gaussian'}. Best is trial 1 with value: 0.00038415013857662217.
+[I 2024-12-11 19:53:31,457] Trial 10 finished with value: 0.00011492203605190099 and parameters: {'factor': 0.15122261768543876, 'self_conf': 1.0529654989115178, 'swarm_conf': 2.4079577215909396, 'version': 'constriction', 'distribution': 'uniform'}. Best is trial 10 with value: 0.00011492203605190099.
+[I 2024-12-11 19:53:32,187] Trial 11 finished with value: 1.5196114687476836e-05 and parameters: {'factor': 0.10194636166725285, 'self_conf': 1.0553505666408856, 'swarm_conf': 2.4309272229501095, 'version': 'constriction', 'distribution': 'uniform'}. Best is trial 11 with value: 1.5196114687476836e-05.
+[I 2024-12-11 19:53:32,921] Trial 12 finished with value: 0.0001577242565709014 and parameters: {'factor': 0.13663333615944578, 'self_conf': 1.0138905052088851, 'swarm_conf': 2.2827427725646006, 'version': 'constriction', 'distribution': 'uniform'}. Best is trial 11 with value: 1.5196114687476836e-05.
+[I 2024-12-11 19:53:33,647] Trial 13 finished with value: 0.046517392847372996 and parameters: {'factor': 0.2694812776481391, 'self_conf': 1.4717446459056869, 'swarm_conf': 2.4547765807131943, 'version': 'constriction', 'distribution': 'uniform'}. Best is trial 11 with value: 1.5196114687476836e-05.
+[I 2024-12-11 19:53:34,388] Trial 14 finished with value: 1.667041926989299e-05 and parameters: {'factor': 0.1121311188946012, 'self_conf': 1.7323270487276385, 'swarm_conf': 1.9553754329389366, 'version': 'constriction', 'distribution': 'uniform'}. Best is trial 11 with value: 1.5196114687476836e-05.
