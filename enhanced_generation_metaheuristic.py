@@ -31,10 +31,11 @@ Although there is a break after the third try.
 
 -- myqwen2.5:latest
 -- mxbai-embed-large
+- llama3.3
 """
 # will try soon: ollama pull bge-large
 class GerateMetaheuristic:
-    def __init__(self, benchmark_function, dimensions, max_iterations, model="myqwen2.5:latest", model_embed="all-minilm:latest"):
+    def __init__(self, benchmark_function, dimensions, max_iterations, model="qwen2.5-coder:latest", model_embed="all-minilm:latest"):
         self.model = model
         self.model_embed = model_embed
         self.max_iterations = max_iterations
@@ -275,32 +276,102 @@ class GerateMetaheuristic:
             data = results['documents'][0][0]
             # Query for the Operators - - - - - - - - - - - - - - - - - - -
 
+        matches = 0
+        heur_operator_names = ''
+        metaheuristics_search_terms = set([
+            "random_search", "central_force_dynamic", "differential_mutation",
+            "firefly_dynamic", "genetic_crossover", "genetic_mutation",
+            "gravitational_search", "random_flight", "local_random_walk",
+            "random_sample", "spiral_dynamic", "swarm_dynamic"
+        ])
+
         # Main Prompt - - - - - - - - - - - - - - - - - - -
-        while self.file_result != 0: # It needs to have a correct output
+        while not matches: # It needs to have a correct output
+            # First Prompt - - - - - - - - - - - - - - - - - - -
+            print("No matches found. Retrying...")
             output = ollama.generate(
             model = self.model,
             prompt=f"""
-            Respond to this prompt: {self.prompt}. 
-            From the data provided, extract operators while ensuring a variety of strategies. 
-            Do not limit to just two or three specific types.
-            Strictly match the information below, without inventing or modifying any details:
-            Data, (DO NOT MODIFY ANY GIVEN OPERATORS, PARAMETERS, VARIABLES OR SELECTORS):
-            {data}
-                    
-            Use the following template for your response:
-            {data_template}
+           You are a highly skilled computer scientist and an expert in natural computing, specializing in designing innovative metaheuristic algorithms. Your objective is to create a metaheuristic design inspired by the provided data and feedback. Follow these precise guidelines:
+            1. **Operator Naming Conventions**:  
+            All operator names must be in **lowercase** and use **underscores** (`_`) to separate words (e.g., `example_operator_name`).
 
-            Use the following feedback to get inspired for another metaheuristics designs (do NOT copy the provided metaheuristic):
-            Feedback: {data_feedback} (if none are provided, you may skip this part).
+            2. **Feedback Utilization**:  
+            - If feedback is provided (`{data_feedback}`), use it as inspiration to guide your design.  
+            - **Do not copy** the exact metaheuristic described in the feedback.  
+            - **Do not invent entirely new operators or selectors**; instead, adapt and innovate based on the strategies and patterns observed in the feedback.  
+            - If no feedback is provided, you may skip this part entirely.
 
-            If you encounter an error, address it as follows: {self.file_result_error}.
-            If any part of the data is incomplete or unavailable, state explicitly: "Information not available."
+            3. **Data-Based Design**:  
+            - Use the provided data (`{data}`) to extract and incorporate operators.  
+            - Ensure a diverse and balanced selection of strategies, avoiding over-reliance on just two or three types.  
+            - Strictly adhere to the details in the data—do not invent, modify, or extrapolate beyond what is provided.
+
+            4. **Design Philosophy**:  
+            - The resulting metaheuristic should embody creativity and diversity while staying grounded in the provided data and feedback.  
+            - Avoid redundancy and ensure clarity in the structure and functionality of the operators.
+
+            Deliver a detailed metaheuristic design, adhering to these constraints and conventions.
+            This is the format that you need to use:    
+                heur = [
+                    (  # Search operator 1
+                        '[operator_name]',
+                        {{
+                            'parameter1': value1,
+                            'parameter2': value2,
+                            more parameters as needed
+                        }},
+                        '[selector_name]'
+                    ),
+                    (
+                        '[operator_name]',
+                        {{
+                            'parameter1': value1,
+                            'parameter2': value2,
+                            ... more parameters as needed
+                        }},
+                        '[selector_name]'
+                    )
+                ]
             """
             ) 
-            output_response = self.execute_generated_code(output['response'], output_folder, number_iteration, False)
+            print("output-response", output['response'])
+            # Split the response text into words (or use another tokenizer if needed)
+            # Assuming output['response'] is a string, we split it into words
+            # Removing all non-alphanumeric characters except underscores and spaces
+            cleaned_response = re.sub(r"[^a-zA-Z0-9_\s]", "", output['response'].lower())
+
+            # Split the cleaned response into words based on spaces
+            response_words = set(cleaned_response.split())  # Split by whitespace after cleaning
+
+            # Print cleaned response and response words for debugging
+            print("Cleaned response:", cleaned_response)
+            print("Response words:", response_words)
+
+            # Now, find the matches
+            matches = metaheuristics_search_terms.intersection(response_words)
+
+            print("Matches found:", matches)
+
+
+        while self.file_result != 0: # It needs to have a correct output
+
+            # Second Prompt - - - - - - - - - - - - - - - - - - -
+            second_output = ollama.generate(
+            model = self.model,
+            prompt=f"""
+            {self.prompt} remember that: in the 'fun' variable you must change it too: 'fun = bf.{self.benchmark_function}({self.dimensions})', do not change these values given. 
+            Add the following metaheuristic {output['response']} on the correct part of the template. DO NOT INVENT NEW WORDS OR TERMS.
+            This is the following template: 
+            {data_template}
+            If you encounter an error, address it as follows: {self.file_result_error}.
+            """
+            ) 
+
+
+            output_response = self.execute_generated_code(second_output['response'], output_folder, number_iteration, False)
             #output_response = output['response']  ## N.S
         # Main Prompt - - - - - - - - - - - - - - - - - - -
-
 
         self.file_result = 1 # Necessary for new metaheuristics
 
@@ -522,7 +593,7 @@ class GerateMetaheuristic:
         """""
         current_output_optuna = ollama.generate(
             model = self.model,
-            prompt= f"""Follow this prompt: {optuna_task}
+            prompt= f"""{optuna_task}
             """
         )
         execution_result_optuna = self.execute_generated_code(current_output_optuna['response'], output_folder, number_iteration, True)
@@ -595,7 +666,7 @@ class GerateMetaheuristic:
         with open(file_name, 'w') as f:
             f.write(code)
         try:
-            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=29)
+            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=32)
             execution_result = f"Exit code: {result.returncode}\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
             self.file_result = result.returncode
             self.file_result_error = result.stderr
@@ -643,7 +714,7 @@ class GerateMetaheuristic:
             raise         
 
 if __name__ == "__main__":
-    generator = GerateMetaheuristic("Ackley1", 3, 15)
+    generator = GerateMetaheuristic("Rastrigin", 3, 15)
     generator.run()
     logging.basicConfig(level=logging.DEBUG)
     

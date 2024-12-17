@@ -1,9 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-Traceback (most recent call last):
-  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Ackley1(3)_20241209_122055/execution_iteration_0.py", line 11, in <module>
-    fun = bf.Ackley15()  # This is the selected problem.
-          ^^^^^^^^^^^
-AttributeError: module 'benchmark_func' has no attribute 'Ackley15'. Did you mean: 'Ackley1'?

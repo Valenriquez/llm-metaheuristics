@@ -1,9 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-Traceback (most recent call last):
-  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Alpine1(2)_20241121_080808/execution_iteration_1.py", line 11, in <module>
-    fun = bf.alpine1(2) # This is the selected problem.
-          ^^^^^^^^^^
-AttributeError: module 'benchmark_func' has no attribute 'alpine1'. Did you mean: 'Alpine1'?

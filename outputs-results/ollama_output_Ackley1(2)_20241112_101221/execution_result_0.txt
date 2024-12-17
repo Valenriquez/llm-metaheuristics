@@ -1,8 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-Traceback (most recent call last):
-  File "/Users/valeriaenriquezlimon/Documents/research-llm/llm-metaheuristics/outputs-results/ollama_output_Ackley1(2)_20241112_101221/execution_iteration_0.py", line 8, in <module>
-    import benchmark_func as bf
-ModuleNotFoundError: No module named 'benchmark_func'

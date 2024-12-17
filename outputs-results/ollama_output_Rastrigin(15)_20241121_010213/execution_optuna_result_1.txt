@@ -1,8 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(15)_20241121_010213/execution_optuna_iteration_1.py", line 67
-    ]
-    ^
-SyntaxError: closing parenthesis ']' does not match opening parenthesis '(' on line 60
