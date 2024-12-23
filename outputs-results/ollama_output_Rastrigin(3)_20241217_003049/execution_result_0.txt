@@ -1,9 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-Traceback (most recent call last):
-  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(3)_20241217_003049/execution_iteration_0.py", line 16, in <module>
-    num_agents = max(2, prob['dimension'] * 5)
-                        ~~~~^^^^^^^^^^^^^
-KeyError: 'dimension'

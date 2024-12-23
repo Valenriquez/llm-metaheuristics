@@ -29,9 +29,10 @@ Uses: myllama3:latest
 Which means that will run till the output is correct and till the fitness is better than the previous one. 
 Although there is a break after the third try. 
 
--- myqwen2.5:latest
+-- qwen2.5:latest
 -- mxbai-embed-large
 - llama3.3
+- 
 """
 # will try soon: ollama pull bge-large
 class GerateMetaheuristic:
@@ -44,8 +45,8 @@ class GerateMetaheuristic:
         self.benchmark_function = benchmark_function
         self.dimensions = dimensions
         self.hyperparameters = ""
-        self.performance_found = ""
-        self.best_performance = 200
+        self.performance_found = 0.00
+        self.best_performance = 200.00
 
         self.folder_name = ""
 
@@ -74,7 +75,7 @@ class GerateMetaheuristic:
         self.prompt = f"""You are a highly skilled computer scientist in the field of natural computing. Your task is to design a metaheuristic algorithm, 
         you should only use the information that was provided to you. 
         Remember that when writing the operator's names, they should be ALL in LOWER CASE AND WITH A '_' 
-        instead of typing a space. Remember that, if the dimension is 3 or bigger, you should use a bigger selector, as there is more space to cover.
+        instead of typing a space. 
         Please in the 'fun' variable you must change it too: 'fun = bf.{self.benchmark_function}({self.dimensions})', do not change these values given. 
         """""
 
@@ -205,6 +206,7 @@ class GerateMetaheuristic:
 
         performance_match = re.search(performance_pattern, code_file)
         performance_found = float(performance_match.group(1)) if performance_match else None
+        print("performance_found ---->",performance_found)
 
         return hyperparameters_dict, performance_found
 
@@ -277,7 +279,6 @@ class GerateMetaheuristic:
             # Query for the Operators - - - - - - - - - - - - - - - - - - -
 
         matches = 0
-        heur_operator_names = ''
         metaheuristics_search_terms = set([
             "random_search", "central_force_dynamic", "differential_mutation",
             "firefly_dynamic", "genetic_crossover", "genetic_mutation",
@@ -303,7 +304,7 @@ class GerateMetaheuristic:
             - If no feedback is provided, you may skip this part entirely.
 
             3. **Data-Based Design**:  
-            - Use the provided data (`{data}`) to extract and incorporate operators.  
+            - Use the provided data (`{data}`) to extract and incorporate operators with their selectors. Do not add any operator that is not in that 'data'.  
             - Ensure a diverse and balanced selection of strategies, avoiding over-reliance on just two or three types.  
             - Strictly adhere to the details in the data—do not invent, modify, or extrapolate beyond what is provided.
 
@@ -312,7 +313,8 @@ class GerateMetaheuristic:
             - Avoid redundancy and ensure clarity in the structure and functionality of the operators.
 
             Deliver a detailed metaheuristic design, adhering to these constraints and conventions.
-            This is the format that you need to use:    
+            This is the format that you need to use (PLEASE FOLLOW STRICTYLY THE FOLLOWING FORMAT, DO NOT INVENT NEW CODE, DO NOT INVENT PARAMETERS, NOR OPERATORS, NOR SELECTORS NEITHER 
+            AND DO NOT USE MORE THAN FOUR (4) METAHEURISTICS):    
                 heur = [
                     (  # Search operator 1
                         '[operator_name]',
@@ -362,7 +364,7 @@ class GerateMetaheuristic:
             prompt=f"""
             {self.prompt} remember that: in the 'fun' variable you must change it too: 'fun = bf.{self.benchmark_function}({self.dimensions})', do not change these values given. 
             Add the following metaheuristic {output['response']} on the correct part of the template. DO NOT INVENT NEW WORDS OR TERMS.
-            This is the following template: 
+            This is the following template (PLEASE FOLLOW STRICTYLY THE FOLLOWING TEMPLATE, DO NOT INVENT NEW CODE, DO NOT INVENT PARAMETERS, NOR OPERATORS, NOR SELECTORS NEITHER): 
             {data_template}
             If you encounter an error, address it as follows: {self.file_result_error}.
             """
@@ -580,17 +582,51 @@ class GerateMetaheuristic:
         # Getting the Optuna Tuned Metaheuristic - - - - - - - - - - - - - - - - - - -
 
         # Query for the Optuna File Generation - - - - - - - - - - - - - - - - - - -
-        optuna_task =  f"""You are a highly skilled computer scientist in the field of natural computing. 
-        You should NOT use any markdown code or use the triple backticks  (```) anywhere in your response. All outputs must be plain text. 
-        You must write exactly the following code, DO NOT INVENT NEW THINGS, NOR WORDS, NOR PARAGRAPHS, NOR ANYTHING, FOLLOW THE EXACT TEMPLATE:
-        This is the template, you need to follow it exactly as it is, write it all COMPLETE:  {optuna_template}, only part needs to be modified with: 
-        def objective(trial):
+        optuna_task = f"""
+        You are a highly skilled computer scientist specializing in natural computing. 
+        Your task is to provide code strictly adhering to the specified template, without any deviations or additional content. 
+
+        ### Rules and Requirements:
+        1. **No Markdown or Triple Backticks**: Do not include any Markdown syntax or triple backticks (```) in your response. All outputs must be plain text.
+        2. **Exact Code Compliance**: 
+        - You must write exactly the provided code template.
+        - Do not add, invent, or modify anything beyond the explicitly allowed sections.
+        - Avoid adding any extra words, explanations, or paragraphs.
+
+        ### Template and Modifications:
+        - Follow this structure **precisely**, ensuring it matches the given template: 
+        {optuna_template}
+
+        ### Modifications Required:
+        1. **Objective Function**: Replace the relevant part with:
+            def objective(trial):
+                heur = [
+                    {extracted_metaheuristic} 
+                ]
+            Remeber that the format for the metaheuristic must be:
             heur = [
-                {extracted_metaheuristic} 
-            ]
-        
-        Please in the 'fun' variable you must change it too: 'fun = bf.{self.benchmark_function}({self.dimensions})'
-        """""
+                    (  # Search operator 1
+                        '[operator_name]',
+                        {{
+                            'parameter1': value1,
+                            'parameter2': value2,
+                            more parameters as needed
+                        }},
+                        '[selector_name]'
+                    ),
+                    (
+                        '[operator_name]',
+                        {{
+                            'parameter1': value1,
+                            'parameter2': value2,
+                            ... more parameters as needed
+                        }},
+                        '[selector_name]'
+                    )
+                ]
+         2. **'fun' Variable**: Change the 'fun' variable to: fun = bf.{self.benchmark_function}({self.dimensions})
+        Your response must conform exactly to the provided instructions and template. Any deviation will be incorrect.
+        """
         current_output_optuna = ollama.generate(
             model = self.model,
             prompt= f"""{optuna_task}
@@ -603,7 +639,7 @@ class GerateMetaheuristic:
         while self.file_result != 0: 
             output = ollama.generate(
             model = self.model,
-            prompt=f"""{optuna_task},
+            prompt=f"""{optuna_task}
             If you encounter an error, fix it, these are the errors: {self.file_result_error}            
             """
             ) 
@@ -666,7 +702,7 @@ class GerateMetaheuristic:
         with open(file_name, 'w') as f:
             f.write(code)
         try:
-            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=32)
+            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=39)
             execution_result = f"Exit code: {result.returncode}\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
             self.file_result = result.returncode
             self.file_result_error = result.stderr
