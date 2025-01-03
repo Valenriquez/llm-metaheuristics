@@ -1,0 +1,50 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+[I 2024-12-30 19:33:02,814] A new study created in memory with name: no-name-5d21fc4f-bb72-44e3-8b09-4e9b7931e3ac
+/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py:678: RuntimeWarning: Inconsistent parameter values for distribution with name "alpha"! This might be a configuration mistake. Optuna allows to call the same distribution with the same name more than once in a trial. When the parameter values are inconsistent optuna only uses the values of the first call and ignores all following. Using these values: {'step': None, 'low': 0.001, 'high': 0.1, 'log': False}
+  warnings.warn(
+[W 2024-12-30 19:33:02,815] Trial 0 failed with parameters: {'scale': 0.7359592109608718, 'distribution': 'levy', 'gravity': 0.008354386448945282, 'alpha': 0.08336330998651875, 'beta': '1.5', 'dt': 0.27812655881453374, 'expression': 'current', 'num_rands': 3, 'factor': 1.318982644972287} because of the following error: ValueError('Cannot set different distribution kind to the same parameter name.').
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(3)_20241230_175154/execution_optuna_iteration_2.py", line 71, in objective
+    'beta': trial.suggest_float('beta', 0.1, 1.0),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py", line 161, in suggest_float
+    suggested_value = self._suggest(name, distribution)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py", line 620, in _suggest
+    distributions.check_distribution_compatibility(trial.distributions[name], distribution)
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/distributions.py", line 664, in check_distribution_compatibility
+    raise ValueError("Cannot set different distribution kind to the same parameter name.")
+ValueError: Cannot set different distribution kind to the same parameter name.
+[W 2024-12-30 19:33:02,816] Trial 0 failed with value None.
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(3)_20241230_175154/execution_optuna_iteration_2.py", line 84, in <module>
+    study.optimize(objective, n_trials=15)
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/study.py", line 475, in optimize
+    _optimize(
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 63, in _optimize
+    _optimize_sequential(
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 160, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 248, in _run_trial
+    raise func_err
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(3)_20241230_175154/execution_optuna_iteration_2.py", line 71, in objective
+    'beta': trial.suggest_float('beta', 0.1, 1.0),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py", line 161, in suggest_float
+    suggested_value = self._suggest(name, distribution)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py", line 620, in _suggest
+    distributions.check_distribution_compatibility(trial.distributions[name], distribution)
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/distributions.py", line 664, in check_distribution_compatibility
+    raise ValueError("Cannot set different distribution kind to the same parameter name.")
+ValueError: Cannot set different distribution kind to the same parameter name.

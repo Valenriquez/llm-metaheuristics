@@ -13,3 +13,4 @@ These are the following explanations:
 - "spiral_dynamic" operator:  Is an algorithm that uses a spiraling pattern to move towards the search target, controlled by parameters like radius, angle, and sigma. This dynamic is inspired by natural spirals and can help converge toward optima by progressively tightening the search pattern around a promising region.
 - "swarm_dynamic" operator: Is an algorithm that models collective behavior, where individual agents (solutions) share information and are influenced by both their own best positions and the best position of the entire swarm. Parameters such as self_conf (self-confidence), swarm_conf (swarm confidence), and distribution (e.g., uniform, Gaussian, or Levy) govern how agents move and interact, making this operator effective for balancing exploration and exploitation in complex landscapes.
 
+ 

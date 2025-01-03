@@ -75,12 +75,12 @@ def central_force_dynamic(pop, gravity=0.001, alpha=0.01, beta=1.5, dt=1.0):
 
         # Find the quotient part
         quotient = np.heaviside(-delta_masses, 0.0) * (np.abs(delta_masses) ** alpha) / (distances ** beta + 1e-23)
-
+ 
         # Determine the acceleration for each agent
         acceleration[agent, :] = gravity * np.sum(delta_positions * np.tile(
             quotient.transpose(), (1, pop.num_dimensions)), 0)
 
-    pop.positions += 0.5 * acceleration * (dt ** 2)
+    pop.positions += 0.5 * acceleration * (1 ** 2)
 
 
 def differential_crossover(pop, crossover_rate=0.2, version='binomial'):

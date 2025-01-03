@@ -1,0 +1,48 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+[I 2024-12-29 10:41:35,292] A new study created in memory with name: no-name-25402a16-a661-49dd-bc50-3ccd2ff24a56
+[W 2024-12-29 10:41:35,293] Trial 0 failed with parameters: {'radius': 0.319485321081733, 'angle': 24.270930106533967, 'sigma': 0.23448244368440643, 'factor': 0.7749011974903249, 'self_conf': 2.3317705361885355, 'swarm_conf': 2.7001101437592117, 'version': 'constriction', 'distribution': 'gaussian', 'probability': 0.5855080152025531, 'scale': 0.9216996598081243} because of the following error: ValueError('CategoricalDistribution does not support dynamic value space.').
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(3)_20241228_165932/execution_optuna_iteration_7.py", line 42, in objective
+    ('local_random_walk', {'probability': trial.suggest_float('probability', 0.25, 0.75), 'scale': trial.suggest_float('scale', 0.5, 1.5), 'distribution': trial.suggest_categorical('distribution', ['uniform'])}, 'greedy')
+                                                                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py", line 402, in suggest_categorical
+    return self._suggest(name, CategoricalDistribution(choices=choices))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py", line 620, in _suggest
+    distributions.check_distribution_compatibility(trial.distributions[name], distribution)
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/distributions.py", line 678, in check_distribution_compatibility
+    raise ValueError(
+ValueError: CategoricalDistribution does not support dynamic value space.
+[W 2024-12-29 10:41:35,294] Trial 0 failed with value None.
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(3)_20241228_165932/execution_optuna_iteration_7.py", line 52, in <module>
+    study.optimize(objective, n_trials=15)
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/study.py", line 475, in optimize
+    _optimize(
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 63, in _optimize
+    _optimize_sequential(
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 160, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 248, in _run_trial
+    raise func_err
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(3)_20241228_165932/execution_optuna_iteration_7.py", line 42, in objective
+    ('local_random_walk', {'probability': trial.suggest_float('probability', 0.25, 0.75), 'scale': trial.suggest_float('scale', 0.5, 1.5), 'distribution': trial.suggest_categorical('distribution', ['uniform'])}, 'greedy')
+                                                                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py", line 402, in suggest_categorical
+    return self._suggest(name, CategoricalDistribution(choices=choices))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py", line 620, in _suggest
+    distributions.check_distribution_compatibility(trial.distributions[name], distribution)
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/distributions.py", line 678, in check_distribution_compatibility
+    raise ValueError(
+ValueError: CategoricalDistribution does not support dynamic value space.

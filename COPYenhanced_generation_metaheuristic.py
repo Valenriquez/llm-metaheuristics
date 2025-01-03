@@ -163,17 +163,18 @@ class GerateMetaheuristic:
                         - **Incorrect Example:**
                             'name_variable': trial.suggest_categorical('name_variable', ['2.54'])
                         - **Correct Example:**
-                            'name_variable': trial.suggest_float('name_variable', 0.01, 0.9)
+                            'beta': trial.suggest_float('beta', 1.5, 4.5),
                         - Always include a comma after the modified parameter.
 
                         2. **If the parameter provides a category:**
                         - Modify it to the format:
                             'category_name': trial.suggest_categorical('category_name', ['option_1', 'option_2', 'option_3'])
-                        - Include at least **two options**. Avoid using only one option.
+                        - Include at least **three options**. Avoid using only one option.
                         - **Incorrect Example:**
                             'category_name': trial.suggest_categorical('category_name', ['option_1'])
                         - **Correct Example:**
-                            'category_name': trial.suggest_categorical('category_name', ['option_1', 'option_2', 'option_3'])
+                            'distribution': trial.suggest_categorical('distribution', ['uniform', 'gaussian','levy'])
+
 
                         3. **Rules for specific category types:**
                         - "version": "inertial", "constriction"
@@ -215,6 +216,7 @@ class GerateMetaheuristic:
 
         performance_match = re.search(performance_pattern, code_file)
         performance_found = float(performance_match.group(1)) if performance_match else None
+        print("performance with funcion found", performance_found)
 
         return hyperparameters_dict, performance_found
 
@@ -230,6 +232,33 @@ class GerateMetaheuristic:
     - Will have access to feedback
     - Will get hyperparameters for the refinement 
     """
+    def process_file(self, filepath):
+        f_best_values = []  # Collect all f_best values in the file
+
+        with open(filepath, 'r') as file:
+            for line in file:
+                # Search for f_best in the current line
+                matches = re.findall(r'f_best = ([0-9\.]+)', line)
+                
+                # If a match is found, store it in the list
+                if matches:
+                    f_best_values.append(float(matches[0]))
+        
+        return f_best_values
+
+    # When passed to the other iteration, will print calculate_performance
+    def calculate_performance(self, f_best_values_list):
+        performances = []
+        for f_best_values in f_best_values_list:
+            if f_best_values:  # Check if the list is not empty
+                med = np.median(f_best_values)
+                iqr = np.percentile(f_best_values, 75) - np.percentile(f_best_values, 25)
+                performance_metric = med + iqr
+                performances.append(performance_metric)
+            else:
+                performances.append(None)  # Placeholder for missing data
+        return performances
+
     def exploration(self, output_folder, number_iteration):
         print("i am exploration")
         print("Beginning with exploration number----", number_iteration)
@@ -274,6 +303,40 @@ class GerateMetaheuristic:
             print("data_feedback: give me all the metaheuristics created with their given performance", data_feedback)
             # Query for the Feedback - - - - - - - - - - - - - - - - - - -
 
+
+            # Getting performance  - - - - - - - - - - - - - - - - - - -
+            all_f_best_values = []
+            f_best_values = []  # Collect all f_best values in the file
+
+             
+
+            current_directory_f = os.getcwd()
+            relative_path_f = "outputs-results"
+            base_path_f = os.path.join(current_directory_f, relative_path_f)
+            folder_name_f = self.folder_name
+            file_name_f = f"execution_result_{number_iteration-1}.txt"
+            file_path_for_performance = os.path.join(base_path_f, folder_name_f, file_name_f)
+            
+        
+            print("yes, it is a file")
+
+            with open(file_path_for_performance, 'r', encoding='utf-8') as file:
+                for line in file:
+                    # Search for f_best in the current line
+                    matches = re.findall(r'f_best = ([0-9\.]+)', line)
+                    
+                    # If a match is found, store it in the list
+                    if matches:
+                        f_best_values.append(float(matches[0]))
+            all_f_best_values.append(f_best_values)
+            print("all_f_best_values", all_f_best_values)
+            # Calculate performance metrics for all iterations (files)
+            performances = self.calculate_performance(all_f_best_values)
+            print("Valid Performances:", performances)
+
+            # Getting performance  - - - - - - - - - - - - - - - - - - -
+
+            all_f_best_values.clear
             """ 
             # Query for the Operators - - - - - - - - - - - - - - - - - - -
             output = ollama.embeddings(
@@ -563,7 +626,8 @@ class GerateMetaheuristic:
         """
         current_output_optuna = ollama.generate(
             model = self.model,
-            prompt= f"""{optuna_task}
+            prompt= f"""1. **No Markdown or Triple Backticks**: Do not include any Markdown syntax or triple backticks (```) in your response. All outputs must be plain text.
+            {optuna_task}
             """
         )
         execution_result_optuna = self.execute_generated_code(current_output_optuna['response'], output_folder, number_iteration, True)
@@ -573,8 +637,9 @@ class GerateMetaheuristic:
         while self.file_result != 0: 
             output = ollama.generate(
             model = self.model,
-            prompt=f"""{optuna_task}
-             """
+            prompt= f"""1. **No Markdown or Triple Backticks**: Do not include any Markdown syntax or triple backticks (```) in your response. All outputs must be plain text.
+            {optuna_task}
+            """
             ) 
             if print(output['response']) != "":
                 checker_variable += 1
@@ -598,11 +663,12 @@ class GerateMetaheuristic:
         
         #  Important  - - - - - - - - - - - - - - - - - - -
         #Checking whether it should create again: 
-        if self.performance_found < self.best_performance:
-            #self.exploration(output_folder, number_iteration)
+        if self.performance_found:
+                if self.performance_found > self.best_performance:
+                    self.exploration(output_folder, number_iteration)
             
-            #else:
-            self.refinement(output_folder, number_iteration)
+                else:
+                    self.refinement(output_folder, number_iteration)
         #  Important  - - - - - - - - - - - - - - - - - - -
 
         """ 

@@ -1,0 +1,24 @@
+Exit code: 0
+Stdout:
+Mejores hiperparámetros encontrados:
+{'scale': 0.3213739938633245, 'distribution': 'levy', 'expression': 'best', 'factor': 0.515275161513281}
+Mejor rendimiento encontrado:
+4.212478759629156
+
+Stderr:
+[I 2024-12-30 21:01:52,733] A new study created in memory with name: no-name-1cdbffa2-6bff-4e4c-851b-f98c6df064cb
+[I 2024-12-30 21:01:55,304] Trial 0 finished with value: 10.77490566042718 and parameters: {'scale': 0.4312285923073029, 'distribution': 'uniform', 'expression': 'best', 'factor': 1.5161117466027325}. Best is trial 0 with value: 10.77490566042718.
+[I 2024-12-30 21:01:55,570] Trial 1 finished with value: 10.673751255074256 and parameters: {'scale': 0.6699340146132585, 'distribution': 'uniform', 'expression': 'current', 'factor': 0.6462696006413913}. Best is trial 1 with value: 10.673751255074256.
+[I 2024-12-30 21:01:55,836] Trial 2 finished with value: 15.111383410174703 and parameters: {'scale': 0.2760132046017456, 'distribution': 'gaussian', 'expression': 'current', 'factor': 1.2706550392140097}. Best is trial 1 with value: 10.673751255074256.
+[I 2024-12-30 21:01:56,104] Trial 3 finished with value: 5.889386120530442 and parameters: {'scale': 0.048915477077421936, 'distribution': 'levy', 'expression': 'best', 'factor': 1.1865921729164646}. Best is trial 3 with value: 5.889386120530442.
+[I 2024-12-30 21:01:56,376] Trial 4 finished with value: 16.277027591265472 and parameters: {'scale': 0.20052223632630642, 'distribution': 'uniform', 'expression': 'rand', 'factor': 1.1366292200348127}. Best is trial 3 with value: 5.889386120530442.
+[I 2024-12-30 21:01:56,621] Trial 5 finished with value: 9.803106049183627 and parameters: {'scale': 0.1324317858952653, 'distribution': 'uniform', 'expression': 'current-to-best', 'factor': 0.9227872335557261}. Best is trial 3 with value: 5.889386120530442.
+[I 2024-12-30 21:01:56,869] Trial 6 finished with value: 10.392746274311495 and parameters: {'scale': 0.6919811678527084, 'distribution': 'gaussian', 'expression': 'best', 'factor': 1.1539023653588691}. Best is trial 3 with value: 5.889386120530442.
+[I 2024-12-30 21:01:57,124] Trial 7 finished with value: 17.70694476824442 and parameters: {'scale': 0.21533846673845944, 'distribution': 'gaussian', 'expression': 'rand', 'factor': 1.6889540814763528}. Best is trial 3 with value: 5.889386120530442.
+[I 2024-12-30 21:01:57,368] Trial 8 finished with value: 13.111042987048979 and parameters: {'scale': 0.6998905350854662, 'distribution': 'uniform', 'expression': 'rand', 'factor': 1.6635228351729634}. Best is trial 3 with value: 5.889386120530442.
+[I 2024-12-30 21:01:57,624] Trial 9 finished with value: 7.014726407127486 and parameters: {'scale': 0.2637358860456978, 'distribution': 'uniform', 'expression': 'current', 'factor': 0.40395251029291773}. Best is trial 3 with value: 5.889386120530442.
+[I 2024-12-30 21:01:57,897] Trial 10 finished with value: 7.402885870982324 and parameters: {'scale': 0.018507631523068724, 'distribution': 'levy', 'expression': 'rand-to-best', 'factor': 0.8152199050371207}. Best is trial 3 with value: 5.889386120530442.
+[I 2024-12-30 21:01:58,168] Trial 11 finished with value: 9.787884722914773 and parameters: {'scale': 0.3984167308628967, 'distribution': 'levy', 'expression': 'rand-to-best-and-current', 'factor': 0.25688878372659557}. Best is trial 3 with value: 5.889386120530442.
+[I 2024-12-30 21:01:58,388] Trial 12 finished with value: 7.738665682714732 and parameters: {'scale': 0.015332190123208855, 'distribution': 'levy', 'expression': 'current', 'factor': 0.29757475229989994}. Best is trial 3 with value: 5.889386120530442.
+[I 2024-12-30 21:01:58,628] Trial 13 finished with value: 4.212478759629156 and parameters: {'scale': 0.3213739938633245, 'distribution': 'levy', 'expression': 'best', 'factor': 0.515275161513281}. Best is trial 13 with value: 4.212478759629156.
+[I 2024-12-30 21:01:58,863] Trial 14 finished with value: 7.596337427111137 and parameters: {'scale': 0.5458227238335916, 'distribution': 'levy', 'expression': 'best', 'factor': 0.693520969303958}. Best is trial 13 with value: 4.212478759629156.
