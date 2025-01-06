@@ -243,18 +243,21 @@ class GerateMetaheuristic:
         
         return f_best_values
 
-    # When passed to the other iteration, will print calculate_performance
-    def calculate_performance(self, f_best_values_list):
-        performances = []
-        for f_best_values in f_best_values_list:
-            if f_best_values:  # Check if the list is not empty
-                med = np.median(f_best_values)
-                iqr = np.percentile(f_best_values, 75) - np.percentile(f_best_values, 25)
-                performance_metric = med + iqr
-                performances.append(performance_metric)
-            else:
-                performances.append(None)  # Placeholder for missing data
-        return performances
+
+    def calculate_performance(self, fitness_array):
+        # Check if the array has fitness values
+        if fitness_array.size > 0:  
+            # Calculate median
+            med = np.median(fitness_array)
+            # Calculate interquartile range (IQR)
+            iqr = np.percentile(fitness_array, 75) - np.percentile(fitness_array, 25)
+            # Calculate the performance metric
+            performance_metric = med + iqr
+            return performance_metric
+        else:
+            # Return None if the array is empty
+            return None
+
 
     def exploration(self, output_folder, number_iteration):
         print("i am exploration")
@@ -275,12 +278,12 @@ class GerateMetaheuristic:
         
         # Query for the Template - - - - - - - - - - - - - - - - - - -
         output_template = ollama.embeddings(
-        prompt="give me the metaheuristic template",
+        prompt="give me the metaheuristic",
         model=self.model_embed
         )
         results = self.python_collection.query(
         query_embeddings=[output_template["embedding"]],
-        n_results=2
+        n_results=5
         )
         data_template = results['documents'][0][0]
         print("metaheuristic template", data_template)
@@ -303,8 +306,23 @@ class GerateMetaheuristic:
 
 
             # Getting performance  - - - - - - - - - - - - - - - - - - -
-            
-         
+            current_directory = os.getcwd()
+            relative_path = "outputs-results"
+            base_path_m = os.path.join(current_directory, relative_path)
+            folder_name_m = self.folder_name
+            file_name_m = f"execution_result_{number_iteration-1}.txt"
+            execution_path = os.path.join(base_path_m, folder_name_m, file_name_m)
+            with open(execution_path, 'r') as file:
+                content = file.read()
+
+            # Extract the array using string manipulation
+            start = content.index('[')
+            end = content.index(']')
+            array_str = content[start+1:end]
+
+            # Convert the string to a numpy array
+            final_fitness = np.fromstring(array_str, sep=' ')
+            performance_final_fitness = self.calculate_performance(final_fitness)
             # Getting performance  - - - - - - - - - - - - - - - - - - -
 
             """ 
@@ -322,7 +340,8 @@ class GerateMetaheuristic:
                 """
         
        # Main Prompt - - - - - - - - - - - - - - - - - - -
-        while self.file_result != 0: # It needs to have a correct output
+        while self.file_result != 0 and performance_final_fitness < self.best_performance: # It needs to have a correct output
+            self.best_performance = performance_final_fitness
             output = ollama.generate(
             model = self.model,
             prompt=f"""
@@ -470,9 +489,9 @@ class GerateMetaheuristic:
 
                 # is there a better way to store the feedback? , how can I take a look on it??
                 self.feedback_collection.add(
-                    documents=[refined_metaheuristic_code_file, hyperparameters_str, str(self.performance_found)],
-                    metadatas=[{'source': 'metaheuristic_code_file'}, {'source': 'parameters'}, {'source': 'performance_found'}],
-                    ids=[f"{numero}_id_metaheuristic", f"{numero}_id_optuna_parameters", f"{numero}_id_performance_found"]
+                    documents=[refined_metaheuristic_code_file, hyperparameters_str],
+                    metadatas=[{'source': 'metaheuristic_code_file'}, {'source': 'parameters'}],
+                    ids=[f"{numero}_id_metaheuristic", f"{numero}_id_optuna_parameters"]
                 )
             # Hyperparameters to feedback - - - - - - - - - - - - - - - - - - -
 
@@ -512,8 +531,8 @@ class GerateMetaheuristic:
         
         
         # Performance - - - - - - - - - - - - - - - - - - -
-        if self.performance_found < self.best_performance:
-            self.best_performance = self.performance_found
+        #if self.performance_found < self.best_performance:
+        #    self.best_performance = self.performance_found
         # Performance - - - - - - - - - - - - - - - - - - -
 
  
@@ -628,17 +647,17 @@ class GerateMetaheuristic:
         file_path = os.path.join(current_directory, folder_name, file_name)
         self.hyperparameters, self.performance_found = self.get_preferential_values(file_path)
         print("hyperparameters", self.hyperparameters)
-        print("performance_found", self.performance_found)
+        #print("performance_found", self.performance_found)
         # Getting the Hyperparameters - - - - - - - - - - - - - - - - - - -
         
         #  Important  - - - - - - - - - - - - - - - - - - -
         #Checking whether it should create again: 
         if self.performance_found:
-                if self.performance_found > self.best_performance:
-                    self.exploration(output_folder, number_iteration)
+                #if self.performance_found > self.best_performance:
+            self.exploration(output_folder, number_iteration)
             
-                else:
-                    self.refinement(output_folder, number_iteration)
+        else:
+            self.refinement(output_folder, number_iteration)
         #  Important  - - - - - - - - - - - - - - - - - - -
 
         """ 
@@ -671,7 +690,7 @@ class GerateMetaheuristic:
         with open(file_name, 'w') as f:
             f.write(code)
         try:
-            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=39)
+            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=70)
             execution_result = f"Exit code: {result.returncode}\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
             self.file_result = result.returncode
             self.file_result_error = result.stderr

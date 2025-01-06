@@ -1,9 +1,5 @@
-# This is the metaheuristic template:
+# Name: Hybrid Metaheuristic with Random Search and Differential Mutation
 
-Format your response exaclty as follows.  
-Do not write anything before this format: 
-      
-# Name: [Your chosen name for the metaheuristic]
 # Code:
 import sys
 from pathlib import Path
@@ -13,27 +9,26 @@ sys.path.insert(0, str(project_dir))
 import benchmark_func as bf
 import metaheuristic as mh
 
-fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
+fun = bf.Rastrigin(6) # This is the selected problem, the problem may vary depending on the case.
 prob = fun.get_formatted_problem()
 
 heur = [
     (  # Search operator 1
-        '[operator_name]',
+        'random_search',
         {
-            'parameter1': value1,
-            'parameter2': value2,
-            more parameters as needed
+            'scale': 0.8549764808764913,
+            'distribution': 'uniform'
         },
-        '[selector_name]'
+        'greedy'
     ),
     (
-        '[operator_name]',
+        'differential_mutation',
         {
-            'parameter1': value1,
-            'parameter2': value2,
-            ... more parameters as needed
+            'expression': 'rand-to-best',
+            'num_rands': 2,
+            'factor': 0.11613523558771505
         },
-        '[selector_name]'
+        'probabilistic'
     )
 ]
 
@@ -60,4 +55,4 @@ final_fitness = np.array([x[-1] for x in fitness_array.T])
 print("final_fitness_array", final_fitness)
 
 # Short explanation and justification:
-# [Your explanation here, each line starting with '#']
+# This hybrid metaheuristic combines a local search operator (Random Search) with a global search operator (Differential Mutation). The Random Search operator helps to explore the solution space more thoroughly, while the Differential Mutation operator promotes exploration by using the difference between two or more solution vectors. The combination of these operators allows for a balance between exploitation and exploration, potentially leading to better solutions and faster convergence.
