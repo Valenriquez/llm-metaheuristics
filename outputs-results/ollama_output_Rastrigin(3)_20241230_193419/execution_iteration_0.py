@@ -10,42 +10,18 @@ sys.path.insert(0, str(project_dir))
 import benchmark_func as bf
 import metaheuristic as mh
 
-fun = bf.Rastrigin(3)
+fun = bf.Griewank(6)
 prob = fun.get_formatted_problem()
 
-heur = [
-    (
-        'random_search',
-        {
-            'scale': 0.1062109982109275,
-            'distribution': 'levy'
-        },
-        'greedy'
-    ),
-    (
-        'central_force_dynamic',
-        {
-            'gravity': 0.24991234608394003,
-            'alpha': 0.7104964094089773,
-            'beta': 3.3429779073104195,
-            'dt': 2.5231967971775697
-        },
-        'metropolis'
-    ),
-    (
-        'differential_mutation',
-        {
-            'expression': 'best',
-            'num_rands': 1,
-            'factor': 0.5127130738972296
-        },
-        'probabilistic'
-    )
+heur =  [
+    ('random_search', {'scale': 1.0, 'distribution': 'uniform'}, 'greedy'),
+    ('spiral_dynamic', {'radius': 0.9, 'angle': 33.5, 'sigma': 0.1}, 'all'),
+    ('gravitational_search', {'gravity': 0.5, 'alpha': 0.2}, 'metropolis')   
 ]
 
-met = mh.Metaheuristic(prob, heur, num_iterations=100)
+met = mh.Metaheuristic(prob, heur, num_iterations=5000, num_agents=100)
 met.verbose = True
-# met.run()
+#  met.run()
 
 """
 import numpy as np
@@ -83,14 +59,13 @@ plt.show()
 def calculate_performance(fitness_array):
     performances = []
     # Loop through each iteration (row in fitness_array)
-    for iteration_fitness in fitness_array:
-        if iteration_fitness.size > 0:  # Ensure there are fitness values for this iteration
-            med = np.median(iteration_fitness)
-            iqr = np.percentile(iteration_fitness, 75) - np.percentile(iteration_fitness, 25)
-            performance_metric = med + iqr
-            performances.append(performance_metric)
-        else:
-            performances.append(None)  # Placeholder for missing data
+    if fitness_array.size > 0:  # Ensure there are fitness values for this iteration
+        med = np.median(fitness_array)
+        iqr = np.percentile(fitness_array, 75) - np.percentile(fitness_array, 25)
+        performance_metric = med + iqr
+        performances.append(performance_metric)
+    else:
+        performances.append(None)  # Placeholder for missing data
     return performances
 
 
@@ -98,7 +73,7 @@ def calculate_performance(fitness_array):
 fitness = []
 # Run the metaheuristic with the same problem 30 times
 for rep in range(30):
-    met = mh.Metaheuristic(prob, heur, num_iterations=100, num_agents=30)
+    met = mh.Metaheuristic(prob, heur, num_iterations=100, num_agents=100)
     met.reset_historicals()
     met.verbose = False
     met.run()
@@ -107,21 +82,20 @@ for rep in range(30):
     fitness.append(met.historical['fitness'])
 print("fitness", fitness)
 fitness_array = np.array(fitness).T
-
-for rep in range(30):
-    print('rep = {}'.format(fitness_array))
-
-# Assuming fitness_array is already defined
-performances = calculate_performance(fitness_array)
-print("Performance Metrics per Iteration:", performances)
-
-
-
+ 
 print("fitness_array", fitness_array)
 final_fitness = np.array([x[-1] for x in fitness_array.T])
+
+# Assuming fitness_array is already defined
+performance_final_fitness = calculate_performance(final_fitness)
+print("Performance Metrics per Iteration:", performance_final_fitness)
+
+
+
 best_fitness = np.min(fitness_array)
 initial_fitness = max([x[0] for x in fitness_array])
 
+ 
 # Calculate key metrics
 mean_final_fitness = np.mean(final_fitness)
 std_final_fitness = np.std(final_fitness)
@@ -139,19 +113,9 @@ print("worst_final_fitness", worst_final_fitness)
 print("mean_initial_fitness", mean_initial_fitness)
 print("best_initial_fitness", best_initial_fitness)
 
-results = {
-    "mean_final_fitness": mean_final_fitness,
-    "std_final_fitness": std_final_fitness,
-    "best_final_fitness": best_final_fitness,
-    "worst_final_fitness": worst_final_fitness,
-    "mean_initial_fitness": mean_initial_fitness,
-    "best_initial_fitness": best_initial_fitness,
-}
-
 fitness_array = np.array(fitness).T
-
-# Extract final, best, and initial fitness values
 final_fitness = np.array([x[-1] for x in fitness_array.T])
+print("final_fitness", final_fitness)
 best_fitness = np.min(fitness_array)
 initial_fitness = max([x[0] for x in fitness_array])
 
@@ -185,7 +149,8 @@ axs[0].set_ylim([best_fitness, initial_fitness])
 # Violin plot
 axs[1].violinplot(final_fitness, showmeans=True, showmedians=True)
 axs[1].set_xlabel(r'Data')
-
+# Adjust the violin plot to make it proportionate
+ 
 # Adjust the legend
 axs[0].legend(frameon=False)
 

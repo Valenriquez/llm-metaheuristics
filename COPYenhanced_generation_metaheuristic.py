@@ -35,13 +35,8 @@ Although there is a break after the third try.
 
 
 In this version I will simply create a dictionary as main feedback 
-
-
-
-
-
-            Use the following feedback to get inspired for another metaheuristics designs (do NOT copy the provided metaheuristic):
-            Feedback: {data_feedback} (if none are provided, you may skip this part).
+Use the following feedback to get inspired for another metaheuristics designs (do NOT copy the provided metaheuristic):
+Feedback: {data_feedback} (if none are provided, you may skip this part).
 """
 # will try soon: ollama pull bge-large
 class GerateMetaheuristic:
@@ -85,6 +80,7 @@ class GerateMetaheuristic:
         you should only use the information that was provided to you. 
         Remember that when writing the operator's names, they should be ALL in LOWER CASE AND WITH A '_' 
         instead of typing a space. 
+
         Please in the 'fun' variable you must change it too: 'fun = bf.{self.benchmark_function}({self.dimensions})', do not change these values given. 
         """""
 
@@ -129,6 +125,7 @@ class GerateMetaheuristic:
             else:  # If it's not a file, skip it
                 continue     
         """
+        
     def extract_code_from_code_with_optuna(self, code_file):
         response_optuna = ollama.embeddings(
         prompt="See all the operators, with its parameters and selectors provided",
@@ -278,7 +275,7 @@ class GerateMetaheuristic:
         
         # Query for the Template - - - - - - - - - - - - - - - - - - -
         output_template = ollama.embeddings(
-        prompt="give me the given template to create a metaheuristic properly",
+        prompt="give me the metaheuristic template",
         model=self.model_embed
         )
         results = self.python_collection.query(
@@ -286,6 +283,7 @@ class GerateMetaheuristic:
         n_results=2
         )
         data_template = results['documents'][0][0]
+        print("metaheuristic template", data_template)
         # Query for the Template - - - - - - - - - - - - - - - - - - -
 
         # there won´t be any feedback else:
@@ -305,38 +303,10 @@ class GerateMetaheuristic:
 
 
             # Getting performance  - - - - - - - - - - - - - - - - - - -
-            all_f_best_values = []
-            f_best_values = []  # Collect all f_best values in the file
-
-             
-
-            current_directory_f = os.getcwd()
-            relative_path_f = "outputs-results"
-            base_path_f = os.path.join(current_directory_f, relative_path_f)
-            folder_name_f = self.folder_name
-            file_name_f = f"execution_result_{number_iteration-1}.txt"
-            file_path_for_performance = os.path.join(base_path_f, folder_name_f, file_name_f)
             
-        
-            print("yes, it is a file")
-
-            with open(file_path_for_performance, 'r', encoding='utf-8') as file:
-                for line in file:
-                    # Search for f_best in the current line
-                    matches = re.findall(r'f_best = ([0-9\.]+)', line)
-                    
-                    # If a match is found, store it in the list
-                    if matches:
-                        f_best_values.append(float(matches[0]))
-            all_f_best_values.append(f_best_values)
-            print("all_f_best_values", all_f_best_values)
-            # Calculate performance metrics for all iterations (files)
-            performances = self.calculate_performance(all_f_best_values)
-            print("Valid Performances:", performances)
-
+         
             # Getting performance  - - - - - - - - - - - - - - - - - - -
 
-            all_f_best_values.clear
             """ 
             # Query for the Operators - - - - - - - - - - - - - - - - - - -
             output = ollama.embeddings(
@@ -749,7 +719,7 @@ class GerateMetaheuristic:
             raise         
 
 if __name__ == "__main__":
-    generator = GerateMetaheuristic("Rastrigin", 3, 15)
+    generator = GerateMetaheuristic("Rastrigin", 6, 15)
     generator.run()
     logging.basicConfig(level=logging.DEBUG)
     
