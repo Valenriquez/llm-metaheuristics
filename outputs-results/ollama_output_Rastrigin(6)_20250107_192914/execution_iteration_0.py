@@ -1,39 +1,22 @@
-# This is the metaheuristic template:
+# Name: Random Sample Metaheuristic for Rastrigin(6)
 
-Format your response exaclty as follows.  
-Do not write anything before this format: 
-      
-# Name: [Your chosen name for the metaheuristic]
 # Code:
 import sys
 from pathlib import Path
 import numpy as np
-project_dir = Path(__file__).resolve().parents[2] # Remember to write well this line: 'project_dir = Path(__file__).resolve().parents[2]'
+project_dir = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_dir))
 import benchmark_func as bf
 import metaheuristic as mh
 
-fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
+fun = bf.Rastrigin(6) # This is the selected problem.
 prob = fun.get_formatted_problem()
 
 heur = [
-    (  # Search operator 1
-        '[operator_name]',
-        {
-            'parameter1': value1,
-            'parameter2': value2,
-            more parameters as needed
-        },
-        '[selector_name]'
-    ),
     (
-        '[operator_name]',
-        {
-            'parameter1': value1,
-            'parameter2': value2,
-            ... more parameters as needed
-        },
-        '[selector_name]'
+        'random_sample',
+        {},
+        'greedy'
     )
 ]
 
@@ -60,4 +43,4 @@ final_fitness = np.array([x[-1] for x in fitness_array.T])
 print("final_fitness_array", final_fitness)
 
 # Short explanation and justification:
-# [Your explanation here, each line starting with '#']
+# The Random Sample operator is a simple search strategy that selects a random subset of the population as the next generation. This approach can be useful for exploring different parts of the solution space, especially in high-dimensional problems like Rastrigin(6). The 'greedy' selector means that the best individuals from the sample are retained for the next iteration. Running this metaheuristic 30 times helps to gather a more comprehensive understanding of its performance on the problem.

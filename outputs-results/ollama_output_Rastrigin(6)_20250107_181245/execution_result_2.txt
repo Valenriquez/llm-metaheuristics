@@ -1,0 +1,13 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(6)_20250107_181245/execution_iteration_2.py", line 57, in <module>
+    met.run()
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/metaheuristic.py", line 144, in run
+    self.apply_search_operator(perturbator, selector)
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/metaheuristic.py", line 100, in apply_search_operator
+    exec('Operators.' + operator_name + '(self.pop,' + operator_params)
+  File "<string>", line 1, in <module>
+TypeError: random_sample() got an unexpected keyword argument 'num_samples'

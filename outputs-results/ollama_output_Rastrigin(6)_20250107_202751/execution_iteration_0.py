@@ -1,9 +1,4 @@
-# This is the metaheuristic template:
-
-Format your response exaclty as follows.  
-Do not write anything before this format: 
-      
-# Name: [Your chosen name for the metaheuristic]
+# Name: Random Sample with Local Walk
 # Code:
 import sys
 from pathlib import Path
@@ -13,27 +8,23 @@ sys.path.insert(0, str(project_dir))
 import benchmark_func as bf
 import metaheuristic as mh
 
-fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
+fun = bf.Rastrigin(6) # This is the selected problem, the problem may vary depending on the case.
 prob = fun.get_formatted_problem()
 
 heur = [
     (  # Search operator 1
-        '[operator_name]',
-        {
-            'parameter1': value1,
-            'parameter2': value2,
-            more parameters as needed
-        },
-        '[selector_name]'
+        'random_sample',
+        {},
+        'greedy'
     ),
     (
-        '[operator_name]',
+        'local_random_walk',
         {
-            'parameter1': value1,
-            'parameter2': value2,
-            ... more parameters as needed
+            'probability': 0.75,
+            'scale': 1.0,
+            'distribution': 'uniform'
         },
-        '[selector_name]'
+        'greedy'
     )
 ]
 
@@ -60,4 +51,6 @@ final_fitness = np.array([x[-1] for x in fitness_array.T])
 print("final_fitness_array", final_fitness)
 
 # Short explanation and justification:
-# [Your explanation here, each line starting with '#']
+# The combination of random sampling and local walk helps to explore the search space effectively.
+# Random sampling provides a diverse set of initial solutions, while local walks help in refining these solutions.
+# This hybrid approach can lead to better convergence and a more robust solution.
