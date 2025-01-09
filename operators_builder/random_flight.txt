@@ -1,0 +1,8 @@
+"random_flight": { # operator
+    { # parameters
+      "scale": 1.0,
+      "distribution": "levy" or "uniform" or"gaussian",
+      "beta": 1.5
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+}

@@ -49,6 +49,8 @@ class GerateMetaheuristic:
         self.benchmark_function = benchmark_function
         self.dimensions = dimensions
         self.hyperparameters = ""
+        
+        # PERFORMANCE
         self.performance_found = 0.00
         self.best_performance = 190.00
 
@@ -63,10 +65,6 @@ class GerateMetaheuristic:
         self.file_result_error = ""
         self.total_budget = 100
 
-        ## PERFORMANCE
-        self.f_best = 0
-        self.first_f_best = 15
-
         ## FOR OPTUNA
         self.file_contents = "" 
 
@@ -76,22 +74,30 @@ class GerateMetaheuristic:
         self.feedback_collection = client.create_collection(name="feedback_collection")
         self.optuna_collection = client.create_collection(name="optuna_collection")
 
+        self.creating_collection("metaheuristic_builder", self.python_collection)
+        self.creating_collection("optuna_builder", self.optuna_collection)
+ 
         self.prompt = f"""You are a highly skilled computer scientist in the field of natural computing. Your task is to design a metaheuristic algorithm, 
         you should only use the information that was provided to you. 
         Remember that when writing the operator's names, they should be ALL in LOWER CASE AND WITH A '_' instead of typing a space. 
         Please in the 'fun' variable you must change it too: 'fun = bf.{self.benchmark_function}({self.dimensions})', do not change these values given. 
         """""
 
-        python_files_directory = os.path.join(os.path.dirname(__file__), 'metaheuristic_builder')
-        #optuna_files_dir = os.path.join(os.path.dirname(__file__), 'optuna_builder')
-        for d in os.listdir(python_files_directory):
-            file_path = os.path.join(python_files_directory, d)
+       
+    
+    """
+    creating_collection: Will create the collection
+    """
+    def creating_collection(self, name_of_folder, name_of_collection):
+        directory = os.path.join(os.path.dirname(__file__), name_of_folder)
+        for d in os.listdir(directory):
+            file_path = os.path.join(directory, d)
             if os.path.isfile(file_path):  # Check if it's a file
                 file_content = self.read_file(file_path)
                 response = ollama.embeddings(model=self.model_embed, prompt=file_content)
                 embedding = response.get("embedding")
                 if embedding:
-                    self.python_collection.add(
+                    self.name_of_collection.add(
                         ids=[d],
                         embeddings=[embedding],
                         documents=[file_content],
@@ -102,28 +108,18 @@ class GerateMetaheuristic:
                     print(f"Warning: Empty embedding generated for {d}")
             else:  # If it's not a file, skip it
                 continue
-                
-        """  
-        for d in os.listdir(optuna_files_dir):
-            file_path = os.path.join(python_files_directory, d)
-            if os.path.isfile(file_path):  # Check if it's a file
-                file_content = self.read_file(file_path)
-                response = ollama.embeddings(model=self.model_embed, prompt=file_content)
-                embedding = response.get("embedding")
-                if embedding:
-                    self.optuna_collection.add(
-                        ids=[d],
-                        embeddings=[embedding],
-                        documents=[file_content],
-                        metadatas=[{"filename": d}]
-                    )
-                    print(f"Added {d} to the collection")
-                else:
-                    print(f"Warning: Empty embedding generated for {d}")
-            else:  # If it's not a file, skip it
-                continue     
-        """
-        
+    
+
+    """
+    read_file:  Read file
+    """  
+    def read_file(self, file_path):
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return file.read()
+
+    """
+    extract_code_from_code_with_optuna:  Modify metaheuristic to make optuna format 
+    """                
     def extract_code_from_code_with_optuna(self, code_file):
         pattern = r'heur\s*=\s*\[(.*?)\]' 
         match = re.search(pattern, code_file, re.DOTALL)
@@ -173,8 +169,6 @@ class GerateMetaheuristic:
                         - Do not add extra words, explanations, or paragraphs. Follow these instructions strictly.
                         """
             ) 
-            # Deleted from the prompt: , take a look to the other parameters provided for the operators and selectors: {optuna_data}
-            #print("is it doing it wrong", output['response'])
             return output['response']
         else:
             return None
@@ -182,7 +176,6 @@ class GerateMetaheuristic:
 
     """
     get_preferential_values:  Gets the best parameters and performance from optuna 
-
     """
     def get_preferential_values(self, file_path):
         try:
@@ -204,12 +197,10 @@ class GerateMetaheuristic:
         print("performance with funcion found", performance_found)
 
         return hyperparameters_dict, performance_found
-
-        
-    def read_file(self, file_path):
-        with open(file_path, 'r') as file:
-            return file.read()
-        
+    
+    """
+    calculate_performance:  Gets performance from fitness
+    """
     def calculate_performance(self, fitness_array):
         # Check if the array has fitness values
         if fitness_array.size > 0:  
@@ -224,8 +215,10 @@ class GerateMetaheuristic:
             # Return None if the array is empty
             return None
         
-
-    def getting_right_performance(self, output_folder, number_iteration):
+    """
+    get_metaheuristic_performance:  Gets performance from metaheuristic fitness
+    """
+    def get_metaheuristic_performance(self, output_folder, number_iteration):
         # Leer archivo de resultados
         current_directory = os.getcwd()
         relative_path = "outputs-results"
@@ -270,7 +263,7 @@ class GerateMetaheuristic:
             elif self.performance_found > self.best_performance:
                 # Volver a generar código y reevaluar
                 print("El rendimiento actual no es mejor. Regenerando código...")
-                self.refinement(output_folder, number_iteration)
+                self.exploration(output_folder, number_iteration)
                 return self.performance_found
       
 
@@ -311,9 +304,6 @@ class GerateMetaheuristic:
         print("this is metaheuristic ", data_template)
         # Query for the Template - - - - - - - - - - - - - - - - - - -
 
-
-        
-        # there won´t be any feedback else:
         if number_iteration >= 1:
             # Query for the Feedback - - - - - - - - (asks for the metaheuristics and feedback) - - - - - - - - - - -
             output_feedback = ollama.embeddings(
@@ -374,7 +364,7 @@ class GerateMetaheuristic:
                 print(f"Error durante la ejecución: {e}")
                 print("Regenerando código...")
                 continue  # Saltar al inicio del ciclo para regenerar código
-        self.getting_right_performance(output_folder, number_iteration)
+        self.get_metaheuristic_performance(output_folder, number_iteration)
 
             #output_response = output['response']  ## N.S
         self.file_result = 1 
@@ -407,13 +397,10 @@ class GerateMetaheuristic:
 
     def refinement(self, output_folder, number_iteration):
         print("i am refinement")
-        output_response_refinement = None
-
         
         # Get the metaheuristic file to REFINE IT - - - - - - - - - - - - - - - - - - -
         current_directory = os.getcwd()
-        relative_path = "outputs-results"
-        base_path_m = os.path.join(current_directory, relative_path)
+        base_path_m = os.path.join(current_directory, 'outputs-results')
         folder_name_m = self.folder_name
         file_name_m = f"execution_iteration_{number_iteration}.py"
         meta_file_path = os.path.join(base_path_m, folder_name_m, file_name_m)
@@ -428,11 +415,10 @@ class GerateMetaheuristic:
             output = ollama.generate(
                 model=self.model,
                 prompt = f"""
-                {self.prompt}, taking this template: {metaheuristic_code_file}, modify it in order to put these parameters.
+                {self.prompt}. Taking this template: {metaheuristic_code_file}, modify it in order to put these parameters.
                 Use the following parameters for the search operators:
                 Parameters: {self.hyperparameters}, do NOT modify anything else. 
-
-                You should NOT use any markdown code or use the triple backticks  (```) anywhere in your response. All outputs must be plain text. 
+                You should NOTuse any markdown code or use the triple backticks  (```) anywhere in your response. All outputs must be plain text. 
                 """
             )
             output_response_refinement = self.execute_generated_code(output['response'], output_folder, number_iteration, False)
@@ -443,8 +429,7 @@ class GerateMetaheuristic:
         #temperature=0.7
  
         current_directory = os.getcwd()
-        relative_path = "outputs-results"
-        base_path_m = os.path.join(current_directory, relative_path)
+        base_path_m = os.path.join(current_directory, 'outputs-results')
         folder_name_m = self.folder_name
         file_name_m = f"execution_iteration_{number_iteration}.py"
 
@@ -487,12 +472,8 @@ class GerateMetaheuristic:
             # Hyperparameters to feedback - - - - - - - - - - - - - - - - - - -
         
         # Performance - - - - - - - - - - - - - - - - - - -
-        if self.performance_found < self.best_performance:
-            self.best_performance = self.performance_found
-        else:
-            print("El rendimiento no fue bueno, vamos a exploration")
-            self.exploration(output_folder, number_iteration)
-
+        #if self.performance_found < self.best_performance:
+        #    self.best_performance = self.performance_found
         # Performance - - - - - - - - - - - - - - - - - - -
 
  
@@ -667,7 +648,7 @@ class GerateMetaheuristic:
             output_folder_parent = current_dir / 'outputs-results'
 
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_folder = output_folder_parent / f'ollama_output_{self.benchmark_function}_{self.dimensions}_{timestamp}'
+            output_folder = output_folder_parent / f'ollama_output_{self.benchmark_function}({self.dimensions})_{timestamp}'
             self.folder_name = output_folder
             output_folder.mkdir(parents=True, exist_ok=True)
             self.logger.info(f"Created new folder: {output_folder}")
@@ -688,7 +669,7 @@ class GerateMetaheuristic:
             raise         
 
 if __name__ == "__main__":
-    generator = GerateMetaheuristic("Rastrigin", 15, 15)
+    generator = GerateMetaheuristic("Rastrigin", 6, 15)
     generator.run()
     logging.basicConfig(level=logging.DEBUG)
     

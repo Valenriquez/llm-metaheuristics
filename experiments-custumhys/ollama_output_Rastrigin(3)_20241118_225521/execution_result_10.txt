@@ -1,8 +1,0 @@
-Exit code: 1
-Stdout:
-
-Stderr:
-  File "/Users/valeriaenriquezlimon/Documents/new-td/llm-metaheuristics/outputs-results/ollama_output_Rastrigin(3)_20241118_225521/execution_iteration_10.py", line 11
-    - `swarm_conf`: The collective confidence level for the swarm's movement.
-                                                                 ^
-SyntaxError: unterminated string literal (detected at line 11)

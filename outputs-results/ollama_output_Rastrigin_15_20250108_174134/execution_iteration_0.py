@@ -1,9 +1,4 @@
-# This is the metaheuristic template:
-
-Format your response exaclty as follows.  
-Do not write anything before this format: 
-      
-# Name: [Your chosen name for the metaheuristic]
+# Name: Hybrid Metaheuristic
 # Code:
 import sys
 from pathlib import Path
@@ -13,27 +8,29 @@ sys.path.insert(0, str(project_dir))
 import benchmark_func as bf
 import metaheuristic as mh
 
-fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
+fun = bf.Rastrigin(15) # This is the selected problem, the problem may vary depending on the case.
 prob = fun.get_formatted_problem()
 
 heur = [
     (  # Search operator 1
-        '[operator_name]',
+        'swarm_dynamic',
         {
-            'parameter1': value1,
-            'parameter2': value2,
-            more parameters as needed
+            'factor': 0.7,
+            'self_conf': 2.54,
+            'swarm_conf': 2.56,
+            'version': "inertial",
+            'distribution': "uniform"
         },
-        '[selector_name]'
+        'all'
     ),
     (
-        '[operator_name]',
+        'spiral_dynamic',
         {
-            'parameter1': value1,
-            'parameter2': value2,
-            ... more parameters as needed
+            'radius': 0.9,
+            'angle': 22.5,
+            'sigma': 0.1
         },
-        '[selector_name]'
+        'probabilistic'
     )
 ]
 
@@ -60,4 +57,6 @@ final_fitness = np.array([x[-1] for x in fitness_array.T])
 print("final_fitness_array", final_fitness)
 
 # Short explanation and justification:
-# [Your explanation here, each line starting with '#']
+# The Hybrid Metaheuristic combines two different search operators: 'swarm_dynamic' and 'spiral_dynamic'.
+# 'swarm_dynamic' is used due to its ability to explore the solution space efficiently, while 'spiral_dynamic' helps in fine-tuning the solutions.
+# The combination of these operators allows for a robust exploration-exploitation balance, improving the overall performance on the Rastrigin function.

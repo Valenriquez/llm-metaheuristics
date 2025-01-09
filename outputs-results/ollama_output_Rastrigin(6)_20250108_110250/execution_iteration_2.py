@@ -1,9 +1,4 @@
-# This is the metaheuristic template:
-
-Format your response exaclty as follows.  
-Do not write anything before this format: 
-      
-# Name: [Your chosen name for the metaheuristic]
+# Name: Hybrid Metaheuristic for Rastrigin Function
 # Code:
 import sys
 from pathlib import Path
@@ -13,27 +8,23 @@ sys.path.insert(0, str(project_dir))
 import benchmark_func as bf
 import metaheuristic as mh
 
-fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
+fun = bf.Rastrigin(6) # This is the selected problem, the problem may vary depending on the case.
 prob = fun.get_formatted_problem()
 
 heur = [
     (  # Search operator 1
-        '[operator_name]',
-        {
-            'parameter1': value1,
-            'parameter2': value2,
-            more parameters as needed
-        },
-        '[selector_name]'
+        'random_sample',
+        {},
+        'greedy'
     ),
     (
-        '[operator_name]',
+        'spiral_dynamic',
         {
-            'parameter1': value1,
-            'parameter2': value2,
-            ... more parameters as needed
+            'radius': 0.9,
+            'angle': 22.5,
+            'sigma': 0.1
         },
-        '[selector_name]'
+        'probabilistic'
     )
 ]
 
@@ -47,7 +38,7 @@ met = mh.Metaheuristic(prob, heur, num_iterations=100)
 fitness = []
 # Run the metaheuristic with the same problem 30 times
 for rep in range(30):
-    met = mh.Metaheuristic(prob, heur, num_iterations=1000, num_agents=100)  
+    met = mh.Metaheuristic(prob, heur, num_iterations=100, num_agents=100)  
     met.reset_historicals()
     met.verbose = False
     met.run()
@@ -60,4 +51,4 @@ final_fitness = np.array([x[-1] for x in fitness_array.T])
 print("final_fitness_array", final_fitness)
 
 # Short explanation and justification:
-# [Your explanation here, each line starting with '#']
+# The hybrid metaheuristic combines the `random_sample` operator with a probabilistic version of the `spiral_dynamic` operator. The `random_sample` operator provides initial exploration, while the `spiral_dynamic` operator helps in fine-tuning the solution near the optimum. This combination aims to balance between global and local search capabilities.

@@ -1,39 +1,30 @@
-# This is the metaheuristic template:
-
-Format your response exaclty as follows.  
-Do not write anything before this format: 
-      
-# Name: [Your chosen name for the metaheuristic]
+# Name: Randomized Search with Adaptive Sampling
 # Code:
 import sys
 from pathlib import Path
 import numpy as np
-project_dir = Path(__file__).resolve().parents[2] # Remember to write well this line: 'project_dir = Path(__file__).resolve().parents[2]'
+project_dir = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_dir))
 import benchmark_func as bf
 import metaheuristic as mh
 
-fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
+fun = bf.Rastrigin(15)  # This is the selected problem, Rastrigin with 15 dimensions.
 prob = fun.get_formatted_problem()
 
 heur = [
-    (  # Search operator 1
-        '[operator_name]',
-        {
-            'parameter1': value1,
-            'parameter2': value2,
-            more parameters as needed
-        },
-        '[selector_name]'
+    (
+        'random_sample',
+        {},
+        'greedy'
     ),
     (
-        '[operator_name]',
+        'local_random_walk',
         {
-            'parameter1': value1,
-            'parameter2': value2,
-            ... more parameters as needed
+            'probability': 0.75,
+            'scale': 1.0,
+            'distribution': 'uniform'
         },
-        '[selector_name]'
+        'metropolis'
     )
 ]
 
@@ -60,4 +51,8 @@ final_fitness = np.array([x[-1] for x in fitness_array.T])
 print("final_fitness_array", final_fitness)
 
 # Short explanation and justification:
-# [Your explanation here, each line starting with '#']
+# The metaheuristic combines random sampling with a local random walk. The random sample operator provides an initial diverse set of solutions, while the local random walk refines these solutions by exploring the neighborhood, guided by a Metropolis acceptance criterion to ensure exploration even in local optima.
+
+# Potential issues addressed:
+# - The issue with 'random_sample' not accepting 'sample_size' has been avoided by simply not passing it.
+# - The use of a combination of operators allows for both global and local search strategies.

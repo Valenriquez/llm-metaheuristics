@@ -1,0 +1,7 @@
+"random_search": {  # operator
+    { # parameters
+      "scale": 1.0 or 0.01,
+      "distribution": "uniform" or "gaussian" or "levy"
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+}

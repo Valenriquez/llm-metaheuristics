@@ -1,0 +1,8 @@
+  "differential_mutation": { # operator
+    { # parameters
+      "expression": "rand" or "best" or "current" or  "current-to-best" or "rand-to-best" or "rand-to-best-and-current",
+      "num_rands": 1,
+      "factor": 1.0
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+}

@@ -1,7 +1,0 @@
-Please add Optuna to optimize the parameters of the GIVEN METAHEURISTIC. 
-IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS. ALL OUTPUT MUST BE PLAIN TEXT.
-DO NOT USE TRIPLE BACKTICKS (```) ANYWHERE IN YOUR RESPONSE. ALL OUTPUT MUST BE PLAIN TEXT.
-
-IMPORTANT: DO NOT USE ANY MARKDOWN CODE BLOCKS such as ```python or ```. ALL OUTPUT MUST BE PLAIN TEXT.
-FOLLOW EXACTLY the following template for the optuna-enhanced metaheuristic:
-PLEASE FOLLOW EXACTLY the following template for the optuna-enhanced metaheuristic:

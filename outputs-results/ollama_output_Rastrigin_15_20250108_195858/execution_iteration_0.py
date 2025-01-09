@@ -1,9 +1,5 @@
-# This is the metaheuristic template:
+# Name: Hybrid Metaheuristic Algorithm
 
-Format your response exaclty as follows.  
-Do not write anything before this format: 
-      
-# Name: [Your chosen name for the metaheuristic]
 # Code:
 import sys
 from pathlib import Path
@@ -13,27 +9,28 @@ sys.path.insert(0, str(project_dir))
 import benchmark_func as bf
 import metaheuristic as mh
 
-fun = bf.{self.benchmark_function}({self.dimensions}) # This is the selected problem, the problem may vary depending on the case.
+fun = bf.Rastrigin(15) # This is the selected problem, the problem may vary depending on the case.
 prob = fun.get_formatted_problem()
 
 heur = [
     (  # Search operator 1
-        '[operator_name]',
+        'random_search',
         {
-            'parameter1': value1,
-            'parameter2': value2,
-            more parameters as needed
+            'scale': 0.01,
+            'distribution': 'uniform'
         },
-        '[selector_name]'
+        'all'
     ),
     (
-        '[operator_name]',
+        'swarm_dynamic',
         {
-            'parameter1': value1,
-            'parameter2': value2,
-            ... more parameters as needed
+            'factor': 0.7,
+            'self_conf': 2.54,
+            'swarm_conf': 2.56,
+            'version': 'inertial',
+            'distribution': 'gaussian'
         },
-        '[selector_name]'
+        'greedy'
     )
 ]
 
@@ -60,4 +57,4 @@ final_fitness = np.array([x[-1] for x in fitness_array.T])
 print("final_fitness_array", final_fitness)
 
 # Short explanation and justification:
-# [Your explanation here, each line starting with '#']
+# This hybrid metaheuristic combines the Random Search operator with parameters tailored for exploration, and the Swarm Dynamic operator with parameters optimized for exploitation. The 'all' selector for Random Search allows for a broad exploration of the solution space, while the 'greedy' selector for Swarm Dynamic ensures that promising solutions are quickly exploited. The combination aims to balance exploration and exploitation effectively.

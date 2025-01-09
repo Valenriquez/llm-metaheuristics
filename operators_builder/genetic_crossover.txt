@@ -1,0 +1,8 @@
+"genetic_crossover": { # operator: - If you decide to use the operator genetic_crossover, then you must use genetic_mutation too. And vice versa. 
+    { # parameters
+      "pairing": "rank" or "cost" or "random" or"tournament_2_100",
+      "crossover": "single" or "two" or "uniform" or "blend" or "linear_0.5_0.5",
+      "mating_pool_factor": 0.4
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+}

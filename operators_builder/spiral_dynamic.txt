@@ -1,0 +1,8 @@
+ "spiral_dynamic": { # operator
+    { # parameters
+      "radius": 0.9,
+      "angle": 22.5,
+      "sigma": 0.1
+    },
+    selector: "greedy" or "all" or"metropolis" or"probabilistic"
+}
