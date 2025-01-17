@@ -1,0 +1,15 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin_15_20250110_144144/execution_iteration_6.py", line 47, in <module>
+    met.run()
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/metaheuristic.py", line 144, in run
+    self.apply_search_operator(perturbator, selector)
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/metaheuristic.py", line 100, in apply_search_operator
+    exec('Operators.' + operator_name + '(self.pop,' + operator_params)
+  File "<string>", line 1
+    Operators.Spiral Dynamics Optimization(self.pop,step_size=0.5,learning_rate=0.3)
+                     ^^^^^^^^
+SyntaxError: invalid syntax

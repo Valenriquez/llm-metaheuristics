@@ -1,0 +1,9 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin_15_20250110_180434/execution_iteration_6.py", line 18, in <module>
+    'search_space': prob['bounds'],
+                    ~~~~^^^^^^^^^^
+KeyError: 'bounds'

@@ -1,0 +1,24 @@
+Exit code: 0
+Stdout:
+Mejores hiperparámetros encontrados:
+{'probability': 0.5037383952028379, 'scale': 0.25155740511443536, 'distribution': 'uniform', 'num_of_agents': 25}
+Mejor rendimiento encontrado:
+135.7667751648253
+
+Stderr:
+[I 2025-01-10 12:23:51,397] A new study created in memory with name: no-name-5a06ae00-fe72-479a-8532-b74944da5100
+[I 2025-01-10 12:23:54,820] Trial 0 finished with value: 150.00856466751685 and parameters: {'probability': 0.6324099015205151, 'scale': 1.0685873841404536, 'distribution': 'uniform', 'num_of_agents': 45}. Best is trial 0 with value: 150.00856466751685.
+[I 2025-01-10 12:23:55,320] Trial 1 finished with value: 138.97456876391567 and parameters: {'probability': 0.88617220313343, 'scale': 1.071598625453786, 'distribution': 'uniform', 'num_of_agents': 34}. Best is trial 1 with value: 138.97456876391567.
+[I 2025-01-10 12:23:55,700] Trial 2 finished with value: 151.12556852654646 and parameters: {'probability': 0.7978679597335397, 'scale': 0.4845394012942872, 'distribution': 'levy', 'num_of_agents': 22}. Best is trial 1 with value: 138.97456876391567.
+[I 2025-01-10 12:23:56,182] Trial 3 finished with value: 143.05289583066258 and parameters: {'probability': 0.5078303730959937, 'scale': 0.36224558963899556, 'distribution': 'uniform', 'num_of_agents': 31}. Best is trial 1 with value: 138.97456876391567.
+[I 2025-01-10 12:23:56,750] Trial 4 finished with value: 153.0612348329453 and parameters: {'probability': 0.6559646177814749, 'scale': 1.608548256474934, 'distribution': 'levy', 'num_of_agents': 37}. Best is trial 1 with value: 138.97456876391567.
+[I 2025-01-10 12:23:57,327] Trial 5 finished with value: 143.73646791176844 and parameters: {'probability': 0.5721348302480013, 'scale': 0.7375318152634495, 'distribution': 'uniform', 'num_of_agents': 40}. Best is trial 1 with value: 138.97456876391567.
+[I 2025-01-10 12:23:58,013] Trial 6 finished with value: 148.69371326284931 and parameters: {'probability': 0.8023690762073394, 'scale': 1.2844150598257258, 'distribution': 'uniform', 'num_of_agents': 50}. Best is trial 1 with value: 138.97456876391567.
+[I 2025-01-10 12:23:58,549] Trial 7 finished with value: 152.3647127497697 and parameters: {'probability': 0.9307124576597308, 'scale': 1.9855431316276468, 'distribution': 'levy', 'num_of_agents': 34}. Best is trial 1 with value: 138.97456876391567.
+[I 2025-01-10 12:23:59,168] Trial 8 finished with value: 149.52675264621178 and parameters: {'probability': 0.7829451608717104, 'scale': 1.054241062973275, 'distribution': 'uniform', 'num_of_agents': 44}. Best is trial 1 with value: 138.97456876391567.
+[I 2025-01-10 12:23:59,820] Trial 9 finished with value: 153.7245320058905 and parameters: {'probability': 0.9996754638302012, 'scale': 0.6211594422484872, 'distribution': 'gaussian', 'num_of_agents': 42}. Best is trial 1 with value: 138.97456876391567.
+[I 2025-01-10 12:24:00,114] Trial 10 finished with value: 149.10605437308618 and parameters: {'probability': 0.8906383029983096, 'scale': 0.11126904716065034, 'distribution': 'gaussian', 'num_of_agents': 14}. Best is trial 1 with value: 138.97456876391567.
+[I 2025-01-10 12:24:00,523] Trial 11 finished with value: 135.7667751648253 and parameters: {'probability': 0.5037383952028379, 'scale': 0.25155740511443536, 'distribution': 'uniform', 'num_of_agents': 25}. Best is trial 11 with value: 135.7667751648253.
+[I 2025-01-10 12:24:00,922] Trial 12 finished with value: 152.11684317747012 and parameters: {'probability': 0.7086044075864917, 'scale': 1.3744185931827695, 'distribution': 'uniform', 'num_of_agents': 24}. Best is trial 11 with value: 135.7667751648253.
+[I 2025-01-10 12:24:01,340] Trial 13 finished with value: 144.09886983164319 and parameters: {'probability': 0.89397853741686, 'scale': 0.8108997247829564, 'distribution': 'uniform', 'num_of_agents': 25}. Best is trial 11 with value: 135.7667751648253.
+[I 2025-01-10 12:24:01,635] Trial 14 finished with value: 149.7796611240137 and parameters: {'probability': 0.7153125824116477, 'scale': 0.19292956521726745, 'distribution': 'uniform', 'num_of_agents': 16}. Best is trial 11 with value: 135.7667751648253.

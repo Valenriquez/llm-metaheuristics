@@ -1,7 +1,3 @@
-"""
-Using the num_replicas
-
-"""
 import optuna
 import sys
 import benchmark_func as bf

@@ -1,0 +1,24 @@
+Exit code: 0
+Stdout:
+Mejores hiperparámetros encontrados:
+{'probability': 0.5052813454371994, 'scale': 0.14518870308205528, 'distribution': 'uniform'}
+Mejor rendimiento encontrado:
+150.30973446782767
+
+Stderr:
+[I 2025-01-10 18:18:57,127] A new study created in memory with name: no-name-330caced-fc83-4187-b4ee-7ea0e7e39104
+[I 2025-01-10 18:19:00,372] Trial 0 finished with value: 156.14881563919937 and parameters: {'probability': 0.8557072014068653, 'scale': 0.5017419240281371, 'distribution': 'uniform'}. Best is trial 0 with value: 156.14881563919937.
+[I 2025-01-10 18:19:00,957] Trial 1 finished with value: 158.8126468848637 and parameters: {'probability': 0.7992046310028392, 'scale': 0.9286237721361751, 'distribution': 'levy'}. Best is trial 0 with value: 156.14881563919937.
+[I 2025-01-10 18:19:01,435] Trial 2 finished with value: 152.63784115021468 and parameters: {'probability': 0.7721751078053075, 'scale': 1.854293977733336, 'distribution': 'gaussian'}. Best is trial 2 with value: 152.63784115021468.
+[I 2025-01-10 18:19:01,899] Trial 3 finished with value: 157.21435570133656 and parameters: {'probability': 0.8737878290888305, 'scale': 0.9574937788768315, 'distribution': 'levy'}. Best is trial 2 with value: 152.63784115021468.
+[I 2025-01-10 18:19:02,369] Trial 4 finished with value: 157.1320943335103 and parameters: {'probability': 0.9543927264027042, 'scale': 0.3499258092648024, 'distribution': 'gaussian'}. Best is trial 2 with value: 152.63784115021468.
+[I 2025-01-10 18:19:02,848] Trial 5 finished with value: 160.31753183428478 and parameters: {'probability': 0.8047693641508569, 'scale': 0.6031743834102036, 'distribution': 'levy'}. Best is trial 2 with value: 152.63784115021468.
+[I 2025-01-10 18:19:03,295] Trial 6 finished with value: 152.3528027065649 and parameters: {'probability': 0.8344608380176516, 'scale': 0.10715946335147616, 'distribution': 'gaussian'}. Best is trial 6 with value: 152.3528027065649.
+[I 2025-01-10 18:19:03,759] Trial 7 finished with value: 156.9611526102226 and parameters: {'probability': 0.6937017378448855, 'scale': 1.9774576895413678, 'distribution': 'gaussian'}. Best is trial 6 with value: 152.3528027065649.
+[I 2025-01-10 18:19:04,206] Trial 8 finished with value: 158.2297009453921 and parameters: {'probability': 0.7775904387326731, 'scale': 1.4168698884582458, 'distribution': 'gaussian'}. Best is trial 6 with value: 152.3528027065649.
+[I 2025-01-10 18:19:04,675] Trial 9 finished with value: 161.73798091752758 and parameters: {'probability': 0.6221006630696284, 'scale': 0.3289181568753351, 'distribution': 'levy'}. Best is trial 6 with value: 152.3528027065649.
+[I 2025-01-10 18:19:05,132] Trial 10 finished with value: 150.30973446782767 and parameters: {'probability': 0.5052813454371994, 'scale': 0.14518870308205528, 'distribution': 'uniform'}. Best is trial 10 with value: 150.30973446782767.
+[I 2025-01-10 18:19:05,579] Trial 11 finished with value: 151.2356185181438 and parameters: {'probability': 0.5024933025521061, 'scale': 0.1765253849079026, 'distribution': 'uniform'}. Best is trial 10 with value: 150.30973446782767.
+[I 2025-01-10 18:19:06,040] Trial 12 finished with value: 153.1446480778933 and parameters: {'probability': 0.5031436814414076, 'scale': 0.10067545241830866, 'distribution': 'uniform'}. Best is trial 10 with value: 150.30973446782767.
+[I 2025-01-10 18:19:06,487] Trial 13 finished with value: 160.59645455822746 and parameters: {'probability': 0.5207591628112248, 'scale': 0.738594624089276, 'distribution': 'uniform'}. Best is trial 10 with value: 150.30973446782767.
+[I 2025-01-10 18:19:06,934] Trial 14 finished with value: 156.55332902757945 and parameters: {'probability': 0.593161649828125, 'scale': 1.5364519025322867, 'distribution': 'uniform'}. Best is trial 10 with value: 150.30973446782767.

@@ -1,0 +1,60 @@
+# Name: Hybrid Swarm Optimization with Randomized Exploration
+
+# Code:
+import sys
+from pathlib import Path
+import numpy as np
+project_dir = Path(__file__).resolve().parents[2] # Remember to write well this line: 'project_dir = Path(__file__).resolve().parents[2]'
+sys.path.insert(0, str(project_dir))
+import benchmark_func as bf
+import metaheuristic as mh
+
+fun = bf.Rastrigin(6) # This is the selected problem
+prob = fun.get_formatted_problem()
+
+heur = [
+    (
+        'swarm_dynamic',
+        {
+            'factor': 0.7325180158594513,
+            'self_conf': 2.5045374348029945,
+            'swarm_conf': 2.501375609335395,
+            'version': "constriction",
+            'distribution': "gaussian"
+        },
+        'greedy'
+    ),
+    (
+        'random_flight',
+        {
+            'scale': 1.0516745469727167,
+            'distribution': 'levy',
+            'beta': 1.640437524717211
+        },
+        'probabilistic'
+    )
+]
+
+met = mh.Metaheuristic(prob, heur, num_iterations=1000, num_agents=98)
+# met.verbose = True # please comment this line
+# met.run() # please comment this line
+
+# Initialise the fitness register
+fitness = []
+# Run the metaheuristic with the same problem 30 times
+for rep in range(30):
+    met.reset_historicals()
+    met.verbose = False
+    met.run()
+    # print('rep = {}, x_best = {}, f_best = {}'.format(rep+1, *met.get_solution()))
+    
+    fitness.append(met.historical['fitness'])
+
+fitness_array = np.array(fitness).T
+final_fitness = np.array([x[-1] for x in fitness_array.T])
+print("final_fitness_array", final_fitness)
+
+# Short explanation and justification:
+# The Hybrid Swarm Optimization with Randomized Exploration combines the strengths of swarm-based optimization with random exploration. 
+# The `swarm_dynamic` operator helps to balance exploration and exploitation by moving agents towards the best known positions, while the `random_flight` operator introduces randomness to escape local optima.
+# By using both operators, the algorithm can effectively explore the solution space and converge to high-quality solutions for the Rastrigin function.

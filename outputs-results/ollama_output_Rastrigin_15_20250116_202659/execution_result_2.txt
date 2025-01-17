@@ -1,0 +1,9 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin_15_20250116_202659/execution_iteration_2.py", line 20, in <module>
+    'mean': prob.bounds.mean(),
+            ^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'bounds'

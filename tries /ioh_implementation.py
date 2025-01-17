@@ -25,7 +25,7 @@ def evaluate_sequence_IOH(sequence, problem_id, instance, dimension, num_agents,
 
     # Ejecutar en paralelo el número de réplicas
     num_cores = min(multiprocessing.cpu_count(), num_replicas)
-    results_parallel = Parallel(n_jobs=num_cores)(delayed(run_metaheuristic)() for _ in range(num_replicas))
+    results_parallel = Parallel(n_jobs=num_cores, prefer="threads")(delayed(run_metaheuristic)() for _ in range(num_replicas))
 
     # Extraer los valores de fitness de los resultados y calcular la métrica de rendimiento
     fitness_values = [result[0] for result in results_parallel]
@@ -33,6 +33,11 @@ def evaluate_sequence_IOH(sequence, problem_id, instance, dimension, num_agents,
     fitness_median = np.median(fitness_values)
     iqr = np.percentile(fitness_values, 75) - np.percentile(fitness_values, 25)
     performance_metric = fitness_median + iqr
+
+    # Fitness finales
+    fitness_array = np.array(fitness_values).T
+    #final_fitness = np.array([x[-1] for x in fitness_array.T])
+    print("final_fitness_array", fitness_array)
 
     # Retorna el mejor valor y la mejor posición encontrada en todas las réplicas
     best_fitness_index = np.argmin(fitness_values)
@@ -56,19 +61,19 @@ sequence = [(
     },
     'greedy'  
 )]
-problem_id = 2  
+problem_id = 4  
 instance = 1
 dimension = 5
 num_agents = 100
-num_iterations = 400
-num_replicas = 10  # Ajusta el número de réplicas según sea necesario
+num_iterations = 100
+num_replicas = 30  # Ajusta el número de réplicas según sea necesario
 
 # Ejecución de la función con réplicas
 performance_metric, best_position = evaluate_sequence_IOH(sequence, problem_id, instance, dimension, num_agents, num_iterations, num_replicas)
-print("Métrica de rendimiento (Mediana + IQR):", performance_metric)
-print("Mejor posición encontrada:", best_position)
+#print("Métrica de rendimiento (Mediana + IQR):", performance_metric)
+#print("Mejor posición encontrada:", best_position)
 
 # Obtener y comparar con el óptimo
 problem = ioh.get_problem(problem_id, instance=instance, dimension=dimension)
 optimal_fitness = problem.optimum.y
-print("Fitness óptimo:", optimal_fitness)
+#print("Fitness óptimo:", optimal_fitness)

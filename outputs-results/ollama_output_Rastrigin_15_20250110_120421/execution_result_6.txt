@@ -1,0 +1,11 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin_15_20250110_120421/execution_iteration_6.py", line 101, in <module>
+    met.run()
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin_15_20250110_120421/execution_iteration_6.py", line 52, in run
+    for agent in self.agents:
+                 ^^^^^^^^^^^
+AttributeError: 'AdaptiveHybridMetaheuristic' object has no attribute 'agents'
