@@ -2,16 +2,48 @@
 # Code:
 import sys
 from pathlib import Path
-
+import ioh
 project_dir = Path(__file__).resolve().parents[2] # Remember to write well this line: 'project_dir = Path(__file__).resolve().parents[2]'
 sys.path.insert(0, str(project_dir))
 import benchmark_func as bf
 import metaheuristic as mh
+from joblib import Parallel, delayed
+import multiprocessing
+import numpy as np
+from P1 import P1
 
-fun = bf.Rastrigin({self.dimensions})  # This is the selected problem, the problem may vary depending on the case.
-prob = fun.get_formatted_problem()
+def evaluate_sequence_IOH(heur, problem_id, instance, dimension, num_agents, num_iterations, num_replicas):
+        
+    ioh_problem = P1.create_ioh_problem(problem_id, instance, dimension)
+    fun = P1(variable_num=dimension, problem=ioh_problem)
+    prob = fun.get_formatted_problem()
 
-num_agents = self.dimensions + 2  # Add more agents depending on the size of the dimension
+    def run_metaheuristic():
+        met = mh.Metaheuristic(prob, heur, num_agents=99, num_iterations=1000)
+        met.verbose = False
+        met.run()
+        best_position, f_best = met.get_solution()
+        return f_best, best_position
+
+    # Ejecutar en paralelo el número de réplicas
+    num_cores = min(multiprocessing.cpu_count(), num_replicas)
+    results_parallel = Parallel(n_jobs=num_cores, prefer="threads")(delayed(run_metaheuristic)() for _ in range(num_replicas))
+
+    # Extraer los valores de fitness de los resultados y calcular la métrica de rendimiento
+    fitness_values = [result[0] for result in results_parallel]
+    positions = [result[1] for result in results_parallel]
+    fitness_median = np.median(fitness_values)
+    iqr = np.percentile(fitness_values, 75) - np.percentile(fitness_values, 25)
+    performance_metric = fitness_median + iqr
+
+    # Fitness finales
+    fitness_array = np.array(fitness_values).T
+    print("final_fitness_array", fitness_array)
+
+    # Retorna el mejor valor y la mejor posición encontrada en todas las réplicas
+    best_fitness_index = np.argmin(fitness_values)
+    best_position = positions[best_fitness_index]
+    return performance_metric, best_position
 
 heur = [
     (  # Search operator 1
@@ -24,35 +56,32 @@ heur = [
         'probabilistic'
     ),
     (
-        'swarm_dynamic',
+        'swarm_dynamic', # Search operator 2
         {
-            'factor': 0.7 if self.dimensions <= 10 else 0.8,
+            'factor': 0.7,
             'self_conf': 2.54,
             'swarm_conf': 2.56,
             'version': 'inertial',
-            'distribution': 'uniform' if self.dimensions <= 5 else 'gaussian'
+            'distribution': 'uniform'
         },
         'probabilistic'
     )
 ]
 
-met = mh.Metaheuristic(prob, heur, num_iterations=1000, num_agents=num_agents)
-met.verbose = True
-#met.run()
+problem_id = 1
+instance = 1
+dimension = 6
+num_agents=99
+num_iterations=1000
+num_replicas=30
 
-#print('x_best = {}, f_best = {}'.format(*met.get_solution()))
+performance_metric, best_position = evaluate_sequence_IOH(heur, problem_id, instance, dimension, num_agents, num_iterations, num_replicas)
+print("Métrica de rendimiento (Mediana + IQR):", performance_metric)
+print("Mejor posición encontrada:", best_position)
 
-# Initialise the fitness register
-fitness = []
-# Run the metaheuristic with the same problem 30 times
-for rep in range(30):
-    met.reset_historicals()
-    met.verbose = False
-    met.run()
-    print('rep = {}, x_best = {}, f_best = {}'.format(rep+1, *met.get_solution()))
-    
-    fitness.append(met.historical['fitness'])
-    
+# Obtener y comparar con el óptimo
+problem = ioh.get_problem(problem_id, instance=instance, dimension=dimension)
+optimal_fitness = problem.optimum.y  
 # Short explanation and justification:
 # The SDM combines Spiral Dynamic and Swarm Dynamic operators to explore the search space effectively. 
 # The number of agents scales with the dimension to ensure adequate coverage.

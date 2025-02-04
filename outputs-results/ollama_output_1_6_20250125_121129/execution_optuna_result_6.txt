@@ -1,0 +1,48 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+[I 2025-01-25 14:57:28,667] A new study created in memory with name: no-name-af68cdbe-7edb-4f6a-920e-02988e58128c
+/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_1_6_20250125_121129/execution_optuna_iteration_6.py:57: FutureWarning: suggest_uniform has been deprecated in v3.0.0. This feature will be removed in v6.0.0. See https://github.com/optuna/optuna/releases/tag/v3.0.0. Use suggest_float instead.
+  'scale': trial.suggest_uniform('scale', 1.0, 2.0),
+/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_1_6_20250125_121129/execution_optuna_iteration_6.py:58: FutureWarning: suggest_uniform has been deprecated in v3.0.0. This feature will be removed in v6.0.0. See https://github.com/optuna/optuna/releases/tag/v3.0.0. Use suggest_float instead.
+  'elite_rate': trial.suggest_uniform('elite_rate', 0.1, 0.5),
+/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_1_6_20250125_121129/execution_optuna_iteration_6.py:59: FutureWarning: suggest_uniform has been deprecated in v3.0.0. This feature will be removed in v6.0.0. See https://github.com/optuna/optuna/releases/tag/v3.0.0. Use suggest_float instead.
+  'mutation_rate': trial.suggest_uniform('mutation_rate', 0.1, 0.5),
+/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_1_6_20250125_121129/execution_optuna_iteration_6.py:67: FutureWarning: suggest_uniform has been deprecated in v3.0.0. This feature will be removed in v6.0.0. See https://github.com/optuna/optuna/releases/tag/v3.0.0. Use suggest_float instead.
+  'scale': trial.suggest_uniform('scale', 0.01, 0.2),
+/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/trial/_trial.py:678: RuntimeWarning: Inconsistent parameter values for distribution with name "scale"! This might be a configuration mistake. Optuna allows to call the same distribution with the same name more than once in a trial. When the parameter values are inconsistent optuna only uses the values of the first call and ignores all following. Using these values: {'step': None, 'low': 1.0, 'high': 2.0, 'log': False}
+  warnings.warn(
+/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_1_6_20250125_121129/execution_optuna_iteration_6.py:76: FutureWarning: suggest_uniform has been deprecated in v3.0.0. This feature will be removed in v6.0.0. See https://github.com/optuna/optuna/releases/tag/v3.0.0. Use suggest_float instead.
+  'self_conf': trial.suggest_uniform('self_conf', 1.5, 3.0),
+/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_1_6_20250125_121129/execution_optuna_iteration_6.py:77: FutureWarning: suggest_uniform has been deprecated in v3.0.0. This feature will be removed in v6.0.0. See https://github.com/optuna/optuna/releases/tag/v3.0.0. Use suggest_float instead.
+  'swarm_conf': trial.suggest_uniform('swarm_conf', 2.0, 3.0),
+[W 2025-01-25 14:57:28,668] Trial 0 failed with parameters: {'pairing': 'random', 'crossover': 'two', 'mating_pool_factor': 0.7974287478318315, 'scale': 1.208052066794615, 'elite_rate': 0.4404960840059321, 'mutation_rate': 0.2446787731405511, 'distribution': 'uniform', 'factor': 0.7532844643289408, 'self_conf': 2.179016868734706, 'swarm_conf': 2.9250837828206677, 'version': 'inertial'} because of the following error: TypeError("P1.__init__() got an unexpected keyword argument 'problem_name'").
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_1_6_20250125_121129/execution_optuna_iteration_6.py", line 86, in objective
+    fun = P1(variable_num=dimension, problem_name='sphere')
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: P1.__init__() got an unexpected keyword argument 'problem_name'
+[W 2025-01-25 14:57:28,669] Trial 0 failed with value None.
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_1_6_20250125_121129/execution_optuna_iteration_6.py", line 94, in <module>
+    study.optimize(objective, n_trials=30)
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/study.py", line 475, in optimize
+    _optimize(
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 63, in _optimize
+    _optimize_sequential(
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 160, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 248, in _run_trial
+    raise func_err
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_1_6_20250125_121129/execution_optuna_iteration_6.py", line 86, in objective
+    fun = P1(variable_num=dimension, problem_name='sphere')
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: P1.__init__() got an unexpected keyword argument 'problem_name'

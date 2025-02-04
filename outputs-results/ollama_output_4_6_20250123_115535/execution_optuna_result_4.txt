@@ -1,0 +1,19 @@
+Exit code: 0
+Stdout:
+Mejores hiperparámetros encontrados:
+{'scale': 0.05079208825321141, 'distribution': 'levy', 'gravity': 0.05669442231116624, 'alpha': 0.08960719534656164, 'beta': 2.6646070374981115, 'dt': 0.7450060997191135}
+Mejor rendimiento encontrado:
+-439.8653351093654
+
+Stderr:
+[I 2025-01-23 12:46:49,885] A new study created in memory with name: no-name-8f512134-fed7-4174-96e7-9af49be102a0
+[I 2025-01-23 12:46:55,331] Trial 0 finished with value: -428.53921596878456 and parameters: {'scale': 0.4383482259628155, 'distribution': 'levy', 'gravity': 0.13611918472061724, 'alpha': 0.08256763286315502, 'beta': 4.433701834191746, 'dt': 0.34969289376675394}. Best is trial 0 with value: -428.53921596878456.
+[I 2025-01-23 12:47:00,645] Trial 1 finished with value: -424.3480173298343 and parameters: {'scale': 0.08617401168396441, 'distribution': 'gaussian', 'gravity': 0.31495177093383364, 'alpha': 0.06906249259188621, 'beta': 4.348824942094957, 'dt': 0.27369831063810246}. Best is trial 0 with value: -428.53921596878456.
+[I 2025-01-23 12:47:05,963] Trial 2 finished with value: -415.0280092189461 and parameters: {'scale': 0.2648959114374602, 'distribution': 'levy', 'gravity': 0.22763781059717184, 'alpha': 0.18173472960436848, 'beta': 3.6018734563047468, 'dt': 0.2823504226300208}. Best is trial 0 with value: -428.53921596878456.
+[I 2025-01-23 12:47:11,317] Trial 3 finished with value: -416.5507338955061 and parameters: {'scale': 0.3358872924192579, 'distribution': 'gaussian', 'gravity': 0.3519321169532497, 'alpha': 0.16732345130531995, 'beta': 1.831413889951413, 'dt': 0.9621403374497295}. Best is trial 0 with value: -428.53921596878456.
+[I 2025-01-23 12:47:16,692] Trial 4 finished with value: -410.8788890861669 and parameters: {'scale': 0.2542525987802948, 'distribution': 'gaussian', 'gravity': 0.3778595279609302, 'alpha': 0.16390852274830212, 'beta': 3.555265166168174, 'dt': 0.8934723142262253}. Best is trial 0 with value: -428.53921596878456.
+[I 2025-01-23 12:47:22,097] Trial 5 finished with value: -432.23805597831324 and parameters: {'scale': 0.18679044356127975, 'distribution': 'gaussian', 'gravity': 0.1412995597026614, 'alpha': 0.16186353513014953, 'beta': 2.3607465731674315, 'dt': 0.6580681702578498}. Best is trial 5 with value: -432.23805597831324.
+[I 2025-01-23 12:47:27,508] Trial 6 finished with value: -419.3047675620147 and parameters: {'scale': 0.226335537377884, 'distribution': 'levy', 'gravity': 0.3160524772562478, 'alpha': 0.11295589475138784, 'beta': 2.6524721769122657, 'dt': 0.8989828208004382}. Best is trial 5 with value: -432.23805597831324.
+[I 2025-01-23 12:47:34,099] Trial 7 finished with value: -403.43960996121217 and parameters: {'scale': 0.1221314239608135, 'distribution': 'uniform', 'gravity': 0.4060209329950226, 'alpha': 0.1381733295655856, 'beta': 4.347932388411891, 'dt': 0.3508651624844479}. Best is trial 5 with value: -432.23805597831324.
+[I 2025-01-23 12:47:40,624] Trial 8 finished with value: -427.31999206653495 and parameters: {'scale': 0.30855421543549616, 'distribution': 'uniform', 'gravity': 0.24668616748314376, 'alpha': 0.13308766700356262, 'beta': 2.3415293475509604, 'dt': 0.6080535970940901}. Best is trial 5 with value: -432.23805597831324.
+[I 2025-01-23 12:47:46,121] Trial 9 finished with value: -439.8653351093654 and parameters: {'scale': 0.05079208825321141, 'distribution': 'levy', 'gravity': 0.05669442231116624, 'alpha': 0.08960719534656164, 'beta': 2.6646070374981115, 'dt': 0.7450060997191135}. Best is trial 9 with value: -439.8653351093654.

@@ -10,6 +10,9 @@ from pathlib import Path
 import json
 import numpy as np
 import math
+from chromadb.utils import embedding_functions
+from sklearn.decomposition import PCA
+
 """
 Uses: ollama model: "qwen2.5-coder:latest"
 Uses: embedding model: "all-minilm:latest"
@@ -28,6 +31,7 @@ Uses: embedding model: "all-minilm:latest"
         documents=[parameters and performance],
         metadatas={"source": 'operator_name_(1)_operator_name_(2)_operator_name_(3)_1'}
     )
+
 - Get ALL values of the feedback collection
 - selected_number_of_iterations will be calculated: number_iterations / selected_number_of_iterations
 - After {selected_number_of_iterations} ask Ollama best (smallest)  performance encountered
@@ -39,10 +43,9 @@ When refining more a metaheuristic (with new metaheuristic generation each time)
             Although there is a break after the {break_tries} try. 
     - (?) After creation must verify that the next metaheuristic generation will have a similar space (?) 
 
-
-
 Feedback: {data_feedback} (if none are provided, you may skip this part).
 """
+
 class GerateMetaheuristic:
     def __init__(self, problem_id, dimensions, max_iterations, model="qwen2.5-coder:latest", model_embed="all-minilm:latest"):
         self.model = model
@@ -53,11 +56,14 @@ class GerateMetaheuristic:
         self.problem_id = problem_id
         self.dimensions = dimensions
         self.hyperparameters = ""
-        self.performance_found = 0.00
-        self.best_performance = 190.00
+        #self.best_performance = 190.00
+        self.made_metaheuristic = ""
+        self.the_bool = True
+        self.performance_found = 200
 
         ## OUTPUT INFO
         self.folder_name = ""
+        self.extracted_metaheuristic = ""
 
         ## LOGGER
         logging.basicConfig(level=logging.DEBUG)
@@ -69,35 +75,41 @@ class GerateMetaheuristic:
         self.total_budget = 100 # (?)
 
         ## NEW APPROACH
-        self.break_tries = 6
-        self.refinement_starter = self.max_iterations / 5 # will be  after 6th iteration since '>'
+        self.break_tries = 8 # for Optuna Enhancement only
         self.num_of_agents = 10 * self.dimensions + math.floor(20 * math.log(self.dimensions + 1))
 
         ## FOR OPTUNA
         self.file_contents = "" 
 
         ## COLLECTIONS
-        client = chromadb.Client()
-        self.python_collection = client.create_collection(name="python_collection")
-        self.feedback_collection = client.create_collection(name="feedback_collection")
-        self.optuna_collection = client.create_collection(name="optuna_collection")
+        #chroma_client = chromadb.PersistentClient("vectordb")
+        chroma_client = chromadb.Client()
+        google_ef  = embedding_functions.GoogleGenerativeAiEmbeddingFunction(api_key="AIzaSyClnhvj-6aQdDS2qcheEoep2SiCUXvQz-I")
+        #sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="BAAI/bge-large-en-v1.5")
+        sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(
+            model_name="BAAI/bge-large-en-v1.5"
+        )
 
-        self.creating_collection("ioh_metaheuristic_builder", self.python_collection)
+        #chroma_client.delete_collection(name="operators_collection") # Delete a collection and all associated embeddings, documents, and metadata. ⚠️ This is destructive and not reversible
+        #chroma_client.delete_collection(name="metaheuristic_template_collection") # Delete a collection and all associated embeddings, documents, and metadata. ⚠️ This is destructive and not reversible
+        #chroma_client.delete_collection(name="feedback_collection") # Delete a collection and all associated embeddings, documents, and metadata. ⚠️ This is destructive and not reversible
+        #chroma_client.delete_collection(name="optuna_collection") # Delete a collection and all associated embeddings, documents, and metadata. ⚠️ This is destructive and not reversible
+
+
+        self.operators_collection = chroma_client.create_collection(name="operators_collection", embedding_function=google_ef)
+        self.metaheuristic_template_collection = chroma_client.create_collection(name="metaheuristic_template_collection", embedding_function=google_ef)
+        self.feedback_collection = chroma_client.create_collection(name="feedback_collection",  embedding_function=sentence_transformer_ef)
+        self.optuna_collection = chroma_client.create_collection(name="ioh_optuna_builder", embedding_function=google_ef)
+
+        self.creating_collection("operators_collection", self.operators_collection)
+        self.creating_collection("metaheuristic_template_collection", self.metaheuristic_template_collection)
         self.creating_collection("ioh_optuna_builder", self.optuna_collection)
 
         self.prompt = f"""You are a highly skilled computer scientist in the field of natural computing. Your task is to design a metaheuristic algorithm, 
         you should only use the information that was provided to you. 
         Remember that when writing the operator's names, they should be ALL in LOWER CASE AND WITH A '_' instead of typing a space. 
-        Please remember to change these correctly:
-        problem_id =  {self.problem_id} 
-        instance = 1
-        dimension = {self.dimensions}
-        num_agents = {self.num_of_agents}
-        num_iterations = 400
-        num_replicas = 30
         """""
-
-        
+    
     """
     creating_collection: Will create the ChromaDB collection
     """
@@ -114,14 +126,45 @@ class GerateMetaheuristic:
                         ids=[d],
                         embeddings=[embedding],
                         documents=[file_content],
-                        metadatas=[{"filename": d}]
+                        metadatas=[{"hnsw:space": "cosine"} ]
                     )
                     print(f"Added {d} to the collection {name_of_collection}")
                 else:
                     print(f"Warning: Empty embedding generated for {d}")
             else:  # If it's not a file, skip it
                 continue
-    
+
+    """
+    creating_operators_collection: Will create the ChromaDB collection
+    """
+    def creating_operators_collection(self, name_of_folder, name_of_collection):
+        directory = os.path.join(os.path.dirname(__file__), name_of_folder)
+        for d in os.listdir(directory):
+            file_path = os.path.join(directory, d)
+            if os.path.isfile(file_path):  # Check if it's a file
+                file_content = self.read_file(file_path)
+                # Split the content into blocks by double newlines
+                blocks = file_content.split("\n\n")
+                # Clean up and store blocks
+                documents = [block.strip() for block in blocks if block.strip()]
+                # Print results for verification
+                for i, block in enumerate(documents, start=1):
+                    print(f"{'-' * 40}")
+                    response = ollama.embeddings(model="all-minilm:latest", prompt=block)
+                    embedding = response.get("embedding")
+
+                    # Add embedding to the collection if valid
+                    if embedding:
+                        name_of_collection.add(
+                            ids=[f"operator: {i}"],
+                            embeddings=[embedding],
+                            documents=[block],
+                            metadatas=[{"hnsw:space": "cosine"}]
+                        )
+                        print(f"Added {i} to the collection")
+                    else:
+                        print(f"Warning: Empty embedding generated for {i}")
+
 
     """
     read_file:  Read file
@@ -130,7 +173,15 @@ class GerateMetaheuristic:
         with open(file_path, 'r', encoding='utf-8') as file:
             return file.read()
 
+    """
+    transform_embeddings:   
+    """ 
+    def transform_embeddings(embeddings, target_dim=1024):
+        pca = PCA(n_components=target_dim)
+        transformed_embeddings = pca.fit_transform(embeddings)
+        return transformed_embeddings
 
+        
     """
     extract_code_from_code_with_optuna:  Modify metaheuristic to make optuna format 
     """                
@@ -271,6 +322,7 @@ class GerateMetaheuristic:
         if self.performance_found is not None:
             return self.performance_found
 
+
     """
     get_metaheuristic_performance:  Gets performance from metaheuristic fitness
     """
@@ -340,196 +392,260 @@ class GerateMetaheuristic:
         output_response = None
 
         # Query for the Operators - - - - - - - - - - - - - - - - - - -
-        output = ollama.embeddings(
+         
+        output_operators = ollama.embeddings(
         prompt=f"Remember to write the operators' names",
         model=self.model_embed
         )
-        results = self.python_collection.query(
-        query_embeddings=[output["embedding"]],
-        n_results=4 # Can modify this for operators 
+        results = self.operators_collection.query(
+        query_embeddings=[output_operators["embedding"]],
+        n_results=1
         )
-        data = results['documents'][0][0]
-        print("operators etc:", data)
+        data  = results['documents'][0][0]
+        print("operators data:  ", data)
+        
+
+
         # Query for the Operators - - - - - - - - - - - - - - - - - - -
-        
-        # Query for the Template - - - - - - - - - - - - - - - - - - -
-        output_template = ollama.embeddings(
-        prompt="evaluate_sequence_IOH",
-        model=self.model_embed
-        )
-        results = self.python_collection.query(
-        query_embeddings=[output_template["embedding"]],
-        n_results=5
-        )
-        data_template = results['documents'][0][0]
-        print("this is metaheuristic template ", data_template)
-        # Query for the Template - - - - - - - - - - - - - - - - - - -
-
-
-        
+     
         # there won´t be any feedback else:
-        if number_iteration >= 1:
+        if number_iteration > 3:
             # Query for the Feedback - - - - - - - - (asks for the metaheuristics and feedback) - - - - - - - - - - -
             output_feedback = ollama.embeddings(
-            prompt="give me all the metaheuristics created with their given performance",
-            model=self.model_embed
+            prompt="Give me the results with the smallest performance",
+            model="bge-m3"
             )
             results = self.feedback_collection.query(
             query_embeddings=[output_feedback["embedding"]],
-            n_results=1
-            )
-            data_feedback = results['documents'][0]
-            print("data_feedback: give me all the metaheuristics created with their given performance", data_feedback)
-            # Query for the Feedback - - - - - - - - - - - - - - - - - - -
-
-            """ 
-            # Query for the Operators - - - - - - - - - - - - - - - - - - -
-            output = ollama.embeddings(
-            prompt=f"give me the best operators, operators that are NOT these: {data_feedback}",
-            model=self.model_embed
-            )
-            results = self.python_collection.query(
-            query_embeddings=[output["embedding"]],
             n_results=3
             )
-            data = results['documents'][0][0]
-            # Query for the Operators - - - - - - - - - - - - - - - - - - -
-            """
+            answer = results['documents'][0][0]
+            print("data_feedback: Give me the results with the smallest performance", answer)
+            # Query for the Feedback - - - - - - - - - - - - - - - - - - -
+            output = ollama.generate(
+                    model=self.model,
+                    prompt = f"""
+                   ### INSTRUCTIONS FOR METAHEURISTIC REFINEMENT:
+                    1. Analyze the provided metaheuristic data and performance constraints to create a refined metaheuristic.
+                    2. Focus on strategies that either **improve performance**, **reduce computational cost**, or achieve a balance between the two.
+                    3. Suggest specific modifications to:
+                        - Operators
+                        - Parameters
+                        - Selectors
+                    Base your suggestions strictly on the given data without inventing new operators. Variations or combinations of existing operators are acceptable.
+                    4. Output the response in **code format only**, avoiding any explanations, markdown, or triple backticks (` ``` `).
+                    5. Ensure the metaheuristic design reflects logical, diverse, and effective strategies without exceeding computational constraints.
+
+                    ### CONTEXT:
+                    - **Current Iteration**: {number_iteration}
+                    - **Best Metaheuristic So Far**: {answer}
+
+                    ### OBJECTIVE:
+                    Generate a code-based response that integrates the feedback and refines the metaheuristic to maintain or improve performance while adhering to constraints.
+                    """
+                )
+            answer = output['response']
+
+            
 
        # Main Prompt - - - - - - - - - - - - - - - - - - -
         # and (performance_final_fitness < self.best_performance)
         # Getting performance  - - - - - - - - - - - - - - - - - - -
-        if number_iteration > 2:
-            complete_feedback = self.feedback_collection.get(
-            include=["documents"]
-            )
-
-            output = ollama.generate(
-                model=self.model,
-                prompt=f"""
-                - Find the smallest `performance_found` from this feedback: {complete_feedback} as a baseline.
-                - Maintain the operators and parameters from the provided data.
-                - Add convergence-enhancing strategies to your metaheuristic design, without modifying the template.
-                """
-            )
-            answer = output['response']
-            print("answer: feedback: ", answer)
-
-            
         while self.file_result != 0:
             try:
-                print("Inicio de while: self.best_performance: ", self.best_performance)
-                if number_iteration > 2:
+                template_file = f"""
+# This is the Python Iteration: {number_iteration}
+# Author: [Your Name]
+# Date: [Insert Date]
+
+# Code:
+import sys
+from pathlib import Path
+import ioh
+project_dir = Path(__file__).resolve().parents[2] # Remember to write well this line: 'project_dir = Path(__file__).resolve().parents[2]'
+sys.path.insert(0, str(project_dir))
+import benchmark_func as bf
+import metaheuristic as mh
+from joblib import Parallel, delayed
+import multiprocessing
+import numpy as np
+from P1 import P1
+
+def evaluate_sequence_IOH(heur, problem_id, instance, dimension, num_agents, num_iterations, num_replicas):
+        
+    ioh_problem = P1.create_ioh_problem(problem_id, instance, dimension)
+    fun = P1(variable_num=dimension, problem=ioh_problem)
+    prob = fun.get_formatted_problem()
+
+    def run_metaheuristic():
+        met = mh.Metaheuristic(prob, heur, num_agents, num_iterations)
+        met.verbose = {self.the_bool}
+        met.run()
+        best_position, f_best = met.get_solution()
+        return f_best, best_position
+
+    # Ejecutar en paralelo el número de réplicas
+    num_cores = min(multiprocessing.cpu_count(), num_replicas)
+    results_parallel = Parallel(n_jobs=num_cores, prefer="threads")(delayed(run_metaheuristic)() for _ in range(num_replicas))
+
+    # Extraer los valores de fitness de los resultados y calcular la métrica de rendimiento
+    fitness_values = [result[0] for result in results_parallel]
+    positions = [result[1] for result in results_parallel]
+    fitness_median = np.median(fitness_values)
+    iqr = np.percentile(fitness_values, 75) - np.percentile(fitness_values, 25)
+    performance_metric = fitness_median + iqr
+
+    # Fitness finales
+    fitness_array = np.array(fitness_values).T
+    print("final_fitness_array", fitness_array)
+
+    # Retorna el mejor valor y la mejor posición encontrada en todas las réplicas
+    best_fitness_index = np.argmin(fitness_values)
+    best_position = positions[best_fitness_index]
+    return performance_metric, best_position, fitness_array
+
+{self.made_metaheuristic}    
+
+problem_id = {self.problem_id}    
+instance = 1
+dimension = {self.dimensions}     
+num_agents= {self.num_of_agents}    
+num_iterations = 100
+num_replicas = 30
+
+performance_metric, best_position, fitness_array = evaluate_sequence_IOH(heur, problem_id, instance, dimension, num_agents, num_iterations, num_replicas)
+print("Métrica de rendimiento (Mediana + IQR):", performance_metric)
+print("Mejor posición encontrada:", best_position)
+
+# Obtener y comparar con el óptimo
+problem = ioh.get_problem(problem_id, instance=instance, dimension=dimension)
+optimal_fitness = problem.optimum.y                 
+            """
+                if number_iteration > 3:
                     output = ollama.generate(
-                        model=self.model,
-                      prompt = f"""
-                    {self.prompt}
+                    model=self.model,
+                    prompt = f"""
+                        {self.prompt}
 
-                    IMPORTANT INSTRUCTIONS:
-                    - DO NOT use ```python, markdown code, or any triple backticks (```) anywhere in your response. 
-                    - Extract operators strictly based on the provided data, ensuring diverse strategies. 
-                    - Avoid limiting the response to only two or three specific operator types. Use a wide variety to reflect the complexity of the data.
+                        ### IMPORTANT INSTRUCTIONS:
+                        1. **Code Format**: Avoid using triple backticks (` ``` `), Python-specific syntax, or markdown in the response.
+                        2. **Operator Diversity**: Ensure extracted operators reflect a wide range of strategies. Avoid limiting to only 2-3 operator types; include variety based on the data's complexity.
+                        3. **Operator Limit**: Do not include more than **4 operators** in the response.
 
-                    DATA USAGE RULES:
-                    - Do NOT modify any operators, parameters, variables, or selectors from the given data.
-                    - STRICTLY adhere to the provided details without inventing, omitting, or altering any information.
+                        ### DATA USAGE RULES:
+                        - Do **not** modify operators, parameters, variables, or selectors from the provided data.
+                        - Strictly adhere to the provided details without inventing, omitting, or altering any information.
 
-                    PROVIDED DATA:
-                    {data}
+                        ### OBJECTIVE:
+                        Incorporate the provided feedback to design a new metaheuristic approach. Aim to create a method that maintains or improves performance while reducing computational cost.
 
-                    RESPONSE FORMAT:
-                    Use the following template as a guide to structure your response. Only modify the metaheuristic information based on the provided data:
-                    {data_template}
+                        ### PROVIDED DATA:
+                        {data}
 
-                    PARAMETERS TO INCLUDE IN RESPONSE:
-                    - problem_id = {self.problem_id}
-                    - instance = 1
-                    - dimension = {self.dimensions}
-                    - num_agents = {self.num_of_agents}
-                    - num_iterations = 100
-                    - num_replicas = 30
+                        ### FEEDBACK:
+                        {answer}
 
-                    ERROR HANDLING:
-                    If you encounter an error, address it using this approach:
-                    {self.file_result_error}
+                        ### RESPONSE FORMAT:
+                        Please structure your response using the following template:
+                        heur = [
+                            (  # Search Operator 1
+                                '[operator_name]',
+                                {{
+                                    'parameter1': value1,
+                                    'parameter2': value2,
+                                    # Add more parameters as necessary
+                                }},
+                                '[selector_name]'
+                            ),
+                            (  # Search Operator 2
+                                '[operator_name]',
+                                {{
+                                    'parameter1': value1,
+                                    'parameter2': value2,
+                                    # Add more parameters as necessary
+                                }},
+                                '[selector_name]'
+                            )
+                            # Add up to 4 operators total
+                        ]
                     """
                     )
+                    self.made_metaheuristic = output['response']
+                    self.execute_generated_code(template_file, output_folder, number_iteration, False)
+                    self.the_bool = False
+                    self.execute_generated_code(template_file, output_folder, number_iteration, False)
 
                 # Generar el resultado con el modelo
                 else:
                     output = ollama.generate(
-                        model=self.model,
-                        prompt=f"""
-                        {self.prompt} 
-                        DO NOT USE ```python and do NOT use any markdown code or use the triple backticks  (```) anywhere in your response.
-                        From the data provided, extract operators while ensuring a variety of strategies. 
-                        Do not limit to just two or three specific types.
-                        Strictly match the information below, without inventing or modifying any details.
-                        Remember to write the operators' names, virables' names and selectors' names exactly as shown down below. For example, the operators' names are ALL ALWAYS written in lower case and with a '_' instead of a space between words.
-                        So write the parameters' exactly as shown down below. 
+                    model=self.model,
+                    prompt = f"""
+                        {self.prompt}
 
-                        These are the parameters to take, (REMEMBER that each operaotr must have its own selector, and that depending on the selected operator, YOU MUST ONLY USE USE ONE VARIABLE PER PARAMETER, DO NOT USE THE WHOLE ARRAY, and write the variable without an array format, but as a float or string format):
-                        Also consider, that if the dimension is bigger than 3, you must select selectors that have more space, such as 'all'.
+                        ### IMPORTANT INSTRUCTIONS:
+                        1. **Code Format**: Avoid using triple backticks (` ``` `), Python-specific syntax, or markdown in the response.
+                        2. **Operator Diversity**: Ensure extracted operators reflect a wide range of strategies. Avoid limiting to only 2-3 operator types; include variety based on the data's complexity.
+                        3. **Operator Limit**: Do not include more than **4 operators** in the response.
 
-                        Data, (DO NOT MODIFY ANY GIVEN OPERATORS, PARAMETERS, VARIABLES OR SELECTORS):
+                        ### DATA USAGE RULES:
+                        - Do **not** modify operators, parameters, variables, or selectors from the provided data.
+                        - Strictly adhere to the provided details without inventing, omitting, or altering any information.
+
+                        ### OBJECTIVE:
+                        Aim to create a method that maintains or improves performance while reducing computational cost.
+
+                        ### PROVIDED DATA:
                         {data}
-                        Use the following template for your response (only modify the metaheuristic that you will create with the before given data):
-                        {data_template}
-                        Remember to put:
-                        problem_id = {self.problem_id}  
-                        instance = 1
-                        dimension = {self.dimensions}
-                        num_agents = {self.num_of_agents}
-                        num_iterations = 100
-                        num_replicas = 30  
-                        If you encounter an error, address it as follows: {self.file_result_error}.
+
+                        ### RESPONSE FORMAT:
+                        Please structure your response using the following template:
+                        heur = [
+                            (  # Search Operator 1
+                                '[operator_name]',
+                                {{
+                                    'parameter1': value1,
+                                    'parameter2': value2,
+                                    # Add more parameters as necessary
+                                }},
+                                '[selector_name]'
+                            ),
+                            (  # Search Operator 2
+                                '[operator_name]',
+                                {{
+                                    'parameter1': value1,
+                                    'parameter2': value2,
+                                    # Add more parameters as necessary
+                                }},
+                                '[selector_name]'
+                            )
+                            # Add up to 4 operators total
+                        ]
                         """
                     )
-                output_response = self.execute_generated_code(output['response'], output_folder, number_iteration, False)
+                    self.made_metaheuristic = output['response']
+                    self.execute_generated_code(template_file, output_folder, number_iteration, False)
+                    self.the_bool = False
+                    self.execute_generated_code(template_file, output_folder, number_iteration, False)
+
             except Exception as e:
                 # Manejar cualquier error durante la ejecución del código generado
                 print(f"Error durante la ejecución: {e}")
                 print("Regenerando código...")
                 continue  # Saltar al inicio del ciclo para regenerar código
-        
-        
-        if number_iteration > 2:
-            self.perform_optuna_tuning(output_folder, number_iteration)
-
-          
-
-        # Calling optuna - - - - - - - - - - - - - - - - - - -
-        #self.perform_optuna_tuning(output_folder, number_iteration)
-
-        # Veryfying if exploration or refinement - - - - - - - - - - - - - - - - - - -
-
-
-        """ 
-        current_directory = os.getcwd()
-        relative_path = "outputs-results"
-        base_path_m = os.path.join(current_directory, relative_path)
-        folder_name_m = self.folder_name
-        file_name_m = f"execution_iteration_0.py"
-
-        meta_file_path = os.path.join(base_path_m, folder_name_m, file_name_m)
-        if  os.path.exists(meta_file_path):
-            print("yes it does exists")
-       """
-            
-        return output_response  ## N.S
-
+        self.perform_optuna_tuning(output_folder, number_iteration)
+        return output_response  
+    
     """
     Refinement:  Will enhance the metaheuristic.
     Must have the hyperparameters in order to refine it, once refined, it should not refine again, since it will be as refining the same metaheuristic twice with 
     the exact same hyperparameters and hence, performance. 
     """
-
+   
     def refinement(self, output_folder, number_iteration):
         self.file_result = 1 # Changing again
         print("i am refinement")
         output_response_refinement = None
 
-        
         # Get the metaheuristic file to REFINE IT - - - - - - - - - - - - - - - - - - -
         current_directory = os.getcwd()
         relative_path = "outputs-results"
@@ -580,6 +696,7 @@ class GerateMetaheuristic:
         
             # Hyperparameters to feedback - - - - - - - - - - - - - - - - - - -
             if self.hyperparameters:
+                print("si hay hiperparametros")
                 # Define the expected variables
                 expected_variables = {
                     'scale', 'elite_rate', 'mutation_rate', 'probability',
@@ -591,7 +708,7 @@ class GerateMetaheuristic:
                 # Filter and process the hyperparameters
                 found_hyperparameters = {
                     key: (float(value) if isinstance(value, (int, float)) else value)
-                    for key, value in self.hyperparameters.items()
+                    for key, value in self.hyperparameters.items()  # Use .items() for dictionaries
                     if key in expected_variables and value != ''
                 }
                 # Converts it into a JSON? 
@@ -600,29 +717,19 @@ class GerateMetaheuristic:
                 numero = number_iteration
                 #print(hyperparameters_str)  # Optional: Print the result
                 print("Guardando: ", {number_iteration}, "hyperparameters_str: ", hyperparameters_str)
+                self.performance_found = single_performance_found
+                performance_string = str(single_performance_found)
                 parameters = f"""Iteration:",  {numero}, Parameters:", {hyperparameters_str}, "Performance Found:", {single_performance_found}"""
                 self.feedback_collection.add(
-                    documents=[parameters, metaheuristic_file],
-                    metadatas=[{'source':numero}, {'source':numero}],
-                    ids=[f"id_parameters_{numero}", f"id_metaheuristic_file_{numero}"]
+                    documents=[parameters, self.extracted_metaheuristic, performance_string ],
+                    metadatas=[{"hnsw:space": "cosine"}, {"hnsw:space": "cosine"}, {"hnsw:space": "cosine"}],
+                    ids=[f"id_parameters_{numero}", f"id_metaheuristic_file_{numero}",  f"id_performance_found_{numero}"]
                 )
-        # Hyperparameters to feedback - - - - - - - - - - - - - - - - - - -
-        
-        if number_iteration > self.refinement_starter:
-            self.get_metaheuristic_performance(output_folder, number_iteration)
- 
-        
-        
-        # Performance - - - - - - - - - - - - - - - - - - -
-        #if self.performance_found < self.best_performance:
-        #    self.best_performance = self.performance_found
-        #else:
-        #    print("El rendimiento no fue bueno, vamos a exploration")
-        #    self.exploration(output_folder, number_iteration)
-        # Performance - - - - - - - - - - - - - - - - - - -
-
+            else:
+                print("not found: self.hyperparameters: ")
  
         return output_response_refinement
+    
     
     """
     perform_optuna_tuning: 
@@ -663,6 +770,13 @@ class GerateMetaheuristic:
         2. **No Deviations**: Follow the provided template exactly—no additions, modifications, or extra explanations.
         3. **Use the follwoing template**: {optuna_template}
         ### Template Modifications:
+        - Repace with:
+        problem_id = {self.problem_id}    
+        instance = 1
+        dimension = {self.dimensions}     
+        num_agents= {self.num_of_agents}    
+        num_iterations = 100
+        num_replicas = 10
         - Replace `def objective(trial):` with:
             def objective(trial):
                 heur = [
@@ -765,12 +879,10 @@ class GerateMetaheuristic:
             self.logger.debug("Starting________________")
         
             for i in range(self.max_iterations):
+                #if self.performance_found <= 0:
+                #   break
                 self.logger.debug(f"Starting exploration iteration {i}")
                 self.exploration(output_folder, i)
-                #self.refinement(output_folder, i)
-                # self.logger.info(f"Refined output for iteration {i} generated")
-                # self.self_refine_with_optuna(output_folder, i)
-
             # -------------------- 
         except Exception as e:
             self.logger.error(f"An error occurred in the main execution: {str(e)}")
@@ -778,7 +890,7 @@ class GerateMetaheuristic:
             raise         
 
 if __name__ == "__main__":
-    generator = GerateMetaheuristic(2, 6, 15)
+    generator = GerateMetaheuristic(1,3, 15)
     generator.run()
     logging.basicConfig(level=logging.DEBUG)
     

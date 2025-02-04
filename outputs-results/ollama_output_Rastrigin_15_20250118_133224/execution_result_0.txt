@@ -1,0 +1,13 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_Rastrigin_15_20250118_133224/execution_iteration_0.py", line 67, in <module>
+    met.run()
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/metaheuristic.py", line 144, in run
+    self.apply_search_operator(perturbator, selector)
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/metaheuristic.py", line 100, in apply_search_operator
+    exec('Operators.' + operator_name + '(self.pop,' + operator_params)
+  File "<string>", line 1, in <module>
+TypeError: differential_mutation() got an unexpected keyword argument 'scaling_factor'

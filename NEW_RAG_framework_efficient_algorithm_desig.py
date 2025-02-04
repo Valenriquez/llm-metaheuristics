@@ -422,7 +422,7 @@ class GerateMetaheuristic:
 
 
         # there won´t be any feedback else:
-        if number_iteration > 2:
+        if number_iteration > 0:
             # Query for the Feedback - - - - - - - - (asks for the metaheuristics and feedback) - - - - - - - - - - -
             output_feedback = ollama.embeddings(
             prompt="Give me the results with the smallest performance",
@@ -485,9 +485,9 @@ class GerateMetaheuristic:
                         From the data provided, extract operators while ensuring a variety of strategies. 
                         Do not limit to just two or three specific types.
                         
-                        Use this feedback to get inspired to create the new metaheuristic: {answer}.
-                        Strictly match the information below, without inventing or modifying any details:
-                        Data, (DO NOT MODIFY ANY GIVEN OPERATORS, PARAMETERS, VARIABLES OR SELECTORS):
+                        Use this feedback to get inspired to create a new metaheuristics with a smaller performance.
+                        Feedback : {answer}.
+                        Strictly match the information below, (without inventing or modifying any data, unless its the operators):
                         {data}
 
                         Use the following template for your response:
@@ -622,7 +622,7 @@ class GerateMetaheuristic:
                 # Filter and process the hyperparameters
                 found_hyperparameters = {
                     key: (float(value) if isinstance(value, (int, float)) else value)
-                    for key, value in self.hyperparameters.items()
+                    for key, value in self.hyperparameters.items()  # Use .items() for dictionaries
                     if key in expected_variables and value != ''
                 }
                 # Converts it into a JSON? 
@@ -767,7 +767,7 @@ class GerateMetaheuristic:
         with open(file_name, 'w') as f:
             f.write(code)
         try:
-            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=120)
+            result = subprocess.run(['python', file_name], capture_output=True, text=True, timeout=68)
             execution_result = f"Exit code: {result.returncode}\nStdout:\n{result.stdout}\nStderr:\n{result.stderr}"
             self.file_result = result.returncode
             self.file_result_error = result.stderr
@@ -817,7 +817,7 @@ class GerateMetaheuristic:
             raise         
 
 if __name__ == "__main__":
-    generator = GerateMetaheuristic("Rastrigin", 15, 15)
+    generator = GerateMetaheuristic("Bohachevsky", 3, 15)
     generator.run()
     logging.basicConfig(level=logging.DEBUG)
-    
+    0

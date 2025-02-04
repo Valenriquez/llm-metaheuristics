@@ -1,0 +1,24 @@
+Exit code: 0
+Stdout:
+Mejores hiperparámetros encontrados:
+{'scale': 0.252152768753621, 'distribution': 'gaussian', 'expression': 'best', 'factor': 0.5875438876347718}
+Mejor rendimiento encontrado:
+111.1353567262464
+
+Stderr:
+[I 2025-01-18 10:44:47,427] A new study created in memory with name: no-name-ae481874-a32c-4454-8ac8-352ffddadb61
+[I 2025-01-18 10:44:51,390] Trial 0 finished with value: 176.21661735704348 and parameters: {'scale': 0.10428733307620046, 'distribution': 'uniform', 'expression': 'rand-to-best', 'factor': 1.4321250637861076}. Best is trial 0 with value: 176.21661735704348.
+[I 2025-01-18 10:44:53,935] Trial 1 finished with value: 175.54721043286236 and parameters: {'scale': 0.5320725191800036, 'distribution': 'gaussian', 'expression': 'rand', 'factor': 1.5298936243261068}. Best is trial 1 with value: 175.54721043286236.
+[I 2025-01-18 10:44:56,435] Trial 2 finished with value: 187.74737154001286 and parameters: {'scale': 0.3980316300368092, 'distribution': 'levy', 'expression': 'current', 'factor': 1.3002761173016875}. Best is trial 1 with value: 175.54721043286236.
+[I 2025-01-18 10:44:58,929] Trial 3 finished with value: 196.45803604199125 and parameters: {'scale': 0.8597352308417618, 'distribution': 'levy', 'expression': 'current-to-best', 'factor': 1.1075033769927431}. Best is trial 1 with value: 175.54721043286236.
+[I 2025-01-18 10:45:01,384] Trial 4 finished with value: 179.71679865915692 and parameters: {'scale': 0.1520002481593905, 'distribution': 'levy', 'expression': 'rand', 'factor': 1.164859953876525}. Best is trial 1 with value: 175.54721043286236.
+[I 2025-01-18 10:45:03,777] Trial 5 finished with value: 183.9756173851052 and parameters: {'scale': 0.20524011723887417, 'distribution': 'uniform', 'expression': 'rand-to-best-and-current', 'factor': 1.402008434858558}. Best is trial 1 with value: 175.54721043286236.
+[I 2025-01-18 10:45:06,198] Trial 6 finished with value: 171.12075274980793 and parameters: {'scale': 0.5397225219170482, 'distribution': 'gaussian', 'expression': 'rand-to-best-and-current', 'factor': 0.5799246915721454}. Best is trial 6 with value: 171.12075274980793.
+[I 2025-01-18 10:45:08,555] Trial 7 finished with value: 111.1353567262464 and parameters: {'scale': 0.252152768753621, 'distribution': 'gaussian', 'expression': 'best', 'factor': 0.5875438876347718}. Best is trial 7 with value: 111.1353567262464.
+[I 2025-01-18 10:45:10,919] Trial 8 finished with value: 170.98046981262988 and parameters: {'scale': 0.6082309976351225, 'distribution': 'uniform', 'expression': 'rand', 'factor': 1.0809468773419153}. Best is trial 7 with value: 111.1353567262464.
+[I 2025-01-18 10:45:13,402] Trial 9 finished with value: 194.02028747366816 and parameters: {'scale': 0.5519354028863704, 'distribution': 'levy', 'expression': 'current-to-best', 'factor': 1.8376375210287084}. Best is trial 7 with value: 111.1353567262464.
+[I 2025-01-18 10:45:15,816] Trial 10 finished with value: 176.88076857520684 and parameters: {'scale': 0.3558395354474601, 'distribution': 'gaussian', 'expression': 'best', 'factor': 2.3248585345320807}. Best is trial 7 with value: 111.1353567262464.
+[I 2025-01-18 10:45:18,110] Trial 11 finished with value: 127.01355370615995 and parameters: {'scale': 0.7678763452886963, 'distribution': 'uniform', 'expression': 'best', 'factor': 0.503941709687356}. Best is trial 7 with value: 111.1353567262464.
+[I 2025-01-18 10:45:20,471] Trial 12 finished with value: 132.45328887921195 and parameters: {'scale': 0.8549050509589398, 'distribution': 'gaussian', 'expression': 'best', 'factor': 0.5201352982299814}. Best is trial 7 with value: 111.1353567262464.
+[I 2025-01-18 10:45:22,786] Trial 13 finished with value: 156.09374509238654 and parameters: {'scale': 0.7239091504049584, 'distribution': 'uniform', 'expression': 'best', 'factor': 0.8036049948462817}. Best is trial 7 with value: 111.1353567262464.
+[I 2025-01-18 10:45:25,250] Trial 14 finished with value: 143.35880784931203 and parameters: {'scale': 0.28849370530354324, 'distribution': 'gaussian', 'expression': 'best', 'factor': 0.8306543822105785}. Best is trial 7 with value: 111.1353567262464.
