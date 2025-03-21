@@ -1,0 +1,9 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_21_7_20250305_100244/execution_iteration_4.py", line 56, in <module>
+    'gravity': Parameters['gravity'],
+               ^^^^^^^^^^
+NameError: name 'Parameters' is not defined

@@ -1,0 +1,19 @@
+Exit code: 0
+Stdout:
+Mejores hiperparámetros encontrados:
+{'gravity': 0.0058893292945538045, 'alpha': 0.015160017384267147, 'beta': 2.542254226965696, 'dt': 1.2026841261618513}
+Mejor rendimiento encontrado:
+92.94
+
+Stderr:
+[I 2025-02-08 11:54:29,626] A new study created in memory with name: no-name-f93211b5-1564-4db0-a3b8-870a4d827b41
+[I 2025-02-08 11:54:51,863] Trial 0 finished with value: 92.94 and parameters: {'gravity': 0.0058893292945538045, 'alpha': 0.015160017384267147, 'beta': 2.542254226965696, 'dt': 1.2026841261618513}. Best is trial 0 with value: 92.94.
+[I 2025-02-08 11:55:00,738] Trial 1 finished with value: 92.94840849064424 and parameters: {'gravity': 0.002073718222088451, 'alpha': 0.050799936566081325, 'beta': 4.006223541887782, 'dt': 1.8541352565122962}. Best is trial 0 with value: 92.94.
+[I 2025-02-08 11:55:09,253] Trial 2 finished with value: 92.94737417420363 and parameters: {'gravity': 0.008768201098218856, 'alpha': 0.0317659040864663, 'beta': 3.9153081963363636, 'dt': 0.7143498601842861}. Best is trial 0 with value: 92.94.
+[I 2025-02-08 11:55:18,116] Trial 3 finished with value: 92.94645569745182 and parameters: {'gravity': 0.0016426120982108274, 'alpha': 0.06041335189248923, 'beta': 3.821480466889768, 'dt': 1.6000744807483962}. Best is trial 0 with value: 92.94.
+[I 2025-02-08 11:55:28,746] Trial 4 finished with value: 92.94322784872591 and parameters: {'gravity': 0.002599605182942455, 'alpha': 0.05646695952691103, 'beta': 3.7607511378859217, 'dt': 1.2380946202227354}. Best is trial 0 with value: 92.94.
+[I 2025-02-08 11:55:39,428] Trial 5 finished with value: 92.94322784872591 and parameters: {'gravity': 0.0014024168209343967, 'alpha': 0.014879594539170185, 'beta': 3.5388190293151904, 'dt': 1.9391232208437434}. Best is trial 0 with value: 92.94.
+[I 2025-02-08 11:55:48,225] Trial 6 finished with value: 92.94518064191833 and parameters: {'gravity': 0.006995418638818286, 'alpha': 0.03176708262722596, 'beta': 3.88993861419571, 'dt': 1.3314187790286285}. Best is trial 0 with value: 92.94.
+[I 2025-02-08 11:55:56,644] Trial 7 finished with value: 92.95005814482448 and parameters: {'gravity': 0.008606481182159103, 'alpha': 0.09150547832242763, 'beta': 3.998496797532031, 'dt': 1.7294144577475505}. Best is trial 0 with value: 92.94.
+[I 2025-02-08 11:56:06,141] Trial 8 finished with value: 92.94322784872591 and parameters: {'gravity': 0.00558023362373249, 'alpha': 0.09926345009017054, 'beta': 3.5234641234305526, 'dt': 1.111803904297818}. Best is trial 0 with value: 92.94.
+[I 2025-02-08 11:56:14,777] Trial 9 finished with value: 92.94713343511074 and parameters: {'gravity': 0.008713442830763338, 'alpha': 0.0554631869930028, 'beta': 4.1515013851735025, 'dt': 1.510662781703998}. Best is trial 0 with value: 92.94.

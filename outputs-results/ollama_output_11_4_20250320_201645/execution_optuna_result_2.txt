@@ -1,0 +1,8 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_11_4_20250320_201645/execution_optuna_iteration_2.py", line 8, in <module>
+    import metaheuristic as mh
+ModuleNotFoundError: No module named 'metaheuristic'

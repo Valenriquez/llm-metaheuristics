@@ -998,7 +998,7 @@ optimal_fitness = problem.optimum.y
             raise         
 
 if __name__ == "__main__":
-    generator = GerateMetaheuristic(5, 5, 25)
+    generator = GerateMetaheuristic(11, 4, 25)
     generator.run()
     logging.basicConfig(level=logging.DEBUG)
     
