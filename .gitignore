@@ -51,4 +51,4 @@ MANIFEST
 .env.local
 .env.development
 .env.test
-.env.production
+.env.production__pycache__/
