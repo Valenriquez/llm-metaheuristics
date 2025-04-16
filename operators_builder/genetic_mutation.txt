@@ -1,9 +1,0 @@
-"genetic_mutation": { # operator: - If you decide to use the operator genetic_crossover, then you must use genetic_mutation too. And vice versa. 
-    { # parameters
-      "scale": 1.0,
-      "elite_rate": 0.1,
-      "mutation_rate": 0.25,
-      "distribution": "uniform" or "gaussian" or "levy"
-    },
-    selector: "greedy" or "all" or"metropolis" or"probabilistic"
-}

@@ -1,9 +1,0 @@
-"firefly_dynamic": { # operator
-    { # parameters
-      "distribution": "uniform" or "gaussian" or "levy",
-      "alpha": 1.0,
-      "beta": 1.0,
-      "gamma": 100.0
-    },
-    selector: "greedy" or "all" or"metropolis" or"probabilistic"
-}

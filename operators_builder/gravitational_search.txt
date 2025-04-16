@@ -1,7 +1,0 @@
- "gravitational_search": { # operator
-    { # parameters
-      "gravity": 1.0,
-      "alpha": 0.02
-    },
-    selector: "greedy" or "all" or"metropolis" or"probabilistic"
-}

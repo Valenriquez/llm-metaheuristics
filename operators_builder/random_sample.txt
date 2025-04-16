@@ -1,8 +1,0 @@
-"local_random_walk": { # operator
-    { # parameters
-      "probability": 0.75,
-      "scale": 1.0,
-      "distribution": "uniform" or "gaussian" or "levy"
-    },
-    selector: "greedy" or "all" or"metropolis" or"probabilistic"
-}

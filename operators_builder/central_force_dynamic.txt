@@ -1,9 +1,0 @@
-"central_force_dynamic": {  # operator
-    { # parameters
-      "gravity": 0.001,
-      "alpha": 0.01,
-      "beta": 1.5,
-      "dt": 1.0
-    },
-    selector: "greedy" or "all" or"metropolis" or"probabilistic"
-}
