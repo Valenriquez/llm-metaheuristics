@@ -1,0 +1,19 @@
+Exit code: 0
+Stdout:
+Mejores hiperparámetros encontrados:
+{'distribution': 'uniform', 'alpha': 0.09813993176149934, 'beta': 2.215230137153024, 'gamma': 243}
+Mejor rendimiento encontrado:
+-102.25991414392365
+
+Stderr:
+[I 2025-04-08 10:52:27,228] A new study created in memory with name: no-name-4c24c073-a559-498f-a9a6-944e534a864a
+[I 2025-04-08 10:52:29,952] Trial 0 finished with value: -102.21948515334036 and parameters: {'distribution': 'levy', 'alpha': 0.09965245451857824, 'beta': 2.8003423191564423, 'gamma': 223}. Best is trial 0 with value: -102.21948515334036.
+[I 2025-04-08 10:52:32,584] Trial 1 finished with value: -102.22391762467424 and parameters: {'distribution': 'gaussian', 'alpha': 0.02256242952974867, 'beta': 1.8251571492224117, 'gamma': 113}. Best is trial 1 with value: -102.22391762467424.
+[I 2025-04-08 10:52:35,116] Trial 2 finished with value: -102.14271353534764 and parameters: {'distribution': 'gaussian', 'alpha': 0.07672128162674471, 'beta': 3.5031700573501756, 'gamma': 226}. Best is trial 1 with value: -102.22391762467424.
+[I 2025-04-08 10:52:37,824] Trial 3 finished with value: -102.2116083507811 and parameters: {'distribution': 'uniform', 'alpha': 0.02148473632268556, 'beta': 2.7061610340185, 'gamma': 102}. Best is trial 1 with value: -102.22391762467424.
+[I 2025-04-08 10:52:40,421] Trial 4 finished with value: -102.15692360568266 and parameters: {'distribution': 'levy', 'alpha': 0.010656233088199093, 'beta': 3.122549527195261, 'gamma': 100}. Best is trial 1 with value: -102.22391762467424.
+[I 2025-04-08 10:52:42,966] Trial 5 finished with value: -102.21387495401892 and parameters: {'distribution': 'gaussian', 'alpha': 0.047139944222190824, 'beta': 3.423254122225151, 'gamma': 160}. Best is trial 1 with value: -102.22391762467424.
+[I 2025-04-08 10:52:45,934] Trial 6 finished with value: -102.25991414392365 and parameters: {'distribution': 'uniform', 'alpha': 0.09813993176149934, 'beta': 2.215230137153024, 'gamma': 243}. Best is trial 6 with value: -102.25991414392365.
+[I 2025-04-08 10:52:48,908] Trial 7 finished with value: -102.19609044241639 and parameters: {'distribution': 'uniform', 'alpha': 0.029516238663261425, 'beta': 3.5266985862282, 'gamma': 281}. Best is trial 6 with value: -102.25991414392365.
+[I 2025-04-08 10:52:51,628] Trial 8 finished with value: -102.15339352842523 and parameters: {'distribution': 'gaussian', 'alpha': 0.03333551677333533, 'beta': 2.3208730538613276, 'gamma': 243}. Best is trial 6 with value: -102.25991414392365.
+[I 2025-04-08 10:52:54,328] Trial 9 finished with value: -102.20733782682191 and parameters: {'distribution': 'uniform', 'alpha': 0.08492674819618715, 'beta': 2.278274576465391, 'gamma': 166}. Best is trial 6 with value: -102.25991414392365.

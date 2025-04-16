@@ -1,0 +1,8 @@
+Exit code: 1
+Stdout:
+
+Stderr:
+Traceback (most recent call last):
+  File "/Users/valeriaenriquezlimon/Documents/meta-h-generator/llm-metaheuristics/outputs-results/ollama_output_11_3_20250322_111130/execution_optuna_iteration_1.py", line 1, in <module>
+    import optuna
+ModuleNotFoundError: No module named 'optuna'

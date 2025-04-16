@@ -2,7 +2,7 @@ import optuna
 import sys
 from pathlib import Path
 
-project_dir = Path(__file__).resolve().parents[2]
+project_dir = Path(__file__).resolve().parents[2] # Remember to write well this line: 'project_dir = Path(__file__).resolve().parents[2]'
 sys.path.insert(0, str(project_dir))
 
 import metaheuristic as mh
@@ -45,7 +45,7 @@ def objective(trial):
         ('random_search', {'scale': trial.suggest_float('scale', 0.001, 0.02), 'distribution': trial.suggest_categorical('distribution', ['uniform', 'gaussian', 'levy'])}, 'greedy'),
         ('central_force_dynamic', {'gravity': trial.suggest_float('gravity', 0.001, 0.01), 'alpha': trial.suggest_float('alpha', 0.01, 0.02), 'beta': trial.suggest_float('beta', 1.0, 1.5), 'dt': trial.suggest_float('dt', 0.25, 0.75)}, 'metropolis'),
         ('differential_mutation', {'expression': trial.suggest_categorical('expression', ['rand', 'best', 'current', 'current-to-best', 'rand-to-best', 'rand-to-best-and-current']), 'num_rands': trial.suggest_int('num_rands', 1, 3), 'factor': trial.suggest_float('factor', 0.5, 2.0)}, 'probabilistic'),
-        ('firefly_dynamic', {'distribution': trial.suggest_categorical('distribution', ['uniform', 'gaussian', 'levy']), 'alpha': trial.suggest_float('alpha', 0.5, 1.0), 'beta': trial.suggest_float('beta', 0.5, 1.0), 'gamma': trial.suggest_int('gamma', 100, 300)}, 'all'),
+        ('firefly_dynamic', {'distribution': trial.suggest_categorical('distribution', ['uniform', 'gaussian', 'levy']), 'alpha': trial.suggest_float('alpha', 0.5, 1.0), 'beta': trial.suggest_float('beta', 0.5, 1.0), 'gamma': trial.suggest_int('gamma', 100, 300)}, 'all')
     ]
 
     ioh_problem = P1.create_ioh_problem(problem_id, instance, dimension)
@@ -56,12 +56,11 @@ def objective(trial):
     return performance
 
 # Crear y ejecutar el estudio de Optuna
-study = optuna.create_study(direction="minimize")  
-study.optimize(objective, n_trials=num_replicas) 
+study = optuna.create_study(direction='minimize')
+study.optimize(objective, n_trials=10)
 
 print("Best trial:")
 trial = study.best_trial
 print(f"  Value: {trial.value}")
-print("  Params: ")
 for key, value in trial.params.items():
-    print(f"    {key}: {value}")
+    print(f"  {key}: {value}")
