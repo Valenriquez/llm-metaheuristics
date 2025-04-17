@@ -7,7 +7,8 @@ env/
 .pytest_cache/
 
 # Python cache and build artifacts
-__pycache__/
+__pycache__
+.DS_Store
 *.py[cod]
 *$py.class
 *.so
@@ -51,4 +52,4 @@ MANIFEST
 .env.local
 .env.development
 .env.test
-.env.production__pycache__/
+.env.production

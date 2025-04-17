@@ -50,42 +50,36 @@ def evaluate_sequence_IOH(heur, problem_id, instance, dimension, num_agents, num
     return performance_metric, best_position, fitness_array
 
 heur = [
-    (  # Search Operator 1
-        'random_search',
-        {
-            'scale': 0.01,
-            'distribution': 'gaussian'
-        },
-        'metropolis'
-    ),
-    (  # Search Operator 2
-        'central_force_dynamic',
-        {
-            'gravity': 0.01,
-            'alpha': 0.05,
-            'beta': 1.0,
-            'dt': 0.5
-        },
-        'probabilistic'
-    ),
-    (  # Search Operator 3
-        'differential_mutation',
-        {
-            'expression': 'rand-to-best',
-            'num_rands': 2,
-            'factor': 0.8
-        },
-        'greedy'
-    ),
-    (  # Search Operator 4
-        'spiral_dynamic',
-        {
-            'radius': 0.85,
-            'angle': 30.0,
-            'sigma': 0.15
-        },
-        'all'
-    )
+    ("random_search",
+     {
+         "scale": 0.1,
+         "distribution": "gaussian"
+     },
+     "greedy"),
+    ("central_force_dynamic",
+     {
+         "gravity": 0.01,
+         "alpha": 0.02,
+         "beta": 1.5,
+         "dt": 0.5
+     },
+     "metropolis"),
+    ("differential_mutation",
+     {
+         "expression": "rand-to-best",
+         "num_rands": 2,
+         "factor": 0.8
+     },
+     "probabilistic"),
+    ("swarm_dynamic",
+     {
+         "factor": 1.0,
+         "self_conf": 2.54,
+         "swarm_conf": 2.56,
+         "version": "inertial",
+         "distribution": "uniform"
+     },
+     "greedy")
 ]    
 
 problem_id = 9    

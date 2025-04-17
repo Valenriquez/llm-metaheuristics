@@ -50,39 +50,37 @@ def evaluate_sequence_IOH(heur, problem_id, instance, dimension, num_agents, num
     return performance_metric, best_position, fitness_array
 
 heur = [
-    (  # Search Operator 1
-        'random_search',
+    ('random_search',
         {
             'scale': 0.01,
             'distribution': 'gaussian'
         },
-        'metropolis'
+        'greedy'
     ),
-    (  # Search Operator 2
-        'central_force_dynamic',
+    ('central_force_dynamic',
         {
-            'gravity': 0.01,
-            'alpha': 0.05,
+            'gravity': 0.005,
+            'alpha': 0.02,
             'beta': 1.2,
             'dt': 0.5
         },
-        'probabilistic'
+        'metropolis'
     ),
-    (  # Search Operator 3
-        'differential_mutation',
-        {
-            'expression': 'rand-to-best-and-current',
-            'num_rands': 2,
-            'factor': 1.5
-        },
-        'greedy'
-    ),
-    (  # Search Operator 4
-        'genetic_crossover',
+    ('genetic_crossover',
         {
             'pairing': 'cost',
-            'crossover': 'uniform',
-            'mating_pool_factor': 0.6
+            'crossover': 'blend',
+            'mating_pool_factor': 0.3
+        },
+        'probabilistic'
+    ),
+    ('swarm_dynamic',
+        {
+            'factor': 0.8,
+            'self_conf': 2.4,
+            'swarm_conf': 2.55,
+            'version': 'constriction',
+            'distribution': 'gaussian'
         },
         'all'
     )
@@ -90,8 +88,8 @@ heur = [
 
 problem_id = 9    
 instance = 1
-dimension = 9     
-num_agents= 136    
+dimension = 3     
+num_agents= 57    
 num_iterations = 100
 num_replicas = 100
 
