@@ -704,24 +704,7 @@ optimal_fitness = problem.optimum.y
 
         if number_iteration > 0:
             self.decide_next_step(output_folder, number_iteration)
-        """
-        with open(input_file_path, 'r') as f:  
-            print("hola...", self.file_contents)
-            self.file_contents = f.read()
-            self.extracted_metaheuristic = self.extract_code_from_code_with_optuna(self.file_contents)
-
-        with open(input_file_path, 'r', encoding='utf-8') as file:
-            metaheuristic_file = file.read()
-            self.performance_found = single_performance_found
-            performance_string = str(single_performance_found)
-            self.feedback_collection.add(
-                documents=[f"iteration number: {number_iteration}",self.extracted_metaheuristic, performance_string ],
-                metadatas=[{"hnsw:space": "cosine"}, {"hnsw:space": "cosine"}, {"hnsw:space": "cosine"}],
-                ids=[f"id_parameters_{number_iteration}", f"id_metaheuristic_file_{number_iteration}",  f"id_performance_found_{number_iteration}"]
-            )
-
-        #self.perform_optuna_tuning(output_folder, number_iteration)
-        """
+    
         return output_response  
     
     def decide_next_step(self, output_folder, number_iteration):
@@ -939,7 +922,6 @@ optimal_fitness = problem.optimum.y
         if self.hyperparameters:
             self.refinement(output_folder, number_iteration)
         else:
-            #if self.performance_found > self.best_performance:
             self.exploration(output_folder, number_iteration)
         #  Important  - - - - - - - - - - - - - - - - - - -
 
