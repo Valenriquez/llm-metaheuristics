@@ -9,6 +9,7 @@ from feedback import Feedback
 from collection_manager import CollectionManager
 from execute_code import CodeExecutor, ExecutionConfig  
 from exploration import Exploration
+from exploitation import Exploitation
 
 class MainFramework:
     def __init__(
@@ -104,6 +105,12 @@ class MainFramework:
                 metaheuristic_template_collection = self.metaheuristic_template_collection
             )
 
+            self.exploitation_instance = Exploitation(
+                problem_id=self.problem_id,
+                dimensions=self.dimensions,
+            )
+ 
+
             for i in range(self.number_iteration):
                 self.logger.debug(f"Starting exploration iteration {i}")
 
@@ -113,7 +120,10 @@ class MainFramework:
                     code=generated_code,
                     number_iteration=i
                 )
-                self.logger.info(f"Iteration {i} result:\n{result}")
+                self.logger.info(f"Iteration EXPLORATION {i} result:\n{result}")
+
+                enhanced_code = self.exploitation_instance.exploitation(i)
+
 
                 feedback_manager = Feedback(
                     folder_feedback=self.folder_name,
