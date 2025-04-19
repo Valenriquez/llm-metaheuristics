@@ -5,7 +5,7 @@ from pathlib import Path
 import chromadb
 from chromadb.utils import embedding_functions
 
-
+from feedback import Feedback
 from collection_manager import CollectionManager
 from execute_code import CodeExecutor, ExecutionConfig  
 from exploration import Exploration
@@ -78,7 +78,6 @@ class MainFramework:
         try:
             self.folder_name = self.create_output_folder()
 
-
             chroma_client = chromadb.Client()
             google_ef  = embedding_functions.GoogleGenerativeAiEmbeddingFunction(api_key="AIzaSyClnhvj-6aQdDS2qcheEoep2SiCUXvQz-I")
             sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(
@@ -115,6 +114,13 @@ class MainFramework:
                     number_iteration=i
                 )
                 self.logger.info(f"Iteration {i} result:\n{result}")
+
+                feedback_manager = Feedback(
+                    folder_feedback=self.folder_name,
+                    collection=self.feedback_collection
+                )
+
+                
 
         except Exception as e:
             self.logger.error(f"An error occurred in the main execution: {str(e)}")

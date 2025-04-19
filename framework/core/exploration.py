@@ -6,7 +6,7 @@ from chromadb.api.models.Collection import Collection
 """
 Exploration:  Will create a metaheuristic and search for new creations. After the first iteration it will look on the feedback for inspiration on better 
 metaheuirsics creation. 
-- Will have access to feedback
+- Will have access to feedback: WHOLE RESULTS FOLDER
 - Will get hyperparameters for the refinement 
 """
 

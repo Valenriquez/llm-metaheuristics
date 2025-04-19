@@ -1,9 +1,27 @@
 from dataclasses import dataclass
 import json
+import re
 
 @dataclass
 class Feedback:
-    collection: any   
+    folder_feedback: str
+    collection: any 
+
+    def get_hyperparameters(self, file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                code_file = file.read()
+        except FileNotFoundError:
+            print(f"Error: The file {file_path} was not found.")
+            return None, None
+
+        # Regex patterns
+        hyperparameters_pattern = r"Mejores hiperparámetros encontrados:\n({.*?})"
+ 
+        hyperparameters_match = re.search(hyperparameters_pattern, code_file, re.DOTALL)
+        hyperparameters_dict = eval(hyperparameters_match.group(1)) if hyperparameters_match else None
+
+        return hyperparameters_dict
 
     def store_feedback(self, iteration: int, metaheuristic_code: str, hyperparams: dict, performance: float):
         expected_keys = {
@@ -36,4 +54,4 @@ class Feedback:
                 f"id_performance_found_{iteration}"
             ]
         )
-        print(f"✅ Feedback stored for iteration {iteration}")
+        print(f"Feedback stored for iteration {iteration}")
