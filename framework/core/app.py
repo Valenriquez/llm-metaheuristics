@@ -81,31 +81,25 @@ class MainFramework:
 
             chroma_client = chromadb.Client()
             google_ef  = embedding_functions.GoogleGenerativeAiEmbeddingFunction(api_key="AIzaSyClnhvj-6aQdDS2qcheEoep2SiCUXvQz-I")
-            #sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="BAAI/bge-large-en-v1.5")
             sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(
                 model_name="BAAI/bge-large-en-v1.5"
             )
                         
-            # 2. Create collections
             self.operators_collection = chroma_client.create_collection(name="operators_collection", embedding_function=google_ef)
             self.metaheuristic_template_collection = chroma_client.create_collection(name="metaheuristic_template_collection", embedding_function=google_ef)
             self.feedback_collection = chroma_client.create_collection(name="feedback_collection", embedding_function=sentence_transformer_ef)
             self.optuna_collection = chroma_client.create_collection(name="ioh_optuna_builder", embedding_function=google_ef)
 
-            # 3. Create manager
-
-            # 4. Populate collection
             self.collection_manager.function_create_collection("operatorsData", self.operators_collection, "all-minilm:latest")
  
-           # === Now create executor and exploration instance === 
-            # 5. Setup executor and exploration
+    
             execution_config = ExecutionConfig(output_dir=str(self.folder_name))
             self.executor = CodeExecutor(execution_config)
-
 
             self.exploration_instance = Exploration(
                 problem_id=self.problem_id,
                 dimensions=self.dimensions,
+                num_of_agents= self.num_of_agents, 
                 feedback_collection = self.feedback_collection,
                 operators_collection = self.operators_collection,
                 metaheuristic_template_collection = self.metaheuristic_template_collection
@@ -114,7 +108,6 @@ class MainFramework:
             for i in range(self.number_iteration):
                 self.logger.debug(f"Starting exploration iteration {i}")
 
-                # Assuming this method exists and returns a generated code string
                 generated_code = self.exploration_instance.exploration(i)
 
                 result = self.executor.execute_generated_code(
@@ -130,6 +123,6 @@ class MainFramework:
 
 
 if __name__ == "__main__":
-    generator = MainFramework(9, 3, 25)
+    generator = MainFramework(9, 3, 3)
     generator.run()
     logging.basicConfig(level=logging.DEBUG)
